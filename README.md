@@ -1,0 +1,4 @@
+auxiliary
+=========
+
+Automation framework
