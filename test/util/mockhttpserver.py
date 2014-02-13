@@ -23,11 +23,42 @@ Content-Type: text/html
 <html><body><h1>It works!</h1></body></html>
 '''
 
-def handle_request(request):
-    # print request
+def authenticate(request):
+    if 'Authorization: Basic' in request:
+        print "verify with htdoc"
+        return True
+    return False
+
+def handle_request(cls, request):
+    
+    if 'basic' in cls._MockHTTPServer__authScheme.lower() :
+        if not authenticate(request):
+            return '''
+HTTP/1.1 401
+WWW-Authenticate: Basic realm="aux realm"
+Content-Type: text/xml;charset=utf-8
+Connection: keep-alive
+
+'''
+    
+    if 'SOAPAction' in request:
+        return '''
+HTTP/1.1 200 OK
+Server: nginx/1.5.4
+Date: Wed, 12 Feb 2014 09:58:13 GMT
+Content-Type: text/xml;charset=utf-8
+Content-Length: 4734
+Connection: keep-alive
+Set-Cookie: JSESSIONID=oijoij6E0C7479C4CF531A5842241F47; Path=/; HttpOnly
+X-Request-Received: 1392199092003
+SOAPAction: ""
+
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+<SOAP-ENV:Header/><SOAP-ENV:Body></SOAP-ENV:Body></SOAP-ENV:Envelope>
+'''
     
     if '__GET /basic_authenticated' in request:
-        return '''\
+        return '''
 HTTP/1.1 403 OK
 
 basic auth'''
@@ -45,15 +76,15 @@ class MockHTTPServer(object):
         self.host = '127.0.0.1'
         self.__socket = socket.socket()
         self.__socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-
-
+        self.__authScheme = None
+        
     def start(self):
         self.__socket.bind((self.host, self.port))
         self.__socket.listen(5)
         while True:
             c, addr = self.__socket.accept()
             
-            c.send(handle_request(c.recv(4096)))
+            c.send(handle_request(self, c.recv(4096)))
             c.close()
 
     def start_thread(self):
@@ -65,16 +96,19 @@ class MockHTTPServer(object):
     def stop(self):
         self.p.terminate()
         self.__socket.close()
-    
+
+    def set_authentication(self, authentication):
+        self.__authScheme = authentication
+        
 
 class MockHTTPSServer(MockHTTPServer):
     def __init__(self, port=8443):
         self.parent = super(MockHTTPSServer, self)
         self.parent.__init__(port=port)
         self.__socket = socket.socket()
-
         self.__socket = socket.socket()
         self.__socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+
 
     def start(self):
         self.__socket.bind((self.host, self.port))
@@ -88,7 +122,7 @@ class MockHTTPSServer(MockHTTPServer):
                 keyfile='../data/certs/unit-test.key',
                 ssl_version=ssl.PROTOCOL_TLSv1)
 
-            sock.send(handle_request(sock.read()))
+            sock.send(handle_request(self, sock.read()))
             sock.close()
 
 
@@ -97,4 +131,5 @@ class MockHTTPSServer(MockHTTPServer):
         self.parent.stop()
 
 
-
+    def set_authenticatoin(self, authentication):
+        self.parent.__authScheme = authentication
