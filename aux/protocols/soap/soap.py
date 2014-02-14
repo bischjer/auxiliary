@@ -1,5 +1,5 @@
 from aux.protocols.http.https import HTTPSConnection
-
+from aux.protocols.soap.wsdl import WSDL
 
 class Soap(HTTPSConnection):
 
@@ -7,9 +7,11 @@ class Soap(HTTPSConnection):
         super(Soap, self).__init__(url, port)
         
 
+def create_wsdl(wsdl_string):
+    return WSDL(wsdl_string)
+        
 def connection(url, port):
     return Soap(url, port)
-
 
 
 request = '''
