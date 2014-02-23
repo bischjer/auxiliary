@@ -16,4 +16,6 @@ class SoapObjectTest(TestCase):
 
         wsdl = soap.create_wsdl(wsdl_url)
 
-        wsdl.GetGeoIPCOntext()
+
+        print wsdl.GetGeoIPContext()
+        print wsdl.GetGeoIP()
