@@ -25,15 +25,15 @@ Content-Type: text/html
 
 def authenticate(request):
     if 'Authorization: Basic' in request:
-        print "verify with htdoc"
         return True
     return False
 
 def handle_request(cls, request):
-    
-    if 'basic' in cls._MockHTTPServer__authScheme.lower() :
-        if not authenticate(request):
-            return '''
+
+    if cls._MockHTTPServer__authScheme != None:
+        if 'basic' in cls._MockHTTPServer__authScheme.lower() :
+            if not authenticate(request):
+                return '''
 HTTP/1.1 401
 WWW-Authenticate: Basic realm="aux realm"
 Content-Type: text/xml;charset=utf-8
@@ -71,7 +71,7 @@ basic auth'''
 
 
 class MockHTTPServer(object):
-    def __init__(self, port=8989):
+    def __init__(self, port=8989, verbose=False):
         self.port = port
         self.host = '127.0.0.1'
         self.__socket = socket.socket()

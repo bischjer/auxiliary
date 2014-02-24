@@ -1,4 +1,5 @@
 from unittest2 import TestCase
+from urlparse import urlparse
 from aux.protocols.connection import TCPConnection, UDPConnection
 
 from socket import (AF_INET, SOCK_DGRAM, SOL_SOCKET,
@@ -67,10 +68,10 @@ class TCPConnectionTest(TestCase):
 
     def tearDown(self):
         self.test_server.stop()
-    
-    
+        
     def test_connection(self):
-        conn = TCPConnection("127.0.0.1", port=8989)
+        url = urlparse("tcp://127.0.0.1:8989")
+        conn = TCPConnection(url)
         conn.connect()
         conn.send("hello world: END\n")
         data = conn.recv()
@@ -89,7 +90,8 @@ class UDPConnectionTest(TestCase):
         self.test_server.stop()
 
     def test_connection(self):
-        conn = UDPConnection("127.0.0.1", port=8888)
+        url = urlparse("udp://127.0.0.1:8888")
+        conn = UDPConnection(url)
         conn.connect()
         conn.send("hello world UDP: END\n")
         data = conn.recv()

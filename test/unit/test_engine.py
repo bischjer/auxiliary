@@ -10,7 +10,7 @@ class EngineTest(TestCase):
     def tearDown(self):
         del self.test_engine
     
-    def test_start_stop_engine(self):
+    def xtest_start_stop_engine(self):
         self.assertFalse(self.test_engine.is_running() )
         self.test_engine.start()
         self.assertTrue(self.test_engine.is_running() )

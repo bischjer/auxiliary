@@ -12,7 +12,7 @@ class HTTPSConnectionTest(TestCase):
         self.test_server.stop()
 
     def test_connection_success(self):
-        conn = HTTPSConnection('127.0.0.1', 8443)
+        conn = HTTPSConnection('https://127.0.0.1:8443')
         http_request = '''\
 GET / HTTP/1.1
 Host: a.a.a

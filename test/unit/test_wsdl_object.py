@@ -2,7 +2,7 @@ from unittest2 import TestCase
 from aux.protocols.soap import soap
 
 
-class SoapObjectTest(TestCase):
+class WSDLObjectTest(TestCase):
 
 
     def setUp(self):
@@ -16,6 +16,14 @@ class SoapObjectTest(TestCase):
 
         wsdl = soap.create_wsdl(wsdl_url)
 
+
+        print wsdl.GetGeoIPContext()
+        print wsdl.GetGeoIP()
+
+    def test_create_soap_object_from_http_wsdl(self):
+        wsdl_url = "http://www.webservicex.net/geoipservice.asmx?WSDL"
+
+        wsdl = soap.create_wsdl(wsdl_url)
 
         print wsdl.GetGeoIPContext()
         print wsdl.GetGeoIP()

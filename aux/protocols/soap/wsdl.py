@@ -1,6 +1,7 @@
 from lxml import objectify
 from lxml import etree
-
+from urlparse import urlparse
+from aux.protocols.http import HTTPSConnection, HTTPConnection
 
 class WSDLOperation(object):
     def __init__(self, name, soapAction):
@@ -8,8 +9,8 @@ class WSDLOperation(object):
         self.soapAction = soapAction
 
     def __call__(self):
-        print self.name
-        print self.soapAction
+        # printf self.name
+        # print self.soapAction
         return self.name
         
 
@@ -17,21 +18,30 @@ class WSDL(object):
 
     def __init__(self, wsdl_url):
         #TODO: write stream handler for file or web
-        self.resource = etree.XML(open(wsdl_url).read())
+        self.resource = etree.XML(self.get_wsdl_details(wsdl_url))
         self.tree = etree.ElementTree(self.resource)
         self.operations = dict()
         self.unmarshall_definition()
         
     def __getattr__(self, name):
-        print self.operations
+        # print self.operations
         opfound = self.operations.get(name, None)
         if opfound:
             return opfound
         else:
             raise AttributeError
 
-    def wsdl_call(self, a):
-        pass
+    def get_wsdl_details(self, wsdl_url):
+        url = urlparse(wsdl_url)
+        if "https" == url.scheme:
+            # HTTPSConnection(url.geturl())
+            return "<nothing/>"
+        if "http" == url.scheme:
+            HTTPConnection(url.geturl())
+            return "<nothing/>"
+        print 'local url'
+        return open(wsdl_url).read()
+
         
     def unmarshall_definition(self):
         root = self.tree.getroot()

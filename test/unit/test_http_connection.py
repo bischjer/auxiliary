@@ -14,7 +14,7 @@ class HTTPConnectionTest(TestCase):
 
     
     def test_connection(self):
-        conn = HTTPConnection('127.0.0.1', 8989)
+        conn = HTTPConnection('http://127.0.0.1:8989')
 
         http_request = '''\
 GET / HTTP/1.1
