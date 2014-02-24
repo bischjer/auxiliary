@@ -13,7 +13,7 @@ class HTTPConnection(object):
             l[1] = l[1] + ":80"
             url = urlparse(urlunparse(l))
         print url_path, url
-        self.__conn = TCPConnection(url)
+        self.__conn = TCPConnection(url.hostname, url.port)
         self.__conn.connect()
         # self.port = self.url_path.netloc.split(':')[1]
         # print self.url_path, self.port

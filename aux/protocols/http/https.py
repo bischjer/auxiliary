@@ -12,7 +12,7 @@ class HTTPSConnection(object):
             l = list(url)
             l[1] = l[1] + ":443"
             url = urlparse(urlunparse(l))
-        self.__conn = TLS_TCPConnection(url)
+        self.__conn = TLS_TCPConnection(url.hostname, url.port)
         self.__conn.connect()
     
     def is_persistent(self):

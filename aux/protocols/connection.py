@@ -5,9 +5,8 @@ from ssl import wrap_socket
 
 # From default protocol connection 
 class Connection(object):
-    def __init__(self, url):
-        self.url = url
-        self.addr = (self.url.hostname, int(self.url.port))
+    def __init__(self, hostname, port):
+        self.addr = (hostname, port)
         self.__connection = None
 
     def connect(self):
@@ -18,8 +17,8 @@ class Connection(object):
     
         
 class UDPConnection(Connection):
-    def __init__(self, url):
-        super(UDPConnection, self).__init__(url)
+    def __init__(self, hostname, port):
+        super(UDPConnection, self).__init__(hostname, port)
         self.__connection = socket(AF_INET, SOCK_DGRAM)
 
     def connect(self):
@@ -35,8 +34,8 @@ class UDPConnection(Connection):
         self.__connection.close()
     
 class TCPConnection(Connection):
-    def __init__(self, url):
-        super(TCPConnection, self).__init__(url)
+    def __init__(self, hostname, port):
+        super(TCPConnection, self).__init__(hostname, port)
         self.__connection = socket(AF_INET, SOCK_STREAM)
         self.__connection.setsockopt(SOL_SOCKET,
                                      SO_REUSEADDR,
@@ -56,8 +55,8 @@ class TCPConnection(Connection):
 
 
 class TLS_TCPConnection(TCPConnection):
-    def __init__(self, url):
-        super(TLS_TCPConnection, self).__init__(url)
+    def __init__(self, hostname, port):
+        super(TLS_TCPConnection, self).__init__(hostname, port)
         self.__connection = wrap_socket(socket(AF_INET, SOCK_STREAM))
         self.__connection.setsockopt(SOL_SOCKET,
                                      SO_REUSEADDR,

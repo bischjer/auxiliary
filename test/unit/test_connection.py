@@ -70,8 +70,7 @@ class TCPConnectionTest(TestCase):
         self.test_server.stop()
         
     def test_connection(self):
-        url = urlparse("tcp://127.0.0.1:8989")
-        conn = TCPConnection(url)
+        conn = TCPConnection('127.0.0.1', 8989)
         conn.connect()
         conn.send("hello world: END\n")
         data = conn.recv()
@@ -90,8 +89,7 @@ class UDPConnectionTest(TestCase):
         self.test_server.stop()
 
     def test_connection(self):
-        url = urlparse("udp://127.0.0.1:8888")
-        conn = UDPConnection(url)
+        conn = UDPConnection('127.0.0.1', 8888)
         conn.connect()
         conn.send("hello world UDP: END\n")
         data = conn.recv()
