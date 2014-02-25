@@ -17,7 +17,7 @@ class WSDLOperation(object):
 class WSDL(object):
 
     def __init__(self, wsdl_url):
-        #TODO: write stream handler for file or web
+        self.name = None
         self.resource = etree.XML(self.get_wsdl_details(wsdl_url))
         self.tree = etree.ElementTree(self.resource)
         self.operations = dict()
@@ -34,18 +34,28 @@ class WSDL(object):
     def get_wsdl_details(self, wsdl_url):
         url = urlparse(wsdl_url)
         if "https" == url.scheme:
-            # HTTPSConnection(url.geturl())
+            conn = HTTPSConnection(url.geturl())
+            print "hello"
+            response = conn.send_request()
+            print "hello"
+            print 'nothing', response
             return "<nothing/>"
         if "http" == url.scheme:
-            HTTPConnection(url.geturl())
+            conn = HTTPConnection(url.geturl())
+            response = conn.send_request()
+            print "hello"
+            print 'nothing', response
             return "<nothing/>"
-        print 'local url'
+        # print 'local url'
         return open(wsdl_url).read()
 
         
     def unmarshall_definition(self):
         root = self.tree.getroot()
         for child in root.getchildren():
+            if '{http://schemas.xmlsoap.org/wsdl/}service' == child.tag:
+                print child.attrib
+                self.name = child.attrib.get('name', None)
             if '{http://schemas.xmlsoap.org/wsdl/}binding' == child.tag:
                 for ochild in child.getchildren():
                     if '{http://schemas.xmlsoap.org/wsdl/}operation' == ochild.tag:

@@ -25,5 +25,7 @@ class WSDLObjectTest(TestCase):
 
         wsdl = soap.create_wsdl(wsdl_url)
 
-        print wsdl.GetGeoIPContext()
-        print wsdl.GetGeoIP()
+        # print wsdl.hack()
+        print "Wsdl service name:", wsdl.name
+        #print wsdl.GetGeoIPContext()
+        #print wsdl.GetGeoIP()
