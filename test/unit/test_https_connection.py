@@ -23,6 +23,7 @@ class HTTPSConnectionTest(TestCase):
                                                 'Connection': 'Keep-Alive'
                                                 },
                                     'data': 'fakedata'})
+        #print http_request
         response = conn.send_request(http_request)
         self.assertTrue('It works!' in response)
 

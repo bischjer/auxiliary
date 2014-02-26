@@ -3,7 +3,7 @@ from socket import ( socket, AF_INET, SOCK_DGRAM,
                      SOL_SOCKET, SO_REUSEADDR)
 from ssl import wrap_socket, CERT_NONE
 
-# From default protocol connection 
+
 class Connection(object):
     def __init__(self, hostname, port):
         self.addr = (hostname, port)
@@ -55,9 +55,10 @@ class TCPConnection(Connection):
 
 
 class TLS_TCPConnection(TCPConnection):
-    def __init__(self, hostname, port, timeout=60):
+    def __init__(self, hostname, port, timeout=10):
         super(TLS_TCPConnection, self).__init__(hostname, port)
-        self.__connection = wrap_socket(socket(AF_INET, SOCK_STREAM), cert_reqs=CERT_NONE, do_handshake_on_connect=False)
+        #Should do a better build up of ssl_socket
+        self.__connection = wrap_socket(socket(AF_INET, SOCK_STREAM), cert_reqs=CERT_NONE)
         self.__connection.setsockopt(SOL_SOCKET,
                                      SO_REUSEADDR,
                                      1)

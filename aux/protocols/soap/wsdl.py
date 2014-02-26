@@ -1,7 +1,7 @@
 from lxml import objectify
 from lxml import etree
 from urlparse import urlparse
-from aux.protocols.http import HTTPSConnection, HTTPConnection
+from aux.protocols.http import HTTPSConnection, HTTPConnection, HTTPRequest
 
 class WSDLOperation(object):
     def __init__(self, name, soapAction):
@@ -34,16 +34,20 @@ class WSDL(object):
     def get_wsdl_details(self, wsdl_url):
         url = urlparse(wsdl_url)
         if "https" == url.scheme:
+            request = HTTPRequest({})
+            
             conn = HTTPSConnection(url.geturl())
-            print "hello"
-            response = conn.send_request()
-            print "hello"
+            print "httpshello"
+            response = conn.send_request(request)
+            print "httpshello"
             print 'nothing', response
             return "<nothing/>"
         if "http" == url.scheme:
+            request = HTTPRequest({})
             conn = HTTPConnection(url.geturl())
-            response = conn.send_request()
-            print "hello"
+            print "httphello"
+            response = conn.send_request(request)
+            print "httphello"
             print 'nothing', response
             return "<nothing/>"
         # print 'local url'

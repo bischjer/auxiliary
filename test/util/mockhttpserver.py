@@ -30,6 +30,8 @@ def authenticate(request):
 
 def handle_request(cls, request):
 
+    print request
+    
     if cls._MockHTTPServer__authScheme != None:
         if 'basic' in cls._MockHTTPServer__authScheme.lower() :
             if not authenticate(request):
@@ -40,7 +42,9 @@ Content-Type: text/xml;charset=utf-8
 Connection: keep-alive
 
 '''
-    
+    print request
+
+            
     if 'SOAPAction' in request:
         return '''
 HTTP/1.1 200 OK
@@ -133,3 +137,39 @@ class MockHTTPSServer(MockHTTPServer):
 
     def set_authenticatoin(self, authentication):
         self.parent.__authScheme = authentication
+
+
+# class MockHTTPSWSDLServer(object):
+#     def __init__(self, port=8443):
+#         self.parent = super(MockHTTPSServer, self)
+#         self.parent.__init__(port=port)
+#         self.__socket = socket.socket()
+#         self.__socket = socket.socket()
+#         self.__socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+
+
+#     def start(self):
+#         self.__socket.bind((self.host, self.port))
+#         self.__socket.listen(5)
+#         while True:
+#             ssl_sock, addr = self.__socket.accept()
+#             sock = wrap_socket(
+#                 ssl_sock,
+#                 server_side=True,
+#                 certfile='../data/certs/unit-test.crt',
+#                 keyfile='../data/certs/unit-test.key',
+#                 ssl_version=ssl.PROTOCOL_TLSv1)
+
+#             sock.send(handle_request(self, sock.read()))
+#             sock.close()
+
+
+#     def stop(self):
+#         self.__socket.shutdown(SHUT_RDWR)
+#         self.parent.stop()
+
+
+#     def set_authenticatoin(self, authentication):
+#         self.parent.__authScheme = authentication
+
+    
