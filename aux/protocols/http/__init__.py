@@ -9,19 +9,16 @@ class HTTPRequest(object):
         self.method = request_data.get('method', 'Get').upper()
         self.headers = request_data.get('headers', {})
         self.data = request_data.get('data', None)
-
+        self.path = None
 
     def __str__(self):
-        # POST /cxtender-web/sms/incoming HTTP/1.1
-        return "%s %s HTTP/1.1 \n%s\n\n%s" % (self.method,
-                                              "/cxtender-web/sms/incoming",
-                                              "\n".join([":".join(item) for item in self.headers.items()]),
+        self.headers['Content-Length'] = str(len(self.data))
+        return "%s %s HTTP/1.1\n%s\n\n%s" % (self.method,
+                                              self.path,
+                                              "\n".join([": ".join(item) for item in self.headers.items()]),
                                               self.data)
-   
 
 
-        
-        
 class HTTPResponse(object):
     def __init__(self, response_data):
         pass

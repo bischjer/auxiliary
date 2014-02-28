@@ -55,9 +55,10 @@ class TCPConnection(Connection):
 
 
 class TLS_TCPConnection(TCPConnection):
+    #TODO: This should just be a wrapper 
     def __init__(self, hostname, port, timeout=10):
         super(TLS_TCPConnection, self).__init__(hostname, port)
-        #Should do a better build up of ssl_socket
+        #TODO: Should do a better build up of ssl_socket
         self.__connection = wrap_socket(socket(AF_INET, SOCK_STREAM), cert_reqs=CERT_NONE)
         self.__connection.setsockopt(SOL_SOCKET,
                                      SO_REUSEADDR,

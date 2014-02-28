@@ -11,12 +11,13 @@ class HTTPConnection(object):
             l = list(self.url)
             l[1] = l[1] + ":80"
             self.url = urlparse(urlunparse(l))
+        print self.url
+        print self.url.hostname, self.url.port
         self.__conn = TCPConnection(self.url.hostname, self.url.port)
         self.__conn.connect()
     
     def is_persistent(self):
         return self.__is_persistent
-        
 
     def send_request(self, request):
         request.target = self.url.hostname
