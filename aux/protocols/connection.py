@@ -28,7 +28,7 @@ class UDPConnection(Connection):
         self.__connection.sendto(message, self.addr)
 
     def recv(self):
-        return self.__connection.recv(2048)
+        return self.__connection.recv()
 
     def close(self):
         self.__connection.close()
@@ -48,7 +48,7 @@ class TCPConnection(Connection):
         self.__connection.sendto(message, self.addr)
 
     def recv(self):
-        return self.__connection.recv(2048)
+        return self.__connection.recv()
 
     def close(self):
         self.__connection.close()

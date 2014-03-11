@@ -1,7 +1,7 @@
 from lxml import objectify
 from lxml import etree
 from urlparse import urlparse
-from aux.protocols.http import HTTPSConnection, HTTPConnection, HTTPRequest
+from aux.protocols.http import HTTPSConnection, HTTPConnection, HTTPRequest, HTTPResponse
 
 class WSDLOperation(object):
     def __init__(self, name, soapAction):
@@ -17,6 +17,8 @@ class WSDLOperation(object):
 class WSDL(object):
 
     def __init__(self, wsdl_url):
+        self.url = wsdl_url
+        print urlparse(self.url)
         self.name = None
         self.resource = etree.XML(self.get_wsdl_details(wsdl_url))
         self.tree = etree.ElementTree(self.resource)
@@ -33,32 +35,28 @@ class WSDL(object):
 
     def get_wsdl_details(self, wsdl_url):
         url = urlparse(wsdl_url)
+        request = HTTPRequest({'method':'GET',
+                               'headers': {},
+                               'data':''})
+        request.path = url.path+"?"+url.query
+        
         if "https" == url.scheme:
-            request = HTTPRequest({})
-            
             conn = HTTPSConnection(url.geturl())
-            print "httpshello"
-            response = conn.send_request(request)
-            print "httpshello"
-            print 'nothing', response
-            return "<nothing/>"
+            response = HTTPResponse( conn.send_request(request) )
+            return response.body
         if "http" == url.scheme:
-            request = HTTPRequest({})
             conn = HTTPConnection(url.geturl())
-            print "httphello"
-            response = conn.send_request(request)
-            print "httphello"
-            print 'nothing', response
-            return "<nothing/>"
-        # print 'local url'
+            response = HTTPResponse( conn.send_request(request) )
+            return response.body
         return open(wsdl_url).read()
 
         
     def unmarshall_definition(self):
         root = self.tree.getroot()
+        print etree.tostring(root)
         for child in root.getchildren():
             if '{http://schemas.xmlsoap.org/wsdl/}service' == child.tag:
-                print child.attrib
+                print ':::::', child.attrib.get('name', None)
                 self.name = child.attrib.get('name', None)
             if '{http://schemas.xmlsoap.org/wsdl/}binding' == child.tag:
                 for ochild in child.getchildren():
