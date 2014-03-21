@@ -8,15 +8,15 @@ class HTTPRequest(object):
         self.target = None
         self.method = request_data.get('method', 'Get').upper()
         self.headers = request_data.get('headers', {})
-        self.data = request_data.get('data', '')
+        self.body = request_data.get('body', '')
         self.path = None
 
     def __str__(self):
-        self.headers['Content-Length'] = str(len(self.data))
+        self.headers['Content-Length'] = str(len(self.body))
         return "%s %s HTTP/1.1\n%s\n\n%s" % (self.method,
                                               self.path,
                                               "\n".join([": ".join(item) for item in self.headers.items()]),
-                                              self.data)
+                                              self.body)
 
 
 class HTTPResponse(object):

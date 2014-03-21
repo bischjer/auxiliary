@@ -133,7 +133,6 @@ class MockHTTPSServer(MockHTTPServer):
                 certfile='../data/certs/unit-test.crt',
                 keyfile='../data/certs/unit-test.key',
                 ssl_version=ssl.PROTOCOL_TLSv1)
-
             sock.send(handle_request(self, sock.read()))
             sock.close()
 
