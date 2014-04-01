@@ -1,5 +1,5 @@
 from unittest2 import TestCase
-from aux.protocols.soap import soap
+from aux.protocols.soap import create_wsdl
 from ..util.mockhttpserver import MockHTTPSServer
 
 class WSDLObjectTest(TestCase):
@@ -13,16 +13,14 @@ class WSDLObjectTest(TestCase):
 
     def xtest_create_soap_object_from_wsdl(self):
         wsdl_url = "../data/geoipservice.asmx?WSDL"
-
-        wsdl = soap.create_wsdl(wsdl_url)
-
+        wsdl = create_wsdl(wsdl_url)
 
         # print wsdl.GeoIPContext()
         print wsdl.GetGeoIP()
  
     def test_create_soap_object_from_https_wsdl(self):
         wsdl_url = "https://127.0.0.1:8443/geoipservice.asmx?WSDL"
-        wsdl = soap.create_wsdl(wsdl_url)
+        wsdl = create_wsdl(wsdl_url)
 
         print "Wsdl service name:", wsdl.name
         #print wsdl.GetGeoIPContext()

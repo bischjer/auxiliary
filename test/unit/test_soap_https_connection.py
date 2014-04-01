@@ -1,5 +1,5 @@
 from unittest2 import TestCase
-from aux.protocols.soap import soap
+from aux.protocols import soap
 from aux.protocols.http import HTTPRequest
 from ..util.mockhttpserver import MockHTTPSServer
 

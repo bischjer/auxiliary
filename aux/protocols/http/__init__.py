@@ -40,10 +40,12 @@ class HTTPResponse(object):
                 self.body = self.body+"\n"+line
             else:
                 self.headers = self.headers+"\n"+line
-        
-        print self.version, self.code
-        print self.headers
-        print self.body
+
+        self.body = self.body.strip()
+                
+        # print self.version, self.code
+        # print self.headers
+        # print self.body
 
 
 

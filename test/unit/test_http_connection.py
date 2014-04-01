@@ -32,4 +32,7 @@ class HTTPConnectionTest(TestCase):
         self.assertTrue('<html>' in response)
 
         
-        
+    def test_handle_long_response(self):
+        conn = HTTPConnection('http://127.0.0.1:8989')
+
+        #create a test mock handler http in backend

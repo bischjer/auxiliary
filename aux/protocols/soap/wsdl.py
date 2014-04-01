@@ -18,9 +18,11 @@ class WSDL(object):
 
     def __init__(self, wsdl_url):
         self.url = wsdl_url
-        print urlparse(self.url)
+        # print urlparse(self.url)
         self.name = None
-        self.resource = etree.XML(self.get_wsdl_details(wsdl_url))
+        details = self.get_wsdl_details(wsdl_url)
+        print "[%s]" % details
+        self.resource = etree.XML(details)
         self.tree = etree.ElementTree(self.resource)
         self.operations = dict()
         self.unmarshall_definition()
