@@ -5,6 +5,8 @@ from ssl import wrap_socket
 import ssl
 import socket
 import time
+from aux.protocols.http import HTTPResponse
+# from werkzeug import Response
 
 #TODO: This server needs to be written using aux itself, listening service.
 #but this is not implemented yet.
@@ -23,38 +25,41 @@ Content-Type: text/html
 <html><body><h1>It works!</h1></body></html>
 '''
 
-def authenticate(request):
-    if 'Authorization: Basic' in request:
-        return True
-    return False
+# def handle_request(cls, request):
+#     # print request
+#     if cls._MockHTTPServer__authScheme != None:
+#         if 'basic' in cls._MockHTTPServer__authScheme.lower() :
+#             if not authenticate(request):
+#                 return '''
+# HTTP/1.1 401
+# WWW-Authenticate: Basic realm="aux realm"
+# Content-Type: text/xml;charset=utf-8
+# Connection: keep-alive
 
-def handle_request(cls, request):
+# '''
+#     if '__GET /basic_authenticated' in request:
+#         return '''
+# HTTP/1.1 403 OK
 
-    # print request
-    
-    if cls._MockHTTPServer__authScheme != None:
-        if 'basic' in cls._MockHTTPServer__authScheme.lower() :
-            if not authenticate(request):
-                return '''
-HTTP/1.1 401
-WWW-Authenticate: Basic realm="aux realm"
-Content-Type: text/xml;charset=utf-8
-Connection: keep-alive
+# basic auth'''
+# #         https_response = '''\
+# # HTTP/1.1 401
+# # WWW-Authenticate: Basic realm="AUX-test"
+# # '''
+#     return http_response
 
-'''
-    if 'WSDL' in request:
-        fake_wsdl_data = open("../data/geoipservice.asmx?WSDL").read()
-        
-        return """HTTP/1.1 200 OK
+def wsdl_app(environ, start_response):
+    fake_wsdl_data = open("../data/geoipservice.asmx?WSDL").read()
+    return """HTTP/1.1 200 OK
 Server: mockhttpserver/1.5.4
 Date: Mon, 10 Mar 2014 14:38:44 GMT
 Content-Type: text/xml
 Content-Length: %i
 Transfer-Encoding: chunked
 Connection: keep-alive\n\n%s""" % (len(fake_wsdl_data), fake_wsdl_data)
-    
-    if 'SOAPAction' in request:
-        return '''
+
+def soap_app(environ, start_response):
+    return'''
 HTTP/1.1 200 OK
 Server: nginx/1.5.4'
 Date: Wed, 12 Feb 2014 09:58:13 GMT
@@ -68,19 +73,37 @@ SOAPAction: ""
 <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
 <SOAP-ENV:Header/><SOAP-ENV:Body></SOAP-ENV:Body></SOAP-ENV:Envelope>
 '''
-    
-    if '__GET /basic_authenticated' in request:
-        return '''
-HTTP/1.1 403 OK
 
-basic auth'''
-#         https_response = '''\
-# HTTP/1.1 401
-# WWW-Authenticate: Basic realm="AUX-test"
-# '''
-    
-    return http_response
+def authenticator_app(environ, start_response):
+    if 'Authorization: Basic' in environ.get('request', None):
+        return True
+    return False
 
+def application(environ, start_response):
+    # if not authenticator_app(environ, start_response):
+    #     return "HTTP/1.1 403\n\n"
+    # if 'WSDL' in environ.get('request', None):
+    #     return wsdl_app(environ, start_response)
+    
+    # if 'SOAPAction' in environ.get('request', None):
+    #     return soap_app(environ, start_response)
+    return http_response#"HTTP/1.1 404\n\n"
+
+def call_application(app, environ):
+    body = []
+    status_headers = [None, None]
+    def start_response(status, headers):
+        status_headers[:] = [status, headers]
+        return body.append(status_headers)
+    app_iter = app(environ, start_response)
+    try:
+        for item in app_iter:
+            body.append(item)
+    finally:
+        if hasattr(app_iter, 'close'):
+            app_iter.close()
+    return status_headers[0], status_headers[1], ''.join(body)
+ 
 
 class MockHTTPServer(object):
     def __init__(self, port=8989, verbose=False):
@@ -95,8 +118,9 @@ class MockHTTPServer(object):
         self.__socket.listen(5)
         while True:
             c, addr = self.__socket.accept()
-            
-            c.send(handle_request(self, c.recv(4096)))
+            response = call_application(application,
+                                        {'request': c.recv(4096)})
+            c.send(response[2])
             c.close()
 
     def start_thread(self):
@@ -133,7 +157,9 @@ class MockHTTPSServer(MockHTTPServer):
                 certfile='../data/certs/unit-test.crt',
                 keyfile='../data/certs/unit-test.key',
                 ssl_version=ssl.PROTOCOL_TLSv1)
-            sock.send(handle_request(self, sock.read()))
+            response = call_application(application,
+                                        {'request': sock.read()})
+            sock.send(response)
             sock.close()
 
 

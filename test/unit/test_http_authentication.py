@@ -31,7 +31,7 @@ class HTTPAuthenticationTest(TestCase):
                                     'body': 'fakedata'})
         print http_request
         response = conn.send_request(http_request)
-        print response
+        print 'response', response
         self.assertTrue('200 OK' in response)
         self.assertTrue('<html>' in response)
 
