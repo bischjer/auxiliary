@@ -75,6 +75,8 @@ SOAPAction: ""
 '''
 
 def authenticator_app(environ, start_response):
+    if environ.get('authScheme', None) == None:
+        return True
     if 'Authorization: Basic' in environ.get('request', None):
         return True
     return False
@@ -82,12 +84,12 @@ def authenticator_app(environ, start_response):
 def application(environ, start_response):
     # if not authenticator_app(environ, start_response):
     #     return "HTTP/1.1 403\n\n"
-    # if 'WSDL' in environ.get('request', None):
-    #     return wsdl_app(environ, start_response)
+    if 'WSDL' in environ.get('request', None):
+        return wsdl_app(environ, start_response)
     
-    # if 'SOAPAction' in environ.get('request', None):
-    #     return soap_app(environ, start_response)
-    return http_response#"HTTP/1.1 404\n\n"
+    if 'SOAPAction' in environ.get('request', None):
+        return soap_app(environ, start_response)
+    return "HTTP/1.1 404\n\n"
 
 def call_application(app, environ):
     body = []
@@ -119,7 +121,8 @@ class MockHTTPServer(object):
         while True:
             c, addr = self.__socket.accept()
             response = call_application(application,
-                                        {'request': c.recv(4096)})
+                                        {'request': c.recv(4096),
+                                         'authScheme': self.__authScheme})
             c.send(response[2])
             c.close()
 
@@ -144,7 +147,7 @@ class MockHTTPSServer(MockHTTPServer):
         self.__socket = socket.socket()
         self.__socket = socket.socket()
         self.__socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-
+        self.__authScheme = None
 
     def start(self):
         self.__socket.bind((self.host, self.port))
@@ -158,8 +161,9 @@ class MockHTTPSServer(MockHTTPServer):
                 keyfile='../data/certs/unit-test.key',
                 ssl_version=ssl.PROTOCOL_TLSv1)
             response = call_application(application,
-                                        {'request': sock.read()})
-            sock.send(response)
+                                        {'request': sock.read(),
+                                         'authScheme': self.__authScheme})
+            sock.send(response[2])
             sock.close()
 
 
