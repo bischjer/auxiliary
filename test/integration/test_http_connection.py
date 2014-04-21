@@ -23,11 +23,13 @@ class HTTPConnectionTest(TestCase):
                                                 'Accept-Language': 'en-US,en-q=0.5',
                                                 'Referer': 'http://abc.abc',
                                                 'Cache-Control': 'max-stale=0',
-                                                'Connection': 'Keep-Alive'                     
+                                                'Connection': 'Keep-Alive',
+                                                'Test-Controller': 'short_http_response'
                                                 },
                                     'data': 'fakedata'})
         
         response = conn.send_request(http_request)
+        print response
         self.assertTrue('200 OK' in response)
         self.assertTrue('<html>' in response)
 
@@ -35,4 +37,12 @@ class HTTPConnectionTest(TestCase):
     def test_handle_long_response(self):
         conn = HTTPConnection('http://127.0.0.1:8989')
 
+        http_request = HTTPRequest({'method':'GET',
+                                    'headers': {'Host': 'a.a.a',
+                                                'User-Agent': 'Aux/0.1 (X11; Ubuntu; Linux x86_64; rv:24.0)',
+                                                'Connection': 'Keep-Alive',
+                                                'Test-Controller': 'long_http_response'
+                                                },
+                                    'data': 'fakedata'})
+        
         #create a test mock handler http in backend

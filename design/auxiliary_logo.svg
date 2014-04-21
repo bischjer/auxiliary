@@ -349,7 +349,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="0.60632098"
      inkscape:cx="-158.29554"
-     inkscape:cy="479.30032"
+     inkscape:cy="382.63905"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -701,14 +701,6 @@
          x="264.58286"
          y="944.86639">Auxiliary</tspan></text>
     <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:none"
-       id="rect4111"
-       width="529.42255"
-       height="476.64523"
-       x="112.15182"
-       y="29.801493"
-       ry="31.41836" />
-    <rect
        style="fill:none;stroke:#000100;stroke-width:1.97599995;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="rect13041-2"
        width="365.88272"
@@ -774,6 +766,114 @@
          id="tspan13159-3"
          x="275.01694"
          y="488.28537"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Streetvertising;-inkscape-font-specification:Streetvertising Bold">Auxiliary</tspan></text>
+    <rect
+       style="fill:#ffffff;stroke:#000100;stroke-width:1.97599995000000006;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect13041-2-6"
+       width="365.88272"
+       height="363.40216"
+       x="-474.86594"
+       y="725.52344"
+       ry="31.41836"
+       inkscape:export-filename="/home/bischjer/workspace/auxiliary_mainline/auxiliary-icon.png"
+       inkscape:export-xdpi="31.32"
+       inkscape:export-ydpi="31.32" />
+    <g
+       id="g13171-2-9"
+       transform="matrix(1.3749407,0,0,1.3749407,273.13837,616.84179)"
+       inkscape:export-filename="/home/bischjer/workspace/auxiliary_mainline/auxiliary-icon.png"
+       inkscape:export-xdpi="31.32"
+       inkscape:export-ydpi="31.32">
+      <path
+         id="text12051-6-35-2-5-5-0-4"
+         d="m -429.5504,95.508727 -65.49947,49.720033 28.43522,0 20.03785,-15.28037 -7.76032,-6.14155 15.63648,0 0.11579,0.0587 27.04532,-20.62853 26.81367,20.56977 15.40482,0 -7.58659,5.99461 20.09578,15.42732 28.3194,0 -64.39913,-49.514359 c -5.28554,0.343277 -10.92295,0.528953 -16.91057,0.528953 -7.07656,0 -13.64552,-0.258558 -19.74829,-0.73464 z"
+         style="font-size:72px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#666666;fill-opacity:1;stroke:none;font-family:Sans"
+         inkscape:connector-curvature="0" />
+      <g
+         id="text12026-0-2-2-1-5-3-2-5-2"
+         style="font-size:6.66051292px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         transform="matrix(1.9617699,0,0,1.7506621,210.96613,-821.84349)">
+        <path
+           sodipodi:nodetypes="ccscscsccscscsc"
+           inkscape:connector-curvature="0"
+           id="path12912-4-2-0-6-5-6"
+           style="font-size:138.76068115px"
+           d="m -359.93766,554.43563 13.75411,0 3.77865,61.4531 c 0.665,10.81507 1.96484,18.65502 5.89461,23.44297 3.92972,4.7428 10.29861,7.1142 19.1067,7.11419 8.76282,1e-5 15.10913,-2.37139 19.03894,-7.11419 3.92967,-4.78795 5.89454,-12.60226 5.89462,-23.44297 l 3.77865,-61.4531 13.75411,0 -3.77865,63.14695 c -0.78748,13.15997 -3.27487,23.14938 -9.82436,29.87962 -6.50448,6.73026 -16.12558,10.09538 -28.86331,10.09539 -12.783,-10e-6 -22.44927,-3.36513 -28.99881,-10.09539 -6.50443,-6.73024 -8.96913,-16.71965 -9.75661,-29.87962 l -3.77865,-63.14695" />
+      </g>
+      <path
+         transform="matrix(1.2365846,1.0021976,-0.93955354,1.3190329,801.18347,-278.50559)"
+         inkscape:transform-center-y="-2.2166142"
+         inkscape:transform-center-x="-1.301141"
+         d="m -446.3458,703.83814 -8.77866,27.07916 -1.44729,-28.42976 -27.07916,-8.77866 28.42976,-1.44728 8.77865,-27.07916 1.44729,28.42975 27.07916,8.77866 z"
+         inkscape:randomized="0"
+         inkscape:rounded="0"
+         inkscape:flatsided="false"
+         sodipodi:arg2="1.7021118"
+         sodipodi:arg1="0.9167136"
+         sodipodi:r2="33.152859"
+         sodipodi:r1="7.2936292"
+         sodipodi:cy="698.04987"
+         sodipodi:cx="-450.78348"
+         sodipodi:sides="4"
+         id="path12958-1-5-9-1-9-5"
+         style="fill:#000000;stroke:#000100;stroke-width:1.97599995;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         sodipodi:type="star" />
+    </g>
+    <g
+       id="g13171-2-90"
+       transform="matrix(1.3749407,0,0,1.3749407,-234.84336,575.05617)"
+       inkscape:export-filename="/home/bischjer/workspace/auxiliary_mainline/auxiliary.png"
+       inkscape:export-xdpi="118.82117"
+       inkscape:export-ydpi="118.82117">
+      <path
+         id="text12051-6-35-2-5-5-0-6"
+         d="m -429.5504,95.508727 -65.49947,49.720033 28.43522,0 20.03785,-15.28037 -7.76032,-6.14155 15.63648,0 0.11579,0.0587 27.04532,-20.62853 26.81367,20.56977 15.40482,0 -7.58659,5.99461 20.09578,15.42732 28.3194,0 -64.39913,-49.514359 c -5.28554,0.343277 -10.92295,0.528953 -16.91057,0.528953 -7.07656,0 -13.64552,-0.258558 -19.74829,-0.73464 z"
+         style="font-size:72px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#666666;fill-opacity:1;stroke:none;font-family:Sans"
+         inkscape:connector-curvature="0" />
+      <g
+         id="text12026-0-2-2-1-5-3-2-5-9"
+         style="font-size:6.66051292px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         transform="matrix(1.9617699,0,0,1.7506621,210.96613,-821.84349)">
+        <path
+           sodipodi:nodetypes="ccscscsccscscsc"
+           inkscape:connector-curvature="0"
+           id="path12912-4-2-0-6-5-3"
+           style="font-size:138.76068115px"
+           d="m -359.93766,554.43563 13.75411,0 3.77865,61.4531 c 0.665,10.81507 1.96484,18.65502 5.89461,23.44297 3.92972,4.7428 10.29861,7.1142 19.1067,7.11419 8.76282,1e-5 15.10913,-2.37139 19.03894,-7.11419 3.92967,-4.78795 5.89454,-12.60226 5.89462,-23.44297 l 3.77865,-61.4531 13.75411,0 -3.77865,63.14695 c -0.78748,13.15997 -3.27487,23.14938 -9.82436,29.87962 -6.50448,6.73026 -16.12558,10.09538 -28.86331,10.09539 -12.783,-10e-6 -22.44927,-3.36513 -28.99881,-10.09539 -6.50443,-6.73024 -8.96913,-16.71965 -9.75661,-29.87962 l -3.77865,-63.14695" />
+      </g>
+      <path
+         transform="matrix(1.2365846,1.0021976,-0.93955354,1.3190329,801.18347,-278.50559)"
+         inkscape:transform-center-y="-2.2166142"
+         inkscape:transform-center-x="-1.301141"
+         d="m -446.3458,703.83814 -8.77866,27.07916 -1.44729,-28.42976 -27.07916,-8.77866 28.42976,-1.44728 8.77865,-27.07916 1.44729,28.42975 27.07916,8.77866 z"
+         inkscape:randomized="0"
+         inkscape:rounded="0"
+         inkscape:flatsided="false"
+         sodipodi:arg2="1.7021118"
+         sodipodi:arg1="0.9167136"
+         sodipodi:r2="33.152859"
+         sodipodi:r1="7.2936292"
+         sodipodi:cy="698.04987"
+         sodipodi:cx="-450.78348"
+         sodipodi:sides="4"
+         id="path12958-1-5-9-1-9-2"
+         style="fill:#000000;stroke:#000100;stroke-width:1.97599995;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         sodipodi:type="star" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:48px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Streetvertising;-inkscape-font-specification:Streetvertising Bold"
+       x="-901.34912"
+       y="1092.844"
+       id="text13157-0-8"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/bischjer/workspace/auxiliary_mainline/auxiliary.png"
+       inkscape:export-xdpi="118.82117"
+       inkscape:export-ydpi="118.82117"><tspan
+         sodipodi:role="line"
+         id="tspan13159-3-2"
+         x="-901.34912"
+         y="1092.844"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Streetvertising;-inkscape-font-specification:Streetvertising Bold">Auxiliary</tspan></text>
   </g>
 </svg>

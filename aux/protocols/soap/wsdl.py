@@ -16,13 +16,17 @@ class WSDLOperation(object):
 
 class WSDL(object):
 
-    def __init__(self, wsdl_url):
-        self.url = wsdl_url
+    def __init__(self, wsdl_url=None, wsdl_data=None):
+
+        if wsdl_url:
+            self.url = wsdl_url
+            wsdl_data = self.get_wsdl_details(self.url)
+        
         # print urlparse(self.url)
         self.name = None
-        details = self.get_wsdl_details(wsdl_url)
-        print "[%s]" % details
-        self.resource = etree.XML(details)
+
+        print "[%s]" % wsdl_data
+        self.resource = etree.XML(wsdl_data)
         self.tree = etree.ElementTree(self.resource)
         self.operations = dict()
         self.unmarshall_definition()
