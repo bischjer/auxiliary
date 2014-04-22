@@ -9,7 +9,7 @@ modules = ['',]
 def cleanpyc():
     print "Number of .pyc files we found was: %s" % local('find . -iname \'*.pyc\' | wc -l')
     local('find . -iname \'*.pyc\' -delete', capture=False)
-    local("find . -name 'tnglogs' -prune -exec rm -r '{}' \;", capture=False) 
+    local("find . -name 'logs' -prune -exec rm -r '{}' \;", capture=False) 
 
 def todo():
     local('grep -ir "TODO:" %s' % this_directory)

@@ -1,5 +1,9 @@
 import sys
+import device
+import plugin
 from optparse import OptionParser 
+
+
 
 def script_runner():
     #read config file
@@ -7,7 +11,6 @@ def script_runner():
 proxy: localhost:5791
 log_directory: logs/
 """
-    
     
     #initiate backend
     #initiate logger
@@ -30,3 +33,8 @@ log_directory: logs/
     (options, args) = parser.parse_args()
     print options, args
                       
+
+
+__all__ = ['device',
+           'plugin',
+           'script_runner']
