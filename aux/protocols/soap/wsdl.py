@@ -3,6 +3,26 @@ from lxml import etree
 from urlparse import urlparse
 from aux.protocols.http import HTTPSConnection, HTTPConnection, HTTPRequest, HTTPResponse
 
+
+class WSDLPort(object):
+    def __init__(self, name, binding, extensibility=None):
+        self.name = name
+        self.binding = binding
+        self.extensibility = extensibility
+
+class WSDLElement(object):
+    #WIKI: XML Element SimpleType|ComplexType
+    name = None
+        
+class WSDLTypes(object):
+    #<xs:import schemaLocation="TicketAgent.xsd" namespace="http://example.org/TicketAgent.xsd" />
+    #<schema targetNamespace="http://example.com/stockquote.xsd" xmlns="http://www.w3.org/2000/10/XMLSchema">
+    pass
+    
+class WSDLMessage(object):
+    name = None
+    part = None
+
 class WSDLOperation(object):
     def __init__(self, name, soapAction):
         self.name = name
@@ -12,27 +32,48 @@ class WSDLOperation(object):
         # printf self.name
         # print self.soapAction
         return self.name
-        
 
+class WSDLBinding(object):
+    def __init__(self, name, _type):
+        self.name = name
+        self.type = _type
+        #TODO: impl soap stuff
+        self.soap_binding = None
+        self.soap_operation = None
+        self.soap_body = None
+        
+class WSDLInterface(object):
+    #WIKI: Also reads as PortType in old definition
+    name = None
+    operations = list()
+
+class WSDLService(object):
+    documentation = None
+    ports = list()
+    
+    
 class WSDL(object):
 
     def __init__(self, wsdl_url=None, wsdl_data=None):
-
+        
         if wsdl_url:
             self.url = wsdl_url
             wsdl_data = self.get_wsdl_details(self.url)
-        
-        # print urlparse(self.url)
-        self.name = None
 
-        print "[%s]" % wsdl_data
+        # print "[%s]" % wsdl_data
+        # print urlparse(self.url)            
+
+        #WIKI: descriptions is sometimes defined as definitions.
+        self.name = None
+        self.operations = list()
+        self.interfaces = list()
+        self.services = list()
+        
         self.resource = etree.XML(wsdl_data)
-        self.tree = etree.ElementTree(self.resource)
-        self.operations = dict()
-        self.unmarshall_definition()
+        self.unmarshall_definition(self.resource)
+
         
     def __getattr__(self, name):
-        # print self.operations
         opfound = self.operations.get(name, None)
         if opfound:
             return opfound
@@ -57,24 +98,32 @@ class WSDL(object):
         return open(wsdl_url).read()
 
         
-    def unmarshall_definition(self):
+    def unmarshall_definition(self, resource):
+        self.tree = etree.ElementTree(resource)
         root = self.tree.getroot()
-        print etree.tostring(root)
-        for child in root.getchildren():
-            if '{http://schemas.xmlsoap.org/wsdl/}service' == child.tag:
-                print ':::::', child.attrib.get('name', None)
-                self.name = child.attrib.get('name', None)
-            if '{http://schemas.xmlsoap.org/wsdl/}binding' == child.tag:
-                for ochild in child.getchildren():
-                    if '{http://schemas.xmlsoap.org/wsdl/}operation' == ochild.tag:
-                        operationName = ochild.attrib.get('name', None)
-                        for l3ch in ochild.getchildren():
-                            if '{http://schemas.xmlsoap.org/wsdl/soap/}operation' == l3ch.tag:
-                                soapAction = l3ch.attrib.get('soapAction', None)
-                                if soapAction:
-                                    # self.operations[operationName] = lambda: soapAction
-                                    self.operations[operationName] = WSDLOperation(operationName,
-                                                                                   soapAction)
+        # print etree.tostring(root)
+        print root.tag
+        if "descriptions" in root.tag.lower():
+            self.name = root.attrib.get('name', None)
+        print dir(root)
+        print root.get("service")
+        print root.find("service")
+            
+        # for child in root.getchildren():
+        #     if '{http://schemas.xmlsoap.org/wsdl/}service' == child.tag:
+        #         print ':::::', child.attrib.get('name', None)
+        #         # self.name = child.attrib.get('name', None)
+        #     if '{http://schemas.xmlsoap.org/wsdl/}binding' == child.tag:
+        #         for ochild in child.getchildren():
+        #             if '{http://schemas.xmlsoap.org/wsdl/}operation' == ochild.tag:
+        #                 operationName = ochild.attrib.get('name', None)
+        #                 for l3ch in ochild.getchildren():
+        #                     if '{http://schemas.xmlsoap.org/wsdl/soap/}operation' == l3ch.tag:
+        #                         soapAction = l3ch.attrib.get('soapAction', None)
+        #                         if soapAction:
+        #                             # self.operations[operationName] = lambda: soapAction
+        #                             self.operations[operationName] = WSDLOperation(operationName,
+        #                                                                            soapAction)
 
         # print dir(child)
         # print etree.tostring(tree)
@@ -85,30 +134,3 @@ class WSDL(object):
         # print wsdl_obj.find('binding')
         # print objectify.dump(wsdl_obj)
         
-"""        
-<wsdl:binding name="GeoIPServiceSoap" type="tns:GeoIPServiceSoap"><soap:binding transport="http://schemas.xmlsoap.org/soap/http"/><wsdl:operation name="GetGeoIP"><soap:operation soapAction="http://www.webservicex.net/GetGeoIP" style="document"/><wsdl:input><soap:body use="literal"/></wsdl:input><wsdl:output><soap:body use="literal"/></wsdl:output></wsdl:operation><wsdl:operation name="GetGeoIPContext"><soap:operation soapAction="http://www.webservicex.net/GetGeoIPContext" style="document"/><wsdl:input><soap:body use="literal"/></wsdl:input><wsdl:output><soap:body use="literal"/></wsdl:output></wsdl:operation></wsdl:binding>
-"""
-
-
-"""
-<wsdl:binding name="GeoIPServiceSoap12" type="tns:GeoIPServiceSoap">
-<soap12:binding transport="http://schemas.xmlsoap.org/soap/http"/>
-<wsdl:operation name="GetGeoIP">
-<soap12:operation soapAction="http://www.webservicex.net/GetGeoIP" style="document"/>
-<wsdl:input>
-<soap12:body use="literal"/>
-</wsdl:input>
-<wsdl:output>
-<soap12:body use="literal"/>
-</wsdl:output></wsdl:operation>
-<wsdl:operation name="GetGeoIPContext">
-  <soap12:operation soapAction="http://www.webservicex.net/GetGeoIPContext" style="document"/>
-  <wsdl:input>
-    <soap12:body use="literal"/>
-  </wsdl:input>
-  <wsdl:output>
-    <soap12:body use="literal"/>
-  </wsdl:output>
-</wsdl:operation>
-</wsdl:binding>
-"""
