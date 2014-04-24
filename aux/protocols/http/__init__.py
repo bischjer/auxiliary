@@ -3,6 +3,15 @@ from aux.protocols.http.http import HTTPConnection
 from aux.protocols.http.https import HTTPSConnection
 import re
 
+
+"""
+HTTP
+
+Authentication Type: On Request; Preemptive; SPNEGO/Kerberos; NTLM1|2
+
+"""
+
+
 class HTTPRequest(object):
     def __init__(self, request_data):
         self.target = None
