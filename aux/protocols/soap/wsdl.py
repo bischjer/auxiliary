@@ -29,8 +29,6 @@ class WSDLOperation(object):
         self.soapAction = soapAction
 
     def __call__(self):
-        # printf self.name
-        # print self.soapAction
         return self.name
 
 class WSDLBinding(object):
@@ -98,8 +96,7 @@ class WSDL(object):
     def unmarshall_definition(self, resource):
         self.tree = etree.ElementTree(resource)
         root = self.tree.getroot()
-        # print etree.tostring(root)
-        # print root.tag
+        # print etree.tostring(root), root.tag
         if "descriptions" in root.tag.lower():
             self.name = root.attrib.get('name', None)
 
@@ -117,7 +114,9 @@ class WSDL(object):
             for port in service.findall('{http://schemas.xmlsoap.org/wsdl/}port'):
                 port_name = port.attrib.get('name', None)
                 port_binding = port.attrib.get('binding', None)
+                print port.text
                 port_extensibility = port.text
+                # print port_extensibility
                 service_ports.append(WSDLPort(port_name,
                                               port_binding, #WSDLBinding # sort out namespacing
                                               port_extensibility))
