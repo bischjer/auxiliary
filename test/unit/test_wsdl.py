@@ -44,4 +44,5 @@ class WSDLTest(TestCase):
 </descriptions>"""
         wsdl_object = WSDL(wsdl_data = wsdl_data)
         self.assertEquals("HelloService", wsdl_object.services[0].name)
-        
+        self.assertEquals("tns:Hello_Binding", wsdl_object.services[0].ports[0].binding)
+        self.assertEquals("Hello_Port", wsdl_object.services[0].ports[0].name)
