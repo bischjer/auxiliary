@@ -11,14 +11,13 @@ Authentication Type: On Request; Preemptive; SPNEGO/Kerberos; NTLM1|2
 
 """
 
-
 class HTTPRequest(object):
-    def __init__(self, request_data):
+    def __init__(self, request_data, path=""):
         self.target = None
         self.method = request_data.get('method', 'Get').upper()
         self.headers = request_data.get('headers', {})
         self.body = request_data.get('body', '')
-        self.path = None
+        self.path = path
 
     def __str__(self):
         self.headers['Content-Length'] = str(len(self.body))
