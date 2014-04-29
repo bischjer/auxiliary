@@ -3,6 +3,9 @@ from aux.protocols.http.http import HTTPConnection
 from aux.protocols.http.https import HTTPSConnection
 import re
 
+GET  = 'GET'
+POST = 'POST'
+PUT  = 'PUT'
 
 """
 HTTP
