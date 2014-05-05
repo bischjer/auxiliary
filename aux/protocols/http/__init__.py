@@ -1,5 +1,5 @@
 from aux.protocols.connection import Connection
-from aux.protocols.http.http import HTTPConnection 
+from aux.protocols.http.http import HTTPProtocol
 from aux.protocols.http.https import HTTPSConnection
 import re
 

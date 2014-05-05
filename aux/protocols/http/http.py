@@ -10,8 +10,8 @@ class HTTPProtocol(object):
 
     def __init__(self, raw_url):
         self.url = self.set_url_from_string(raw_url)
-        self.__connection = TCPConnection(self.url.hostname, self.url.port) #TODO: factory with persist scheme
-        self.__connection.connect()
+        self._transport = TCPConnection(self.url.hostname, self.url.port) #TODO: factory with persist scheme
+        self._transport.connect()
 
     def is_persistent(self):
         return self.__is_persistent
@@ -32,9 +32,19 @@ class HTTPProtocol(object):
     
     def send_request(self, request):
         request.target = self.url.hostname
+
+        #size of transfer
+        print request.headers
         #tx--
-        self.__connection.send(str(request))
+        self._transport.send(str(request))
+
+
+        #this needs to wait for response
+        #1 blocking
+        #2 thread
+        #3 async
         
+        return "hello"
 
 
 

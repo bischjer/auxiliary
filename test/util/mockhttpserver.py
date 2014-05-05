@@ -25,28 +25,6 @@ Content-Type: text/html
 <html><body><h1>It works!</h1></body></html>
 '''
 
-# def handle_request(cls, request):
-#     # print request
-#     if cls._MockHTTPServer__authScheme != None:
-#         if 'basic' in cls._MockHTTPServer__authScheme.lower() :
-#             if not authenticate(request):
-#                 return '''
-# HTTP/1.1 401
-# WWW-Authenticate: Basic realm="aux realm"
-# Content-Type: text/xml;charset=utf-8
-# Connection: keep-alive
-
-# '''
-#     if '__GET /basic_authenticated' in request:
-#         return '''
-# HTTP/1.1 403 OK
-
-# basic auth'''
-# #         https_response = '''\
-# # HTTP/1.1 401
-# # WWW-Authenticate: Basic realm="AUX-test"
-# # '''
-#     return http_response
 
 def wsdl_app(environ, start_response):
     fake_wsdl_data = open("../data/geoipservice.asmx?WSDL").read()
@@ -105,6 +83,7 @@ def call_application(app, environ):
         if hasattr(app_iter, 'close'):
             app_iter.close()
     return status_headers[0], status_headers[1], ''.join(body)
+
  
 
 class MockHTTPServer(object):
@@ -172,7 +151,32 @@ class MockHTTPSServer(MockHTTPServer):
         self.parent.stop()
 
 
-    def set_authenticatoin(self, authentication):
+    def set_authentication(self, authentication):
         self.parent.__authScheme = authentication
 
 
+
+#OL' HEAP
+#
+# def handle_request(cls, request):
+#     # print request
+#     if cls._MockHTTPServer__authScheme != None:
+#         if 'basic' in cls._MockHTTPServer__authScheme.lower() :
+#             if not authenticate(request):
+#                 return '''
+# HTTP/1.1 401
+# WWW-Authenticate: Basic realm="aux realm"
+# Content-Type: text/xml;charset=utf-8
+# Connection: keep-alive
+
+# '''
+#     if '__GET /basic_authenticated' in request:
+#         return '''
+# HTTP/1.1 403 OK
+
+# basic auth'''
+# #         https_response = '''\
+# # HTTP/1.1 401
+# # WWW-Authenticate: Basic realm="AUX-test"
+# # '''
+#     return http_response
