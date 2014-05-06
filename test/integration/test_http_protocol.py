@@ -3,7 +3,7 @@ from aux.protocols.http import HTTPProtocol, HTTPRequest
 from ..util.mockhttpserver import MockHTTPServer
 
 
-class HTTPConnectionTest(TestCase):
+class HTTPProtocolTest(TestCase):
 
     def setUp(self):
         self.test_server = MockHTTPServer(port=8989)
