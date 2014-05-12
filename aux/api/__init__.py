@@ -1,6 +1,6 @@
 from aux.scriptengine import ScriptEngine
 import paramiko
-from aux.protocols.http import SimpleHTTPClient()
+from aux.protocols.http import SimpleHTTPClient
 
 def run(engine, func, *args, **kwargs):
     engine.start()

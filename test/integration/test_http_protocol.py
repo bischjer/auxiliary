@@ -1,5 +1,5 @@
 from unittest2 import TestCase
-from aux.protocols.http import HTTPProtocol, HTTPRequest
+from aux.protocols.http import HTTP, HTTPRequest
 from ..util.mockhttpserver import MockHTTPServer
 
 
@@ -21,23 +21,27 @@ class HTTPProtocolTest(TestCase):
         self.test_server.stop()
     
     def test_connection(self):
-        http_iface = HTTPProtocol('http://127.0.0.1:8989')
+        http = HTTP()
+        url = 'http://127.0.0.1:8989'
         self.headers['Test-Controller'] = 'short_http_response'
-        http_request = HTTPRequest({'method':'GET',
-                                    'headers': self.headers,
-                                    'data': 'fakedata'})
-        
-        response = http_iface.send_request(http_request)
-        print 'response:', response
+        request = HTTPRequest(url,
+                              {'method':'GET',
+                               'headers': self.headers,
+                               'data': 'fakedata'})
+        response = http.send(request)
+        print 'response: [', response, ']'
         self.assertTrue('200 OK' in response)
         self.assertTrue('<html>' in response)
 
         
     def test_handle_long_response(self):
-        conn = HTTPProtocol('http://127.0.0.1:8989')
+        http = HTTP()
+        url = 'http://127.0.0.1:8989'
         self.headers['Test-Controller'] = 'long_http_response'
-        http_request = HTTPRequest({'method':'GET',
-                                    'headers': self.headers,
-                                    'data': 'fakedata'})
-        
+        request = HTTPRequest(url,
+                              {'method':'GET',
+                               'headers': self.headers,
+                               'data': 'fakedata'})
+        response = http.send(request)
+        print 'response: [', response, ']'
         #create a test mock handler http in backend

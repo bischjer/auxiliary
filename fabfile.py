@@ -11,6 +11,16 @@ def cleanpyc():
     local('find . -iname \'*.pyc\' -delete', capture=False)
     local("find . -name 'logs' -prune -exec rm -r '{}' \;", capture=False) 
 
+def alltest():
+    unit()
+    integration()
+    
+def unit():
+    local('cd test/unit && nosetests --nocapture .')
+
+def integration():
+    local('cd test/integration && nosetests --nocapture .')
+    
 def todo():
     local('grep -ir "TODO:" %s' % this_directory)
 

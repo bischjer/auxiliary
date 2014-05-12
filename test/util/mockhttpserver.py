@@ -152,7 +152,7 @@ class MockHTTPSServer(MockHTTPServer):
 
 
     def set_authentication(self, authentication):
-        self.parent.__authScheme = authentication
+        self.__authScheme = authentication
 
 
 

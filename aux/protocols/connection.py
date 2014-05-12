@@ -3,7 +3,7 @@ from socket import ( socket, AF_INET, SOCK_DGRAM,
                      SOL_SOCKET, SO_REUSEADDR)
 from ssl import wrap_socket, CERT_NONE
 
-
+#TODO: rename this to transport
 class Connection(object):
     def __init__(self, hostname, port):
         self.addr = (hostname, port)
@@ -47,8 +47,8 @@ class TCPConnection(Connection):
     def send(self, message):
         self.__connection.sendto(message, self.addr)
 
-    def recv(self):
-        return self.__connection.recv(4096)
+    def recv(self, length=4096):
+        return self.__connection.recv(length)
 
     def close(self):
         self.__connection.close()

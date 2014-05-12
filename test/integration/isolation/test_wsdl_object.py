@@ -18,10 +18,10 @@ class WSDLObjectTest(TestCase):
         # print wsdl.GeoIPContext()
         print wsdl.GetGeoIP()
  
-    def test_create_soap_object_from_https_wsdl(self):
+    def xtest_create_soap_object_from_https_wsdl(self):
         wsdl_url = "https://127.0.0.1:8443/geoipservice.asmx?WSDL"
         wsdl = create_wsdl(wsdl_url)
 
-        print "Wsdl service name:", wsdl.name
+        # print "Wsdl service name:", wsdl.name
         #print wsdl.GetGeoIPContext()
         #print wsdl.GetGeoIP()

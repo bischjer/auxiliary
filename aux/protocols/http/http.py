@@ -7,7 +7,12 @@ HTTP_DEFAULT_PORT = 80
 HTTPS_DEFAULT_PORT = 443
 TCP_FRAME_BUFFER_SIZE = 1500#bytes#hmmmm
 
+#TODO: enum wrapper
 HTTP_METHODS = ["OPTIONS", "GET","HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT"]#extension-method
+GET  = 'GET'
+POST = 'POST'
+PUT  = 'PUT'
+
 HTTP_RESPONSE_CODES = {"100": "Continue",
                        "101": "Switching Protocols",
                        "200": "OK",
@@ -49,16 +54,74 @@ HTTP_RESPONSE_CODES = {"100": "Continue",
                        "504": "Gateway Time-out",
                        "505": "HTTP Version not supported"}
 
+"""
+HTTP
 
-class HTTPProtocol(object):
+Authentication Type: On Request; Preemptive; SPNEGO/Kerberos; NTLM1|2
+
+"""
+
+class HTTPMessage(object):
+    http_version = 1.1
+    target = None
+    headers = dict()
+    body = None
+
+    def __init__(self, headers, body):
+        self.headers = headers
+        self.body = body
+        
+    def __str__(self):
+        return CRLF.join([CRLF.join([": ".join(item) for item in self.headers.items()]),
+                          "",#zero-length-http-message-line
+                          self.body])
+
+class HTTPRequest(HTTPMessage):
+    url = None
+    def __init__(self, url, request_data={}):
+        self.method = request_data.get('method', 'GET').upper()
+        self.url = urlparse(url)
+        if len(self.url.path) == 0:
+            l = list(self.url)
+            l[2] = l[2] + "/"
+            self.url = urlparse(urlunparse(l))
+        super(HTTPRequest, self).__init__(request_data.get('headers', {}),
+                                          request_data.get('body', ''))
+
+    def __str__(self):
+        return CRLF.join(["%s %s HTTP%0.1f" % (self.method, self.url.path, self.http_version),
+                          super(HTTPRequest, self).__str__()])
+
+    
+class HTTPResponse(HTTPMessage):
+    def __init__(self, status, response_data):
+        self.status = status
+        super(HTTPResponse, self).__init__(response_data.get('headers', {}),
+                                           response_data.get('body', ''))
+
+    def __str__(self):
+        return CRLF.join(["HTTP/%0.1f %s %s" % (self.http_version, self.status, HTTP_RESPONSE_CODES[str(self.status)]),
+                          super(HTTPResponse, self).__str__()])
+    
+
+
+class HTTP(object):
     __is_persistent = False
     __transport_frame_size = TCP_FRAME_BUFFER_SIZE
 
-    def __init__(self, raw_url):
-        self.url = self.set_url_from_string(raw_url)
-        self._transport = TCPConnection(self.url.hostname, self.url.port) #TODO: factory with persist scheme
-        self._transport.connect()
+    def __init__(self):
+        self._transport = None
+        # self.url = self.set_url_from_string(raw_url)
+        # self._transport = TCPConnection(self.url.hostname, self.url.port) #TODO: factory with persist scheme
+        # self._transport.connect()
 
+    def get_transport(self, url, persist=False):
+        # if self._transport != None and persist:
+        #     return self._transport
+        transport = TCPConnection(url.hostname, url.port)
+        transport.connect()
+        return transport
+    
     def is_persistent(self):
         return self.__is_persistent
 
@@ -69,23 +132,27 @@ class HTTPProtocol(object):
             l[1] = l[1] + ":%i" % HTTP_DEFAULT_PORT
             url = urlparse(urlunparse(l))        
         return url
-
     
     def receive(self, response):
         #rx--
         pass
     
-    
     def send(self, request):
-        request.target = self.url.hostname
+        request.target = request.url.hostname
+        print "request to url", request.url.geturl()
+        print request
 
-        #size of transfer
-        print request.headers
+        #TODO: decide size for transfer
+        #content-length | Transfer-encoding "chunked" | multipart/byteranges (rare/special) | server closes connection
+        self._transport = self.get_transport(request.url)
+        self._transport.send(str(request))
+        raw_response = self._transport.recv()
+        
+
+        # print request.headers
         #tx--
         
-
-        
-        self._transport.send(str(request))
+        # self._transport.send(str(request))
 
 
         #this needs to wait for response
@@ -93,21 +160,24 @@ class HTTPProtocol(object):
         #2 thread
         #3 async
         
-        return "hello"
+        return raw_response
 
 
 class SimpleHTTPClient(object):
     def get(self, url):
-        HTTPRequest({'method':'GET',
+        HTTPRequest(url,
+                    {'method':'GET',
                      'headers':{},
                      'body':''})
-        print url
+        # print url
 
     def post(self, url, headers={}):
-        print url
+        pass
+        # print url
 
     def put(self, url):
-        print url
+        pass
+        # print url
 
     
 # class HTTPConnection(object):

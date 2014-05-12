@@ -1,7 +1,7 @@
 from lxml import objectify
 from lxml import etree
 from urlparse import urlparse
-from aux.protocols.http import HTTPSConnection, HTTPConnection, HTTPRequest, HTTPResponse
+from aux.protocols.http import HTTP, HTTPRequest, HTTPResponse
 
 
 class WSDLPort(object):
@@ -77,20 +77,16 @@ class WSDL(object):
             raise AttributeError
 
     def get_wsdl_details(self, wsdl_url):
-        url = urlparse(wsdl_url)
-        request = HTTPRequest({'method':'GET',
+        request = HTTPRequest(wsdl_url,
+                              {'method':'GET',
                                'headers': {},
                                'data':''})
-        request.path = url.path+"?"+url.query
-        if "https" == url.scheme:
-            conn = HTTPSConnection(url.geturl())
-            response = HTTPResponse( conn.send_request(request) )
-            return response.body
-        if "http" == url.scheme:
-            conn = HTTPConnection(url.geturl())
-            response = HTTPResponse( conn.send_request(request) )
-            return response.body
-        return open(wsdl_url).read()
+        http = HTTP()
+        response = http.send(request)
+        print "before wsdl response"
+        print response
+        #TODO: useless?? return open(wsdl_url).read()
+        return "<xml>fake</xml>"
 
         
     def unmarshall_definition(self, resource):

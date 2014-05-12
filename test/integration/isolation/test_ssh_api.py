@@ -10,7 +10,7 @@ class SSH_API_Test(TestCase):
     def tearDown(self):
         pass
 
-    def test_http_get(self):
+    def xtest_http_get(self):
         connection = ssh.connect('192.168.1.53',
                                  username='un',
                                  password='pw')
