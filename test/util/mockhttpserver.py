@@ -155,11 +155,41 @@ class MockHTTPSServer(MockHTTPServer):
     def set_authentication(self, authentication):
         self.__authScheme = authentication
 
+class Channel(object):
+
+    def __init__(self, hostname, port):
+        self.hostname = hostname
+        self.port = port
+        self.__socket = socket.socket()
+        self.__socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+        
+    def start(self):
+        # self.__socket.bind((self.host, self.port))
+        # self.__socket.listen(5)
+        # while True:
+        #     c, addr = self.__socket.accept()
+        #     request = c.recv(4096)#TODO: read protocol transport
+        #     print request
+        #     response = call_application(application,
+        #                                 {'request': request,
+        #                                  'authScheme': self.__authScheme})
+        #     c.send(response[2])
+        #     c.close()
+
+
+
+        
+        pass
+
+    def stop(self):
+        pass
+    
         
 class WebService(object):
+    
     def __init__(self):
         self.scheme = 'http' # | https
-        self.channel = None
+        self.channel = Channel('127.0.0.1', 443)
         self.app = None
 
     def marshall_incoming_request(self, raw_request):
@@ -177,12 +207,46 @@ class WebService(object):
     
 class WebServer(object):
     def __init__(self):
-        self.service = []
+        self.log = None
+        self.services = []
 
-    def load_services(self):
-        pass
+    def load_service(self, service):
+        self.services.append(service)
 
+    def load_services(self, services=[]):
+        for service in services:
+            self.load_service(service)
+        
+    def start_service(self, service_name):
+        for service in self.services:
+            if service.name == service_name:
+                service.channel.start()
 
+    def stop_service(self, service_name):
+        for service in self.services:
+            if service.name == service_name:
+                service.channel.stop()                
+
+    def start(self):
+        #start server
+        for service in self.services:
+            service.channel.start()
+
+    def stop(self):
+        #stop server
+        for service in self.services:
+            try:
+                service.channel.stop()
+            except Exception, e:
+                service.channel.kill()
+
+    def restart(self):
+        #restart server
+        self.stop()
+        self.start()
+    
+        
+    
 #*******************************************************************
 #OL' HEAP
 #
