@@ -15,7 +15,7 @@ class HTTP_Test(TestCase):
                               {'method':'GET',
                                'headers': {'Host': 'a.a.a',
                                            'User-Agent': 'Aux/0.1 (X11; Ubuntu; Linux x86_64; rv:24.0)',
-                                           'Accept':'text/html, application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                                           'Accept':'text/html',
                                            'Connection': 'Keep-Alive'}})
         self.assertEquals(request.method, 'GET')
         self.assertEquals(len(request.body), 0)
@@ -26,7 +26,7 @@ class HTTP_Test(TestCase):
                               {'method':'GET',
                                'headers': {'Host': 'a.a.a',
                                            'User-Agent': 'Aux/0.1 (X11; Ubuntu; Linux x86_64; rv:24.0)',
-                                           'Accept':'text/html, application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'},
+                                           'Accept':'text/html'},
                                'body': body_content})
         self.assertEquals(request.body, body_content)
 

@@ -85,7 +85,6 @@ def call_application(app, environ):
     return status_headers[0], status_headers[1], ''.join(body)
 
 
-
 class MockHTTPServer(object):
     def __init__(self, port=8989, verbose=False):
         self.port = port
@@ -99,8 +98,10 @@ class MockHTTPServer(object):
         self.__socket.listen(5)
         while True:
             c, addr = self.__socket.accept()
+            request = c.recv(4096)#TODO: read protocol transport
+            print request
             response = call_application(application,
-                                        {'request': c.recv(4096),
+                                        {'request': request,
                                          'authScheme': self.__authScheme})
             c.send(response[2])
             c.close()
@@ -154,6 +155,7 @@ class MockHTTPSServer(MockHTTPServer):
     def set_authentication(self, authentication):
         self.__authScheme = authentication
 
+        
 class WebService(object):
     def __init__(self):
         self.scheme = 'http' # | https
@@ -164,15 +166,12 @@ class WebService(object):
         return HTTPRequest('127.0.0.1', {})
         
     def call_app(self):
-        #receive request
         request = self.marshall_incoming_request("POST /url")
         response = None
-        #handle
         try:
             response = self.app("environ", "start_response")
         except Exception, e:
             response = HTTPResponse(500, {})
-        #return response
         return response
 
     

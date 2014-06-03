@@ -3,8 +3,9 @@ from socket import ( socket, AF_INET, SOCK_DGRAM,
                      SOL_SOCKET, SO_REUSEADDR)
 from ssl import wrap_socket, CERT_NONE
 
-#TODO: rename this to transport
-class Connection(object):
+TCP_DEFAULT_FRAME_SIZE = 1200
+
+class Transport(object):
     def __init__(self, hostname, port):
         self.addr = (hostname, port)
         self.__connection = None
@@ -16,9 +17,9 @@ class Connection(object):
         raise Exception("Not Implemented Error")
     
         
-class UDPConnection(Connection):
+class UDPTransport(Transport):
     def __init__(self, hostname, port):
-        super(UDPConnection, self).__init__(hostname, port)
+        super(UDPTransport, self).__init__(hostname, port)
         self.__connection = socket(AF_INET, SOCK_DGRAM)
 
     def connect(self):
@@ -33,9 +34,9 @@ class UDPConnection(Connection):
     def close(self):
         self.__connection.close()
     
-class TCPConnection(Connection):
+class TCPTransport(Transport):
     def __init__(self, hostname, port):
-        super(TCPConnection, self).__init__(hostname, port)
+        super(TCPTransport, self).__init__(hostname, port)
         self.__connection = socket(AF_INET, SOCK_STREAM)
         self.__connection.setsockopt(SOL_SOCKET,
                                      SO_REUSEADDR,
@@ -47,17 +48,17 @@ class TCPConnection(Connection):
     def send(self, message):
         self.__connection.sendto(message, self.addr)
 
-    def recv(self, length=4096):
-        return self.__connection.recv(length)
+    def recv(self, frame_size=TCP_DEFAULT_FRAME_SIZE):
+        return self.__connection.recv(frame_size)
 
     def close(self):
         self.__connection.close()
 
 
-class TLS_TCPConnection(TCPConnection):
+class TLS_TCPTransport(TCPTransport):
     #TODO: This should just be a wrapper 
     def __init__(self, hostname, port, timeout=10):
-        super(TLS_TCPConnection, self).__init__(hostname, port)
+        super(TLS_TCPTransport, self).__init__(hostname, port)
         #TODO: Should do a better build up of ssl_socket
         self.__connection = wrap_socket(socket(AF_INET, SOCK_STREAM), cert_reqs=CERT_NONE)
         self.__connection.setsockopt(SOL_SOCKET,

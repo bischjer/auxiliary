@@ -1,12 +1,10 @@
-from aux.protocols.connection import TCPConnection
+from aux.protocols.transport import TCPTransport, TCP_DEFAULT_FRAME_SIZE
 from urlparse import urlparse, urlunparse
 
 CRLF = "\r\n"
-
 HTTP_DEFAULT_PORT = 80
 HTTPS_DEFAULT_PORT = 443
 TCP_FRAME_BUFFER_SIZE = 1500#bytes#hmmmm
-
 #TODO: enum wrapper
 HTTP_METHODS = ["OPTIONS", "GET","HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT"]#extension-method
 GET  = 'GET'
@@ -107,18 +105,15 @@ class HTTPResponse(HTTPMessage):
 
 class HTTP(object):
     __is_persistent = False
-    __transport_frame_size = TCP_FRAME_BUFFER_SIZE
+    __transport_frame_size = TCP_DEFAULT_FRAME_SIZE
 
     def __init__(self):
         self._transport = None
-        # self.url = self.set_url_from_string(raw_url)
-        # self._transport = TCPConnection(self.url.hostname, self.url.port) #TODO: factory with persist scheme
-        # self._transport.connect()
-
+   
     def get_transport(self, url, persist=False):
         # if self._transport != None and persist:
         #     return self._transport
-        transport = TCPConnection(url.hostname, url.port)
+        transport = TCPTransport(url.hostname, url.port)
         transport.connect()
         return transport
     
@@ -143,7 +138,9 @@ class HTTP(object):
         print request
 
         #TODO: decide size for transfer
+        # content-length is only for post and response
         #content-length | Transfer-encoding "chunked" | multipart/byteranges (rare/special) | server closes connection
+        print 'has content-length', request.headers.get('Content-length', None)
         self._transport = self.get_transport(request.url)
         self._transport.send(str(request))
         raw_response = self._transport.recv()
