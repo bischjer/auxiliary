@@ -94,7 +94,7 @@ class HTTPRequest(HTTPMessage):
 
     
 class HTTPResponse(HTTPMessage):
-    def __init__(self, status, response_data):
+    def __init__(self, status, response_data={}):
         self.status = status
         super(HTTPResponse, self).__init__(response_data.get('headers', {}),
                                            response_data.get('body', ''))

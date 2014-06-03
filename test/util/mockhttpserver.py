@@ -5,7 +5,7 @@ from ssl import wrap_socket
 import ssl
 import socket
 import time
-from aux.protocols.http import HTTPResponse
+from aux.protocols.http import HTTPResponse, HTTPRequest
 # from werkzeug import Response
 
 #TODO: This server needs to be written using aux itself, listening service.
@@ -84,7 +84,7 @@ def call_application(app, environ):
             app_iter.close()
     return status_headers[0], status_headers[1], ''.join(body)
 
- 
+
 
 class MockHTTPServer(object):
     def __init__(self, port=8989, verbose=False):
@@ -154,8 +154,37 @@ class MockHTTPSServer(MockHTTPServer):
     def set_authentication(self, authentication):
         self.__authScheme = authentication
 
+class WebService(object):
+    def __init__(self):
+        self.scheme = 'http' # | https
+        self.channel = None
+        self.app = None
+
+    def marshall_incoming_request(self, raw_request):
+        return HTTPRequest('127.0.0.1', {})
+        
+    def call_app(self):
+        #receive request
+        request = self.marshall_incoming_request("POST /url")
+        response = None
+        #handle
+        try:
+            response = self.app("environ", "start_response")
+        except Exception, e:
+            response = HTTPResponse(500, {})
+        #return response
+        return response
+
+    
+class WebServer(object):
+    def __init__(self):
+        self.service = []
+
+    def load_services(self):
+        pass
 
 
+#*******************************************************************
 #OL' HEAP
 #
 # def handle_request(cls, request):
