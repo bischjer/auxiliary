@@ -11,6 +11,10 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+.. automodule:: aux
+
+.. autoclass:: aux.protocols.http.http.SimpleHTTPClient
+    :members:
 
 
 Indices and tables
