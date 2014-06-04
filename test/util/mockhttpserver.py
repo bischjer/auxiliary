@@ -157,15 +157,15 @@ class MockHTTPSServer(MockHTTPServer):
 
 class Channel(object):
 
-    def __init__(self, hostname, port):
-        self.hostname = hostname
+    def __init__(self, host, port):
+        self.host = host
         self.port = port
         self.__socket = socket.socket()
         self.__socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         
     def start(self):
-        # self.__socket.bind((self.host, self.port))
-        # self.__socket.listen(5)
+        self.__socket.bind((self.host, self.port))
+        self.__socket.listen(5)
         # while True:
         #     c, addr = self.__socket.accept()
         #     request = c.recv(4096)#TODO: read protocol transport
@@ -176,18 +176,13 @@ class Channel(object):
         #     c.send(response[2])
         #     c.close()
 
-
-
-        
-        pass
-
     def stop(self):
         pass
     
         
 class WebService(object):
     
-    def __init__(self):
+    def __init__(self, port):
         self.scheme = 'http' # | https
         self.channel = Channel('127.0.0.1', 443)
         self.app = None

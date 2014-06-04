@@ -1,5 +1,6 @@
 from aux.protocols.transport import TCPTransport, TCP_DEFAULT_FRAME_SIZE
 from urlparse import urlparse, urlunparse
+import re
 
 CRLF = "\r\n"
 HTTP_DEFAULT_PORT = 80
@@ -53,6 +54,10 @@ HTTP_RESPONSE_CODES = {"100": "Continue",
                        "505": "HTTP Version not supported"}
 
 """
+RESPONSE_HEADER = [Accept-Ranges, Age, ETag, Location, Proxy-Authenticate, Retry-After, Server, Vary, WWW-Authenticate]
+
+"""
+"""
 HTTP
 
 Authentication Type: On Request; Preemptive; SPNEGO/Kerberos; NTLM1|2
@@ -96,7 +101,7 @@ class HTTPResponse(HTTPMessage):
         self.status = status
         super(HTTPResponse, self).__init__(response_data.get('headers', {}),
                                            response_data.get('body', ''))
-
+        
     def __str__(self):
         return CRLF.join(["HTTP/%0.1f %s %s" % (self.http_version, self.status, HTTP_RESPONSE_CODES[str(self.status)]),
                           super(HTTPResponse, self).__str__()])
@@ -113,7 +118,7 @@ class HTTP(object):
     def get_transport(self, url, persist=False):
         # if self._transport != None and persist:
         #     return self._transport
-        transport = TCPTransport(url.hostname, url.port)
+        transport = TCPTransport(url.hostname, 80)#int(url.port))
         transport.connect()
         return transport
     
@@ -127,53 +132,67 @@ class HTTP(object):
             l[1] = l[1] + ":%i" % HTTP_DEFAULT_PORT
             url = urlparse(urlunparse(l))        
         return url
+
+    def raw_to_response(self, raw_response):
+        re_headline = re.compile(r'^(.*):\s(.*)\r')
+        r_lines = raw_response.split("\n")
+        start_line = r_lines[0]
+        line_counter = 1
+        headers = dict()
+        for line in r_lines[1:]:
+            line_counter += 1
+            if ":" in line:
+                re_group = re_headline.match(line).groups()
+                headers[re_group[0]] = re_group[1]
+            else:
+                break
+        body = "\n".join(r_lines[line_counter:])
+        response = HTTPResponse(200, {'headers' : headers, 'body' : body} )
+        return response
     
-    def receive(self, response):
-        #rx--
-        pass
+    def receive(self, transport):
+        raw_response = ""
+        while 1:
+            try:
+                in_buf = transport.recv(2048)
+            except Exception, e:
+                print e.message
+            if len(in_buf) < 1:
+                break
+            raw_response = raw_response + in_buf
+        transport.close()
+        return self.raw_to_response(raw_response)
     
     def send(self, request):
         request.target = request.url.hostname
-        print "request to url", request.url.geturl()
-        print request
-
         #TODO: decide size for transfer
         # content-length is only for post and response
         #content-length | Transfer-encoding "chunked" | multipart/byteranges (rare/special) | server closes connection
-        print 'has content-length', request.headers.get('Content-length', None)
-        self._transport = self.get_transport(request.url)
-        self._transport.send(str(request))
-        raw_response = self._transport.recv()
-        
+        # print 'has content-length', request.headers.get('Content-length', None)
+        transport = self.get_transport(request.url)
+        transport.send(str(request))
+        return self.receive(transport)
 
-        # print request.headers
-        #tx--
-        
-        # self._transport.send(str(request))
-
-
-        #this needs to wait for response
-        #1 blocking
-        #2 thread
-        #3 async
-        
-        return raw_response
-
-
+    
 class SimpleHTTPClient(object):
     def get(self, url):
-        HTTPRequest(url,
-                    {'method':'GET',
-                     'headers':{},
-                     'body':''})
-        # print url
+        request = HTTPRequest(url,
+                              {'method':'GET',
+                               'headers':{},
+                               'body':''})
+        print request
+        _http = HTTP()
+        response = _http.send(request)
+        return response
+        
 
     def post(self, url, headers={}):
         pass
         # print url
 
     def put(self, url):
-        pass
+        print url
+
         # print url
 
     

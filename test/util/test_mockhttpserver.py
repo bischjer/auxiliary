@@ -3,15 +3,21 @@ from aux.protocols.http import HTTPResponse
 from .mockhttpserver import WebService, WebServer
 
 
-
 class MockHTTPServerTest(TestCase):
+
+    """
+    WebService
+     - WebService with no app returns 500
+     - WebService with success app returns 200
+     - 
+    """
     
-    def test_no_service_defined(self):
+    def test_no_app_defined(self):
         ws = WebService()
         response = ws.call_app()
         self.assertTrue(response.status == 500)
 
-    def test_service_defined(self):
+    def test_app_success_defined(self):
         ws = WebService()
         def test_app_ok(environ, start_response):
             return HTTPResponse(200, {'body': 'OK'})
@@ -19,7 +25,8 @@ class MockHTTPServerTest(TestCase):
         response = ws.call_app()
         self.assertTrue(response.status == 200)
 
-
+    def test_WebService_channel_listener(self):
+        pass #Channel
 
     """
     WebServer
