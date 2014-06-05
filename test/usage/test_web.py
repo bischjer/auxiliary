@@ -13,6 +13,9 @@ class WebTest(TestCase):
 
     def test_get_https_wsdl_page(self):
         url ="https://qa-test.kezzlerssp.com/ssp/kcengine-ws/kcengine.wsdl"
-        response = http.get(url, headers=http.auth.basic("bischjer", "monkey")())
+        headers = {"Connection":"keep-alive",
+                   "Accept":"text/html"}
+        headers.update(http.auth.basic("bischjer", "test")())
+        response = http.get(url, headers=headers)
 
         print response

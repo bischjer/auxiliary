@@ -1,9 +1,14 @@
-from aux.protocols.transport import TCPTransport, TCP_DEFAULT_FRAME_SIZE
+from aux.protocols.transport import TCPTransport, TCP_DEFAULT_FRAME_SIZE, TLS_TCPTransport
 from urlparse import urlparse, urlunparse
+import aux
 import auth
-# import aux.protocols.http as auth
 import re
+import os
 
+
+uname = os.uname()
+USER_AGENT = "aux/%s (%s;)" % (aux.version(),
+                              " ".join([uname[0], uname[-1]]))
 CRLF = "\r\n"
 HTTP_DEFAULT_PORT = 80
 HTTPS_DEFAULT_PORT = 443
@@ -90,11 +95,14 @@ class HTTPRequest(HTTPMessage):
             l = list(self.url)
             l[2] = l[2] + "/"
             self.url = urlparse(urlunparse(l))
-        super(HTTPRequest, self).__init__(request_data.get('headers', {}),
+        headers = {'Host': self.url.hostname,
+                   'User-Agent': USER_AGENT}
+        headers.update(request_data.get('headers', {}))
+        super(HTTPRequest, self).__init__(headers,
                                           request_data.get('body', ''))
 
     def __str__(self):
-        return CRLF.join(["%s %s HTTP%0.1f" % (self.method, self.url.path, self.http_version),
+        return CRLF.join(["%s %s HTTP/%0.1f" % (self.method, self.url.path, self.http_version),
                           super(HTTPRequest, self).__str__()])
 
     
@@ -112,15 +120,23 @@ class HTTPResponse(HTTPMessage):
 
 class HTTP(object):
     __is_persistent = False
-    __transport_frame_size = TCP_DEFAULT_FRAME_SIZE
+    __transport_frame_size = TCP_DEFAULT_FRAME_SIZE #TODO: probably not usefull
 
     def __init__(self):
         self._transport = None
    
-    def get_transport(self, url, persist=False):
+    def get_transport(self, url, scheme="http", persist=False, timeout=60):
         # if self._transport != None and persist:
         #     return self._transport
-        transport = TCPTransport(url.hostname, 80)#int(url.port))
+        #TODO: ternary default port assign is a bad idea as traceability is lost in request update url instead
+        if "https" == scheme.lower():
+            transport = TLS_TCPTransport(url.hostname,
+                                         443 if url.port == None else int(url.port),
+                                         timeout=timeout)
+        else:
+            transport = TCPTransport(url.hostname,
+                                     80 if url.port == None else int(url.port),
+                                     timeout=timeout)
         transport.connect()
         return transport
     
@@ -151,14 +167,22 @@ class HTTP(object):
         body = "\n".join(r_lines[line_counter:])
         response = HTTPResponse(200, {'headers' : headers, 'body' : body} )
         return response
+
+    def chunked_transport_reader(self, transport):
+        raw_response = ""
+        return self.raw_to_response(raw_response)
     
     def receive(self, transport):
         raw_response = ""
+        #TODO: Need handler for chunked transfer!!!
+        #read first parse header for Transfer-Encoding: chunked
+        #issue chunckedReader
         while 1:
             try:
-                in_buf = transport.recv(2048)
+                in_buf = transport.recv()
             except Exception, e:
                 print e.message
+
             if len(in_buf) < 1:
                 break
             raw_response = raw_response + in_buf
@@ -171,7 +195,7 @@ class HTTP(object):
         # content-length is only for post and response
         #content-length | Transfer-encoding "chunked" | multipart/byteranges (rare/special) | server closes connection
         # print 'has content-length', request.headers.get('Content-length', None)
-        transport = self.get_transport(request.url)
+        transport = self.get_transport(request.url, scheme=request.url.scheme)
         transport.send(str(request))
         return self.receive(transport)
 

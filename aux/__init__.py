@@ -2,7 +2,11 @@ import sys
 import device
 import plugin
 from optparse import OptionParser 
+import pkg_resources
+import aux
 
+def version():
+    return pkg_resources.get_distribution(aux.__package__.title()).version
 
 
 def script_runner():
