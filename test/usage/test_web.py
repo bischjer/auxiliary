@@ -3,10 +3,16 @@ from aux.api import http
 
 class WebTest(TestCase):
 
-    def test_get_long_web_page(self):
+    def xtest_get_long_web_page(self):
 
         url = "http://www.w3.org/Protocols/rfc2616/rfc2616.html"
 
         response = http.get(url)
+
+        print response
+
+    def test_get_https_wsdl_page(self):
+        url ="https://qa-test.kezzlerssp.com/ssp/kcengine-ws/kcengine.wsdl"
+        response = http.get(url, headers=http.auth.basic("bischjer", "monkey")())
 
         print response

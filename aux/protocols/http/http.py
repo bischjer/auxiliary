@@ -1,5 +1,7 @@
 from aux.protocols.transport import TCPTransport, TCP_DEFAULT_FRAME_SIZE
 from urlparse import urlparse, urlunparse
+import auth
+# import aux.protocols.http as auth
 import re
 
 CRLF = "\r\n"
@@ -174,12 +176,14 @@ class HTTP(object):
         return self.receive(transport)
 
     
-class SimpleHTTPClient(object):
-    def get(self, url):
+class HTTPClient(object):
+    auth = auth
+    
+    def get(self, url, headers={}, body=""):
         request = HTTPRequest(url,
                               {'method':'GET',
-                               'headers':{},
-                               'body':''})
+                               'headers': headers,
+                               'body': body})
         print request
         _http = HTTP()
         response = _http.send(request)
@@ -194,27 +198,4 @@ class SimpleHTTPClient(object):
         print url
 
         # print url
-
-    
-# class HTTPConnection(object):
-
-#     __is_persistent = False
-
-#     def __init__(self, url_path):
-#         self.url = urlparse(url_path)
-#         if not self.url.port:
-#             l = list(self.url)
-#             l[1] = l[1] + ":80"
-#             self.url = urlparse(urlunparse(l))
-#         self.__conn = TCPConnection(self.url.hostname, self.url.port)
-#         self.__conn.connect()
-    
-#     def is_persistent(self):
-#         return self.__is_persistent
-
-#     def send_request(self, request):
-#         request.target = self.url.hostname
-#         self.__conn.send(str(request))
-#         return self.__conn.recv()
-
 
