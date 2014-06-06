@@ -152,42 +152,78 @@ class HTTP(object):
         return url
 
     def raw_to_response(self, raw_response):
+        # re_headline = re.compile(r'^(.*):\s(.*)\r')
+        # r_lines = raw_response.split("\n")
+        # start_line = r_lines[0]
+        # line_counter = 1
+        # headers = dict()
+        # for line in r_lines[1:]:
+        #     line_counter += 1
+        #     if ":" in line:
+        #         re_group = re_headline.match(line).groups()
+        #         headers[re_group[0]] = re_group[1]
+        #     else:
+        #         break
+        # body = "\n".join(r_lines[line_counter:])
+        # response = HTTPResponse(200, {'headers' : headers, 'body' : body} )
+        return response
+
+    def default_transport_reader(self, transport):
+        raw_response = ""
+        return self.raw_to_response(raw_response)
+    
+    def chunked_transport_reader(self, transport):
+        raw_response = ""
+        return self.raw_to_response(raw_response)
+
+    def parse_message(self, transport, msg):
+        #Parse all headers
         re_headline = re.compile(r'^(.*):\s(.*)\r')
-        r_lines = raw_response.split("\n")
-        start_line = r_lines[0]
-        line_counter = 1
         headers = dict()
-        for line in r_lines[1:]:
+        h_lines = msg.split("\n")
+        line_counter = 0
+        for line in h_lines[1:]:
             line_counter += 1
             if ":" in line:
                 re_group = re_headline.match(line).groups()
                 headers[re_group[0]] = re_group[1]
             else:
-                break
-        body = "\n".join(r_lines[line_counter:])
-        response = HTTPResponse(200, {'headers' : headers, 'body' : body} )
-        return response
-
-    def chunked_transport_reader(self, transport):
-        raw_response = ""
-        return self.raw_to_response(raw_response)
+                break        
+        if headers.get('Transfer-Encoding', None) == 'chunked':
+            body = chunked_transport_reader()
+        elif headers.get('Content-length', None) != None:
+            pass
+        else:
+            body = default_transport_reader()
+        return headers, "body"
+    
+    def parse_response(self, transport):
+        #Validate start-line and remove it from buffer
+        re_startline = re.compile(r'^HTTP\/\d\.\d\s(\d{3})\s')
+        inbuf = transport.recv().split("\n")
+        sl = inbuf[0]
+        tail_msg = "\n".join(inbuf[1:]) 
+        status = re_startline.match(sl).groups()[0]
+        headers, body = self.parse_message(transport, tail_msg)
+        return HTTPResponse(status, {'headers': headers, 'body': body})
     
     def receive(self, transport):
-        raw_response = ""
         #TODO: Need handler for chunked transfer!!!
         #read first parse header for Transfer-Encoding: chunked
         #issue chunckedReader
-        while 1:
-            try:
-                in_buf = transport.recv()
-            except Exception, e:
-                print e.message
 
-            if len(in_buf) < 1:
-                break
-            raw_response = raw_response + in_buf
-        transport.close()
-        return self.raw_to_response(raw_response)
+        response = self.parse_response(transport)
+        # while 1:
+        #     try:
+        #         in_buf = transport.recv()
+        #     except Exception, e:
+        #         print e.message
+
+        #     if len(in_buf) < 1:
+        #         break
+        #     raw_response = raw_response + in_buf
+        # transport.close()
+        return response #self.raw_to_response(raw_response)
     
     def send(self, request):
         request.target = request.url.hostname
