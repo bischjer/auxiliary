@@ -15,9 +15,11 @@ HTTPS_DEFAULT_PORT = 443
 TCP_FRAME_BUFFER_SIZE = 1500#bytes#hmmmm
 #TODO: enum wrapper
 HTTP_METHODS = ["OPTIONS", "GET","HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT"]#extension-method
-GET  = 'GET'
-POST = 'POST'
-PUT  = 'PUT'
+SCHEME_GET  = 'GET'
+SCHEME_POST = 'POST'
+SCHEME_PUT  = 'PUT'
+SCHEME_DELETE  = 'DELETE'
+SCHEME_HEAD = 'HEAD'
 
 HTTP_RESPONSE_CODES = {"100": "Continue",
                        "101": "Switching Protocols",
@@ -151,35 +153,45 @@ class HTTP(object):
             url = urlparse(urlunparse(l))        
         return url
 
-    def raw_to_response(self, raw_response):
-        # re_headline = re.compile(r'^(.*):\s(.*)\r')
-        # r_lines = raw_response.split("\n")
-        # start_line = r_lines[0]
-        # line_counter = 1
-        # headers = dict()
-        # for line in r_lines[1:]:
-        #     line_counter += 1
-        #     if ":" in line:
-        #         re_group = re_headline.match(line).groups()
-        #         headers[re_group[0]] = re_group[1]
-        #     else:
-        #         break
-        # body = "\n".join(r_lines[line_counter:])
-        # response = HTTPResponse(200, {'headers' : headers, 'body' : body} )
-        return response
-
-    def default_transport_reader(self, transport):
-        raw_response = ""
-        return self.raw_to_response(raw_response)
+    def default_transport_reader(self, transport, msg, content_length):
+        raw_response = "\n".join(msg)
+        in_buf = ""
+        while 1:
+            try:
+                in_buf = transport.recv(2048)
+            except Exception, e:
+                print e.message
+            if len(in_buf) < 1:
+                break
+            raw_response = raw_response + in_buf
+        return raw_response
     
-    def chunked_transport_reader(self, transport):
+    def chunked_transport_reader(self, transport, msg):
         raw_response = ""
-        return self.raw_to_response(raw_response)
+        current_chunk = int(msg[0], 16)
+        in_buf = "\n".join(msg[1:])
+        print in_buf[:current_chunk]
+        current_chunk = int(in_buf[current_chunk:], 16)
+        raw_response = in_buf
+        # print raw_response
+        # print in_buf[current_chunk:]
+        
+        # while current_chunk > 0:
+        #     try:
+        #         #in_buf = transport.recv(current_chunk)
+        #     except Exception, e:
+        #         print e.message
+        #     if len(in_buf) < 1:
+        #         break
+        #     print in_buf
+        #     raw_response = raw_response + in_buf
+        return raw_response
 
     def parse_message(self, transport, msg):
         #Parse all headers
         re_headline = re.compile(r'^(.*):\s(.*)\r')
         headers = dict()
+        body = ""
         h_lines = msg.split("\n")
         line_counter = 0
         for line in h_lines[1:]:
@@ -188,14 +200,18 @@ class HTTP(object):
                 re_group = re_headline.match(line).groups()
                 headers[re_group[0]] = re_group[1]
             else:
-                break        
+                break
+        tail_msg = h_lines[line_counter+1:]
         if headers.get('Transfer-Encoding', None) == 'chunked':
-            body = chunked_transport_reader()
-        elif headers.get('Content-length', None) != None:
-            pass
+            body = self.chunked_transport_reader(transport, tail_msg)
+        elif headers.get('Content-Length', None) != None:
+            if int(headers.get('Content-Length')) > 0:
+                body = self.default_transport_reader(transport, tail_msg, headers.get('Content-Length'))
+            else:
+                body = ""
         else:
-            body = default_transport_reader()
-        return headers, "body"
+            body = self.default_transport_reader(transport, tail_msg)
+        return headers, body
     
     def parse_response(self, transport):
         #Validate start-line and remove it from buffer
@@ -222,7 +238,7 @@ class HTTP(object):
         #     if len(in_buf) < 1:
         #         break
         #     raw_response = raw_response + in_buf
-        # transport.close()
+        transport.close()
         return response #self.raw_to_response(raw_response)
     
     def send(self, request):
@@ -239,15 +255,15 @@ class HTTP(object):
 class HTTPClient(object):
     auth = auth
     
-    def get(self, url, headers={}, body=""):
-        request = HTTPRequest(url,
-                              {'method':'GET',
-                               'headers': headers,
-                               'body': body})
+    def get(self, url=None, headers={}, body="", request=None):
+        if request == None:
+            request = HTTPRequest(url,
+                                  {'method':'GET',
+                                   'headers': headers,
+                                   'body': body})
         print request
         _http = HTTP()
-        response = _http.send(request)
-        return response
+        return _http.send(request)
         
 
     def post(self, url, headers={}):

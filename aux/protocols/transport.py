@@ -72,8 +72,8 @@ class TLS_TCPTransport(TCPTransport):
     def send(self, message):
         self.__connection.write(message)
 
-    def recv(self):
-        return self.__connection.read()
+    def recv(self, n_of_bytes=TCP_DEFAULT_FRAME_SIZE):
+        return self.__connection.read(n_of_bytes)
 
     def close(self):
         self.__connection.close()
