@@ -15,11 +15,11 @@ HTTPS_DEFAULT_PORT = 443
 TCP_FRAME_BUFFER_SIZE = 1500#bytes#hmmmm
 #TODO: enum wrapper
 HTTP_METHODS = ["OPTIONS", "GET","HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT"]#extension-method
-SCHEME_GET  = 'GET'
-SCHEME_POST = 'POST'
-SCHEME_PUT  = 'PUT'
-SCHEME_DELETE  = 'DELETE'
-SCHEME_HEAD = 'HEAD'
+M_GET  = 'GET'
+M_POST = 'POST'
+M_PUT  = 'PUT'
+M_DELETE  = 'DELETE'
+M_HEAD = 'HEAD'
 
 HTTP_RESPONSE_CODES = {"100": "Continue",
                        "101": "Switching Protocols",
@@ -169,11 +169,39 @@ class HTTP(object):
     def chunked_transport_reader(self, transport, msg):
         raw_response = ""
         current_chunk = int(msg[0], 16)
+        print current_chunk
+        
         in_buf = "\n".join(msg[1:])
-        print in_buf[:current_chunk]
-        current_chunk = int(in_buf[current_chunk:], 16)
-        raw_response = in_buf
-        # print raw_response
+
+        buf_len = len(in_buf)
+
+        rest_len = current_chunk - buf_len
+
+        print rest_len
+
+        raw_response = raw_response + in_buf
+
+        
+        while rest_len > 0:
+            if rest_len > TCP_DEFAULT_FRAME_SIZE:
+                read_size = TCP_DEFAULT_FRAME_SIZE
+            else:
+                read_size = rest_len
+            try:
+                in_buf = transport.recv(read_size)
+            except Exception, e:
+                print e.message
+            print in_buf
+            raw_response += in_buf
+            rest_len = rest_len - read_size        
+
+            
+        # print in_buf[:current_chunk]
+        # print in_buf[current_chunk:]
+        # current_chunk = int(in_buf[current_chunk:], 16)
+        # raw_response = in_buf
+
+        print raw_response
         # print in_buf[current_chunk:]
         
         # while current_chunk > 0:
