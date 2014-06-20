@@ -165,55 +165,51 @@ class HTTP(object):
                 break
             raw_response = raw_response + in_buf
         return raw_response
+
+    def chunked_parser(self, raw_response):
+        #TODO: fix this horrible impl.
+        response = ""
+        current_chunk = 1
+        while current_chunk != 0:
+            data = raw_response.split('\s\r\n')
+            current_chunk = int(data[0], 16)
+            response = raw_response[len(data[0])+2:current_chunk]
+            raw_response = raw_response[current_chunk:]
+
+        # raw_response = raw_
+        # buf_len = len(
+        # print current_chunk
+        # print data[0]
+        # print data
+        
+        return response
     
     def chunked_transport_reader(self, transport, msg):
+        re_chunk = re.compile(r'^([a-z|\d]+)\r\n')
         raw_response = ""
-        current_chunk = int(msg[0], 16)
-        print current_chunk
-        
-        in_buf = "\n".join(msg[1:])
-
-        buf_len = len(in_buf)
-
-        rest_len = current_chunk - buf_len
-
-        print rest_len
+        # current_chunk = int(msg[0], 16)
+        # print "current chunk", current_chunk
+        in_buf = "\n".join(msg)
+        # buf_len = len(in_buf)
+        # rest_len = current_chunk - buf_len
+        # rest_len = rest_len + 100000
+        # print "rest len", rest_len
 
         raw_response = raw_response + in_buf
 
-        
-        while rest_len > 0:
-            if rest_len > TCP_DEFAULT_FRAME_SIZE:
-                read_size = TCP_DEFAULT_FRAME_SIZE
-            else:
-                read_size = rest_len
+        while 1:
             try:
-                in_buf = transport.recv(read_size)
+                in_buf = transport.recv(TCP_DEFAULT_FRAME_SIZE)
             except Exception, e:
                 print e.message
-            print in_buf
-            raw_response += in_buf
-            rest_len = rest_len - read_size        
+            fa = re_chunk.findall(in_buf)
+            raw_response += in_buf                
+            if len(fa) > 0:
+                if fa[0] == '0':
+                    raw_response += in_buf                
+                    break;
 
-            
-        # print in_buf[:current_chunk]
-        # print in_buf[current_chunk:]
-        # current_chunk = int(in_buf[current_chunk:], 16)
-        # raw_response = in_buf
-
-        print raw_response
-        # print in_buf[current_chunk:]
-        
-        # while current_chunk > 0:
-        #     try:
-        #         #in_buf = transport.recv(current_chunk)
-        #     except Exception, e:
-        #         print e.message
-        #     if len(in_buf) < 1:
-        #         break
-        #     print in_buf
-        #     raw_response = raw_response + in_buf
-        return raw_response
+        return self.chunked_parser(raw_response)
 
     def parse_message(self, transport, msg):
         #Parse all headers
