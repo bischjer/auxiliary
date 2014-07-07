@@ -167,33 +167,25 @@ class HTTP(object):
         return raw_response
 
     def chunked_parser(self, raw_response):
+        re_chunk = re.compile(r'^([a-f|\d]{1,4})\r')
         #TODO: fix this horrible impl.
         response = ""
-        current_chunk = 1
-        while current_chunk != 0:
-            data = raw_response.split('\s\r\n')
-            current_chunk = int(data[0], 16)
-            response = raw_response[len(data[0])+2:current_chunk]
-            raw_response = raw_response[current_chunk:]
-
-        # raw_response = raw_
-        # buf_len = len(
-        # print current_chunk
-        # print data[0]
-        # print data
-        
+        data = raw_response.split('\n')
+        curr_line = ""
+        for next_line in data:
+            is_next_a_chunk = re_chunk.findall(next_line)
+            if len(is_next_a_chunk) > 0:
+                next_chunk = int(is_next_a_chunk[0], 16)
+                curr_line.rstrip()
+            else:
+                curr_line = next_line                
+                response += curr_line
         return response
     
     def chunked_transport_reader(self, transport, msg):
         re_chunk = re.compile(r'^([a-z|\d]+)\r\n')
         raw_response = ""
-        # current_chunk = int(msg[0], 16)
-        # print "current chunk", current_chunk
         in_buf = "\n".join(msg)
-        # buf_len = len(in_buf)
-        # rest_len = current_chunk - buf_len
-        # rest_len = rest_len + 100000
-        # print "rest len", rest_len
 
         raw_response = raw_response + in_buf
 
@@ -208,7 +200,6 @@ class HTTP(object):
                 if fa[0] == '0':
                     raw_response += in_buf                
                     break;
-
         return self.chunked_parser(raw_response)
 
     def parse_message(self, transport, msg):

@@ -18,4 +18,4 @@ class WebTest(TestCase):
         headers.update(http.auth.basic("bischjer", "test")())
         response = http.get(url, headers=headers)
 
-        print response
+        print response.body
