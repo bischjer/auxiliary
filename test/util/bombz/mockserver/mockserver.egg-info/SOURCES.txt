@@ -1,0 +1,12 @@
+setup.cfg
+setup.py
+mockserver/__init__.py
+mockserver/sampleapp.py
+mockserver/wsgiapp.py
+mockserver.egg-info/PKG-INFO
+mockserver.egg-info/SOURCES.txt
+mockserver.egg-info/dependency_links.txt
+mockserver.egg-info/entry_points.txt
+mockserver.egg-info/not-zip-safe
+mockserver.egg-info/requires.txt
+mockserver.egg-info/top_level.txt

@@ -26,7 +26,8 @@ setup(name='aux',
         'Werkzeug',
         'carnifex',
       ],
-      entry_points="""
-      # -*- Entry points: -*-
-      """,
+      entry_points={
+        'console_scripts': [
+            'aux = aux:script_runner',
+        ]},
       )

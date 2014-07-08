@@ -1,0 +1,5 @@
+
+      # -*- Entry points: -*-
+      [paste.app_factory]
+      main = mockserver.wsgiapp:make_app
+      
