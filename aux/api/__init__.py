@@ -1,6 +1,7 @@
 from aux.scriptengine import ScriptEngine
 import paramiko
-from aux.protocols.http import HTTPClient
+# from aux.protocols.http import HTTPClient
+import httplib2
 
 def run(engine, func, *args, **kwargs):
     engine.start()
@@ -12,7 +13,8 @@ def run(engine, func, *args, **kwargs):
 
 ssh = paramiko.SSHClient()
 #ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-http = HTTPClient()
+# http = HTTPClient()
+http = httplib2.Http(".cache", disable_ssl_certificate_validation=True)
 
 
 
