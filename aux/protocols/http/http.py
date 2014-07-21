@@ -277,9 +277,17 @@ class HTTPClient(object):
         return _http.send(request)
         
 
-    def post(self, url, headers={}):
-        pass
-        # print url
+    def post(self, url, headers={}, body="", request=None):
+        if request == None:
+            request = HTTPRequest(url,
+                                  {'method':'POST',
+                                   'headers': headers,
+                                   'body': body})
+        _http = HTTP()
+        return _http.send(request)
+        
+        
+        
 
     def put(self, url):
         print url

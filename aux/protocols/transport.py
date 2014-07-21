@@ -60,14 +60,19 @@ class TLS_TCPTransport(TCPTransport):
     def __init__(self, hostname, port, timeout=10):
         super(TLS_TCPTransport, self).__init__(hostname, port)
         #TODO: Should do a better build up of ssl_socket
-        self.__connection = wrap_socket(socket(AF_INET, SOCK_STREAM), cert_reqs=CERT_NONE)
+        self.__connection = wrap_socket(socket(AF_INET, SOCK_STREAM),
+                                        cert_reqs=CERT_NONE,
+                                        do_handshake_on_connect=False)
         self.__connection.setsockopt(SOL_SOCKET,
                                      SO_REUSEADDR,
                                      1)
         self.__connection.settimeout(timeout)
         
     def connect(self):
-        self.__connection.connect(self.addr)
+        try:
+            self.__connection.connect(self.addr)
+        finally:
+            pass
         
     def send(self, message):
         self.__connection.write(message)
