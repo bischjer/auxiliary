@@ -1,4 +1,4 @@
-from aux.protocols.connection import TLS_TCPConnection
+from aux.protocol.connection import TLS_TCPConnection
 from urlparse import urlparse, urlunparse
 
 

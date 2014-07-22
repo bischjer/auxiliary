@@ -1,5 +1,5 @@
-from aux.protocols.http.https import HTTPSConnection
-from aux.protocols.soap.wsdl import WSDL
+from aux.protocol.http.https import HTTPSConnection
+from aux.protocol.soap.wsdl import WSDL
 from urlparse import urlparse
 
 

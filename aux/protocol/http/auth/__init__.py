@@ -1,4 +1,4 @@
-from aux.protocols.http.auth.basic import BasicAuthenticator
+from aux.protocol.http.auth.basic import BasicAuthenticator
 
 
 class Credentials(object):

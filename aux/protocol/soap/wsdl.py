@@ -1,7 +1,7 @@
 from lxml import objectify
 from lxml import etree
 from urlparse import urlparse
-from aux.protocols.http import HTTP, HTTPRequest, HTTPResponse
+from aux.protocol.http import HTTP, HTTPRequest, HTTPResponse
 
 
 class WSDLPort(object):

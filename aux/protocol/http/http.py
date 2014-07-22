@@ -1,5 +1,6 @@
-from aux.protocols.transport import TCPTransport, TCP_DEFAULT_FRAME_SIZE, TLS_TCPTransport
+from aux.protocol.transport import TCPTransport, TCP_DEFAULT_FRAME_SIZE, TLS_TCPTransport
 from urlparse import urlparse, urlunparse
+import logging
 import aux
 import auth
 import re
@@ -125,6 +126,7 @@ class HTTP(object):
     __transport_frame_size = TCP_DEFAULT_FRAME_SIZE #TODO: probably not usefull
 
     def __init__(self):
+        self.logger = logging.getLogger('aux.protocol.http')
         self._transport = None
    
     def get_transport(self, url, scheme="http", persist=False, timeout=60):
@@ -140,6 +142,7 @@ class HTTP(object):
                                      80 if url.port == None else int(url.port),
                                      timeout=timeout)
         transport.connect()
+        self.logger.debug('Connected to %s:%s' % (url.hostname, url.port))
         return transport
     
     def is_persistent(self):
@@ -255,6 +258,7 @@ class HTTP(object):
     
     def send(self, request):
         request.target = request.url.hostname
+
         #TODO: decide size for transfer
         # content-length is only for post and response
         #content-length | Transfer-encoding "chunked" | multipart/byteranges (rare/special) | server closes connection

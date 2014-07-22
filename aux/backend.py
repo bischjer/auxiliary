@@ -2,7 +2,7 @@ from twisted.internet import reactor, threads
 import threading
 import functools
 
-import aux.protocols as protocols_module
+import aux.protocol as protocol_module
 
 class Backend(object):
     def __init__(self):
