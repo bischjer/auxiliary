@@ -175,7 +175,7 @@ class HTTP(object):
         response = ""
         data = raw_response.split('\n')
         curr_line = ""
-        print "chunked_parser_entry"
+        # print "chunked_parser_entry"
         for next_line in data:
             is_next_a_chunk = re_chunk.findall(next_line)
             if len(is_next_a_chunk) > 0:
@@ -192,8 +192,6 @@ class HTTP(object):
         raw_response = ""
         in_buf = "\n".join(msg)
 
-        print "raw", raw_response
-        
         raw_response = raw_response + in_buf
 
         while 1:
@@ -226,17 +224,17 @@ class HTTP(object):
                 break
         tail_msg = h_lines[line_counter+1:]
         if headers.get('Transfer-Encoding', None) == 'chunked':
-            print headers
-            print "chunked"
+            # print headers
+            # print "chunked"
             body = self.chunked_transport_reader(transport, tail_msg)
         elif headers.get('Content-Length', None) != None:
-            print "cont length"
+            # print "cont length"
             if int(headers.get('Content-Length')) > 0:
                 body = self.default_transport_reader(transport, tail_msg, headers.get('Content-Length'))
             else:
                 body = ""
         else:
-            print "default"
+            # print "default"
             body = self.default_transport_reader(transport, tail_msg)
         return headers, body
     
@@ -248,7 +246,7 @@ class HTTP(object):
         tail_msg = "\n".join(inbuf[1:]) 
         status = re_startline.match(sl).groups()[0]
         headers, body = self.parse_message(transport, tail_msg)
-        print headers, body
+        # print headers, body
         return HTTPResponse(status, {'headers': headers, 'body': body})
     
     def receive(self, transport):
@@ -264,6 +262,8 @@ class HTTP(object):
         # content-length is only for post and response
         #content-length | Transfer-encoding "chunked" | multipart/byteranges (rare/special) | server closes connection
         # print 'has content-length', request.headers.get('Content-length', None)
+        if request.method == 'POST':
+            request.headers.update({'Content-Length': '%i' % len(request.body)})
         transport = self.get_transport(request.url, scheme=request.url.scheme)
         transport.send(str(request))
         return self.receive(transport)
