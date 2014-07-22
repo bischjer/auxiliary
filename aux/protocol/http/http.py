@@ -258,7 +258,8 @@ class HTTP(object):
     
     def send(self, request):
         request.target = request.url.hostname
-
+        print 'request\n', request
+        print ''
         #TODO: decide size for transfer
         # content-length is only for post and response
         #content-length | Transfer-encoding "chunked" | multipart/byteranges (rare/special) | server closes connection

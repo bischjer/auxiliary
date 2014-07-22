@@ -3,3 +3,4 @@ aux.egg-info
 *.pyo
 *~
 .ropeproject
+doc/_build

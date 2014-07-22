@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -50,114 +48,9 @@
 <h1>soap Package<a class="headerlink" href="#soap-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
 <h2><tt class="xref py py-mod docutils literal"><span class="pre">soap</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-aux.protocols.soap"></span><dl class="class">
-<dt id="aux.protocols.soap.Soap">
-<em class="property">class </em><tt class="descclassname">aux.protocols.soap.</tt><tt class="descname">Soap</tt><big>(</big><em>url</em><big>)</big><a class="headerlink" href="#aux.protocols.soap.Soap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="aux.protocols.http.html#aux.protocols.http.https.HTTPSConnection" title="aux.protocols.http.https.HTTPSConnection"><tt class="xref py py-class docutils literal"><span class="pre">aux.protocols.http.https.HTTPSConnection</span></tt></a></p>
-</dd></dl>
-
-<dl class="function">
-<dt id="aux.protocols.soap.connection">
-<tt class="descclassname">aux.protocols.soap.</tt><tt class="descname">connection</tt><big>(</big><em>url</em><big>)</big><a class="headerlink" href="#aux.protocols.soap.connection" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="aux.protocols.soap.create_wsdl">
-<tt class="descclassname">aux.protocols.soap.</tt><tt class="descname">create_wsdl</tt><big>(</big><em>wsdl_string</em><big>)</big><a class="headerlink" href="#aux.protocols.soap.create_wsdl" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </div>
-<div class="section" id="module-aux.protocols.soap.wsdl">
-<span id="wsdl-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">wsdl</span></tt> Module<a class="headerlink" href="#module-aux.protocols.soap.wsdl" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="aux.protocols.soap.wsdl.WSDL">
-<em class="property">class </em><tt class="descclassname">aux.protocols.soap.wsdl.</tt><tt class="descname">WSDL</tt><big>(</big><em>wsdl_url=None</em>, <em>wsdl_data=None</em><big>)</big><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDL" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<dl class="method">
-<dt id="aux.protocols.soap.wsdl.WSDL.get_wsdl_details">
-<tt class="descname">get_wsdl_details</tt><big>(</big><em>wsdl_url</em><big>)</big><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDL.get_wsdl_details" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="aux.protocols.soap.wsdl.WSDL.unmarshall_definition">
-<tt class="descname">unmarshall_definition</tt><big>(</big><em>resource</em><big>)</big><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDL.unmarshall_definition" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="aux.protocols.soap.wsdl.WSDLBinding">
-<em class="property">class </em><tt class="descclassname">aux.protocols.soap.wsdl.</tt><tt class="descname">WSDLBinding</tt><big>(</big><em>name</em>, <em>_type</em><big>)</big><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDLBinding" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="aux.protocols.soap.wsdl.WSDLElement">
-<em class="property">class </em><tt class="descclassname">aux.protocols.soap.wsdl.</tt><tt class="descname">WSDLElement</tt><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDLElement" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<dl class="attribute">
-<dt id="aux.protocols.soap.wsdl.WSDLElement.name">
-<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDLElement.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="aux.protocols.soap.wsdl.WSDLInterface">
-<em class="property">class </em><tt class="descclassname">aux.protocols.soap.wsdl.</tt><tt class="descname">WSDLInterface</tt><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDLInterface" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<dl class="attribute">
-<dt id="aux.protocols.soap.wsdl.WSDLInterface.name">
-<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDLInterface.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="aux.protocols.soap.wsdl.WSDLInterface.operations">
-<tt class="descname">operations</tt><em class="property"> = []</em><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDLInterface.operations" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="aux.protocols.soap.wsdl.WSDLMessage">
-<em class="property">class </em><tt class="descclassname">aux.protocols.soap.wsdl.</tt><tt class="descname">WSDLMessage</tt><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDLMessage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<dl class="attribute">
-<dt id="aux.protocols.soap.wsdl.WSDLMessage.name">
-<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDLMessage.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="aux.protocols.soap.wsdl.WSDLMessage.part">
-<tt class="descname">part</tt><em class="property"> = None</em><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDLMessage.part" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="aux.protocols.soap.wsdl.WSDLOperation">
-<em class="property">class </em><tt class="descclassname">aux.protocols.soap.wsdl.</tt><tt class="descname">WSDLOperation</tt><big>(</big><em>name</em>, <em>soapAction</em><big>)</big><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDLOperation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="aux.protocols.soap.wsdl.WSDLPort">
-<em class="property">class </em><tt class="descclassname">aux.protocols.soap.wsdl.</tt><tt class="descname">WSDLPort</tt><big>(</big><em>name</em>, <em>binding</em>, <em>extensibility=None</em><big>)</big><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDLPort" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="aux.protocols.soap.wsdl.WSDLService">
-<em class="property">class </em><tt class="descclassname">aux.protocols.soap.wsdl.</tt><tt class="descname">WSDLService</tt><big>(</big><em>name</em>, <em>documentation=None</em>, <em>ports=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDLService" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-</dd></dl>
-
-<dl class="class">
-<dt id="aux.protocols.soap.wsdl.WSDLTypes">
-<em class="property">class </em><tt class="descclassname">aux.protocols.soap.wsdl.</tt><tt class="descname">WSDLTypes</tt><a class="headerlink" href="#aux.protocols.soap.wsdl.WSDLTypes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-</dd></dl>
-
+<div class="section" id="wsdl-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">wsdl</span></tt> Module<a class="headerlink" href="#wsdl-module" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 
@@ -171,7 +64,7 @@
   <ul>
 <li><a class="reference internal" href="#">soap Package</a><ul>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">soap</span></tt> Package</a></li>
-<li><a class="reference internal" href="#module-aux.protocols.soap.wsdl"><tt class="docutils literal"><span class="pre">wsdl</span></tt> Module</a></li>
+<li><a class="reference internal" href="#wsdl-module"><tt class="docutils literal"><span class="pre">wsdl</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -212,7 +105,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2014, protojour.com.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1.
     </div>
   </body>
 </html>
