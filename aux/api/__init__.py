@@ -1,7 +1,6 @@
 from aux.scriptengine import ScriptEngine
 import paramiko
 from aux.protocol.http import HTTPClient
-import httplib2
 
 def run(engine, func, *args, **kwargs):
     engine.start()

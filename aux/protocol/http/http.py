@@ -6,6 +6,7 @@ import auth
 import re
 import os
 
+log = logging.getLogger("aux.protocol.http")
 
 uname = os.uname()
 USER_AGENT = "aux/%s (%s;)" % (aux.version(),
@@ -255,9 +256,8 @@ class HTTP(object):
         return response
     
     def send(self, request):
+        log.debug("Request:\n%s\n", request)
         request.target = request.url.hostname
-        print 'request\n', request
-        print ''
         #TODO: decide size for transfer
         # content-length is only for post and response
         #content-length | Transfer-encoding "chunked" | multipart/byteranges (rare/special) | server closes connection
