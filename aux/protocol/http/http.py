@@ -1,5 +1,7 @@
-from aux.protocol.transport import TCPTransport, TCP_DEFAULT_FRAME_SIZE, TLS_TCPTransport
+from aux.protocol.transport import TCPTransport, TLS_TCPTransport
 from urlparse import urlparse, urlunparse
+from transfer import transferFactory
+from mime import mimeFactory
 import logging
 import aux
 import auth
@@ -124,7 +126,6 @@ class HTTPResponse(HTTPMessage):
 
 class HTTP(object):
     __is_persistent = False
-    __transport_frame_size = TCP_DEFAULT_FRAME_SIZE #TODO: probably not usefull
 
     def __init__(self):
         self.logger = logging.getLogger('aux.protocol.http')
@@ -157,57 +158,11 @@ class HTTP(object):
             url = urlparse(urlunparse(l))        
         return url
 
-    def default_transport_reader(self, transport, msg, content_length):
-        raw_response = "\n".join(msg)
-        in_buf = ""
-        while 1:
-            try:
-                in_buf = transport.recv(2048)
-            except Exception, e:
-                print e.message
-            if len(in_buf) < 1:
-                break
-            raw_response = raw_response + in_buf
-        return raw_response
-
-    def chunked_parser(self, raw_response):
-        re_chunk = re.compile(r'^([a-f|\d]{1,4})\r')
-        #TODO: fix this horrible impl.
-        response = ""
-        data = raw_response.split('\n')
-        curr_line = ""
-        # print "chunked_parser_entry"
-        for next_line in data:
-            is_next_a_chunk = re_chunk.findall(next_line)
-            if len(is_next_a_chunk) > 0:
-                next_chunk = int(is_next_a_chunk[0], 16)
-                curr_line.rstrip()
-            else:
-                curr_line = next_line                
-                response += curr_line
-
-        return response
-    
-    def chunked_transport_reader(self, transport, msg):
-        re_chunk = re.compile(r'^([a-f|\d]+){1,4}\r\n')
-        raw_response = ""
-        in_buf = "\n".join(msg)
-
-        raw_response = raw_response + in_buf
-
-        while 1:
-            try:
-                in_buf = transport.recv(TCP_DEFAULT_FRAME_SIZE)
-            except Exception, e:
-                print e.message
-            fa = re_chunk.findall(in_buf)
-            raw_response += in_buf                
-            if len(fa) > 0:
-                if fa[0] == '0':
-                    raw_response += in_buf                
-                    break;
-
-        return self.chunked_parser(raw_response)
+    def body_reader(self, headers, transport, tail_msg):
+        Transfer = transferFactory(headers)
+        Mime = mimeFactory(headers)
+        return Mime(headers.get('Content-Disposition', None),
+                    Transfer(transport, tail_msg).read()).handle()
 
     def parse_message(self, transport, msg):
         #Parse all headers
@@ -224,19 +179,7 @@ class HTTP(object):
             else:
                 break
         tail_msg = h_lines[line_counter+1:]
-        if headers.get('Transfer-Encoding', None) == 'chunked':
-            # print headers
-            # print "chunked"
-            body = self.chunked_transport_reader(transport, tail_msg)
-        elif headers.get('Content-Length', None) != None:
-            # print "cont length"
-            if int(headers.get('Content-Length')) > 0:
-                body = self.default_transport_reader(transport, tail_msg, headers.get('Content-Length'))
-            else:
-                body = ""
-        else:
-            # print "default"
-            body = self.default_transport_reader(transport, tail_msg)
+        body = self.body_reader(headers, transport, tail_msg)
         return headers, body
     
     def parse_response(self, transport):
