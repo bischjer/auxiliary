@@ -83,8 +83,8 @@ class WSDL(object):
                                'data':''})
         http = HTTP()
         response = http.send(request)
-        print "before wsdl response"
-        print response
+        # print "before wsdl response"
+        # print response
         #TODO: useless?? return open(wsdl_url).read()
         return "<xml>fake</xml>"
 
