@@ -29,6 +29,7 @@ class ChunkedController(object):
     def chunked_parser(self, raw_response):
         re_chunk = re.compile(r'^([a-f|\d]{1,4})\r')
         #TODO: fix this horrible impl.
+        print raw_response
         response = ""
         data = raw_response.split('\n')
         curr_line = ""
@@ -61,7 +62,6 @@ class ChunkedController(object):
                 if fa[0] == '0':
                     raw_response += in_buf                
                     break;
-
         return self.chunked_parser(raw_response)
 
 def transferFactory(headers):

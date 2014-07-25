@@ -179,10 +179,13 @@ class HTTP(object):
             else:
                 break
         tail_msg = h_lines[line_counter+1:]
+        # for header in headers:
+        #     print header, ":", headers[header]
+        # print 
         body = self.body_reader(headers, transport, tail_msg)
         return headers, body
     
-    def parse_response(self, transport):
+    def receive(self, transport):
         #Validate start-line and remove it from buffer
         re_startline = re.compile(r'^HTTP\/\d\.\d\s(\d{3})\s')
         inbuf = transport.recv().split("\n")
@@ -190,11 +193,7 @@ class HTTP(object):
         tail_msg = "\n".join(inbuf[1:]) 
         status = re_startline.match(sl).groups()[0]
         headers, body = self.parse_message(transport, tail_msg)
-        # print headers, body
-        return HTTPResponse(status, {'headers': headers, 'body': body})
-    
-    def receive(self, transport):
-        response = self.parse_response(transport)
+        response = HTTPResponse(status, {'headers': headers, 'body': body})
         transport.close()
         return response
     
