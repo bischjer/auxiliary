@@ -43,14 +43,13 @@ class TCPTransport(Transport):
                                      1)        
     def connect(self):
         self.__connection.connect(self.addr)
-
         
     def send(self, message):
         self.__connection.sendto(message, self.addr)
 
     def recv(self, frame_size=TCP_DEFAULT_FRAME_SIZE):
         return self.__connection.recv(frame_size)
-
+    
     def close(self):
         self.__connection.close()
 
@@ -80,6 +79,14 @@ class TLS_TCPTransport(TCPTransport):
     def recv(self, n_of_bytes=TCP_DEFAULT_FRAME_SIZE):
         return self.__connection.read(n_of_bytes)
 
+    def recv_all(self):
+        data = self.recv(n_of_bytes=1000)
+        while data:
+            print "receiving", data
+            recv_buffer = data
+            data = self.recv(n_of_bytes=1000)
+        return recv_buffer
+    
     def close(self):
         self.__connection.close()
 
