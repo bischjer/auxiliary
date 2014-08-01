@@ -1,10 +1,10 @@
 from aux.protocol.transport import TCPTransport, TLS_TCPTransport
 from urlparse import urlparse, urlunparse
-from transfer import transferFactory
-from mime import mimeFactory
+from aux.protocol.http.transfer import transferFactory
+from aux.protocol.http.mime import mimeFactory
+import auth
 import logging
 import aux
-import auth
 import re
 import os
 
@@ -18,7 +18,9 @@ HTTP_DEFAULT_PORT = 80
 HTTPS_DEFAULT_PORT = 443
 TCP_FRAME_BUFFER_SIZE = 1500#bytes#hmmmm
 #TODO: enum wrapper
-HTTP_METHODS = ["OPTIONS", "GET","HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT"]#extension-method
+HTTP_METHODS = ["OPTIONS", "GET", "HEAD",
+                "POST", "PUT", "DELETE",
+                "TRACE", "CONNECT"]#extension-method
 M_GET  = 'GET'
 M_POST = 'POST'
 M_PUT  = 'PUT'
@@ -135,6 +137,7 @@ class HTTP(object):
         # if self._transport != None and persist:
         #     return self._transport
         #TODO: ternary default port assign is a bad idea as traceability is lost in request update url instead
+        transport = None
         if "https" == scheme.lower():
             transport = TLS_TCPTransport(url.hostname,
                                          443 if url.port == None else int(url.port),
@@ -186,10 +189,12 @@ class HTTP(object):
         return headers, body
     
     def receive(self, transport):
+
+        inbuf = transport.recv().split("\n")
+        # inbuf = transport.recv_all()
+        sl = inbuf[0]
         #Validate start-line and remove it from buffer
         re_startline = re.compile(r'^HTTP\/\d\.\d\s(\d{3})\s')
-        inbuf = transport.recv().split("\n")
-        sl = inbuf[0]
         tail_msg = "\n".join(inbuf[1:]) 
         status = re_startline.match(sl).groups()[0]
         headers, body = self.parse_message(transport, tail_msg)
@@ -200,10 +205,6 @@ class HTTP(object):
     def send(self, request):
         log.debug("Request:\n%s\n", request)
         request.target = request.url.hostname
-        #TODO: decide size for transfer
-        # content-length is only for post and response
-        #content-length | Transfer-encoding "chunked" | multipart/byteranges (rare/special) | server closes connection
-        # print 'has content-length', request.headers.get('Content-length', None)
         if request.method == 'POST':
             request.headers.update({'Content-Length': '%i' % len(request.body)})
         transport = self.get_transport(request.url, scheme=request.url.scheme)

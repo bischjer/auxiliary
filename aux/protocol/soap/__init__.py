@@ -1,9 +1,9 @@
-from aux.protocol.http.https import HTTPSConnection
+#TODO: REFACTOR from aux.protocol.http.https import HTTPSConnection
 from aux.protocol.soap.wsdl import WSDL
 from urlparse import urlparse
 
 
-class Soap(HTTPSConnection):
+class Soap(object):
 
     def __init__(self, url):
         super(Soap, self).__init__(url)

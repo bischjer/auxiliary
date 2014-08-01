@@ -11,8 +11,9 @@ class DefaultController(object):
         raw_response = "\n".join(self.msg)
         in_buf = ""
         while 1:
+            print "default controller"
             try:
-                in_buf = transport.recv(2048)
+                in_buf = self.transport.recv()
             except Exception, e:
                 print e.message
             if len(in_buf) < 1:

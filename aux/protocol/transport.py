@@ -65,6 +65,7 @@ class TLS_TCPTransport(TCPTransport):
         self.__connection.setsockopt(SOL_SOCKET,
                                      SO_REUSEADDR,
                                      1)
+        self.__connection.settimeout(1)
         self.__connection.settimeout(timeout)
         
     def connect(self):
