@@ -1,4 +1,5 @@
 import sys
+import os
 import device
 import plugin
 from optparse import OptionParser 
@@ -8,6 +9,8 @@ import aux
 def version():
     return pkg_resources.get_distribution(aux.__package__.title()).version
 
+def base_dir():
+    return os.path.abspath(os.path.dirname(aux.__file__))
 
 def script_runner():
     #read config file
