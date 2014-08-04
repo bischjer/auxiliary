@@ -196,7 +196,7 @@ class HTTP(object):
         tail_msg = "\n".join(inbuf[1:]) 
         status = int(re_startline.match(sl).groups()[0])
 
-        re_headline = re.compile(r'^(.*):\s(.*)\r')
+        re_headline = re.compile(r'^([A-Za-z\-]*)\s?:\s?(.*)\r')
         headers = dict()
         body = ""
         h_lines = tail_msg.split("\n")

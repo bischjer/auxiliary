@@ -43,11 +43,11 @@ class ChunkedController(object):
     def chunked_parser(self, raw_response):
         re_chunk = re.compile(r'^([a-f|\d]{1,4})\r')
         #TODO: fix this horrible impl.
-        print raw_response
+        # print raw_response
+        print "chunked controller"
         response = ""
         data = raw_response.split('\n')
         curr_line = ""
-        # print "chunked_parser_entry"
         for next_line in data:
             is_next_a_chunk = re_chunk.findall(next_line)
             if len(is_next_a_chunk) > 0:
@@ -59,23 +59,26 @@ class ChunkedController(object):
         return response
         
     def read(self):
+        print "chunked controller"
         re_chunk = re.compile(r'^([a-f|\d]+){1,4}\r\n')
         raw_response = ""
         in_buf = "\n".join(self.msg)
 
         raw_response = raw_response + in_buf
-
-        while 1:
-            try:
-                in_buf = self.transport.recv(TCP_DEFAULT_FRAME_SIZE)
-            except Exception, e:
-                print e.message
-            fa = re_chunk.findall(in_buf)
-            raw_response += in_buf                
-            if len(fa) > 0:
-                if fa[0] == '0':
-                    raw_response += in_buf                
-                    break;
+        print raw_response
+        #TODO: fix this
+        # while 1:
+        #     try:
+        #         print "hey"
+        #         in_buf = self.transport.recv(TCP_DEFAULT_FRAME_SIZE)
+        #     except Exception, e:
+        #         print e.message
+        #     fa = re_chunk.findall(in_buf)
+        #     raw_response += in_buf                
+        #     if len(fa) > 0:
+        #         if fa[0] == '0':
+        #             raw_response += in_buf                
+        #             break;
         return self.chunked_parser(raw_response)
 
 def transferFactory(headers):
