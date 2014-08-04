@@ -6,9 +6,17 @@ class FakeTransport(object):
 
     def __init__(self, message):
         self.fake_message = message
-
-    def recv(self):
-        return self.fake_message
+        self.bytes_read = 0
+        
+    def recv(self, nofchar=1200):
+        buffer = ""
+        for n in xrange(0, nofchar):
+            if self.bytes_read >= len(self.fake_message):
+                break
+            else:
+                buffer += self.fake_message[self.bytes_read]
+            self.bytes_read += 1
+        return buffer
     
     def close(self):
         pass
@@ -24,19 +32,11 @@ class HTTP_RECEIVE_TEST(TestCase):
                           200)
 
     def test_receive_200_only_headers(self):
-        message = """HTTP/1.1 200 OK
-Server: nginx/1.5.13
-Date: Sat, 02 Aug 2014 19:40:38 GMT
-Content-Type: text/html
-Content-Length: 0
-Last-Modified: Mon, 14 Apr 2014 08:38:26 GMT
-Connection: keep-alive
-Expires: Sat, 02 Aug 2014 20:40:38 GMT
-Cache-Control: max-age=3600
-Accept-Ranges: bytes
+        message = """HTTP/1.1 200 OK\r\nServer: nginx/1.5.13\r\nDate: Sat, 02 Aug 2014 19:40:38 GMT\r\nContent-Type: text/html\r\nContent-Length: 0\r\nLast-Modified: Mon, 14 Apr 2014 08:38:26 GMT\r\nConnection: keep-alive\r\nExpires: Sat, 02 Aug 2014 20:40:38 GMT\r\nCache-Control: max-age=3600\r\nAccept-Ranges: bytes\r\n\r\n
 """
         http = HTTP()
         response = http.receive(FakeTransport(message))
-        print response
-        # self.assertEquals(response.headers == )
+        self.assertEquals(len(response.body), 0)
+        self.assertEquals(len(response.headers), 8)
+                          
 

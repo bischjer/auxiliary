@@ -161,41 +161,62 @@ class HTTP(object):
             url = urlparse(urlunparse(l))        
         return url
 
-    def parse_message(self, transport, msg):
-        # #Parse all headers
-        # re_headline = re.compile(r'^(.*):\s(.*)\r')
-        # headers = dict()
-        # body = ""
-        # h_lines = msg.split("\n")
-        # line_counter = 0
-        # for line in h_lines[1:]:
-        #     line_counter += 1
-        #     if ":" in line:
-        #         re_group = re_headline.match(line).groups()
-        #         headers[re_group[0]] = re_group[1]
-        #     else:
-        #         break
-        # tail_msg = h_lines[line_counter+1:]
-        # # for header in headers:
-        # #     print header, ":", headers[header]
-        # # print 
-        Transfer = transferFactory(headers)
-        Mime = mimeFactory(headers)
-        body = Mime(Transfer(transport).read()).handle()
-        return headers, body
+    # def parse_message(self, transport, msg):
+    #     #Parse all headers
+        
+    #     re_headline = re.compile(r'^(.*):\s(.*)\r')
+    #     headers = dict()
+    #     body = ""
+    #     h_lines = msg.split("\n")
+    #     line_counter = 0
+    #     for line in h_lines[1:]:
+    #         line_counter += 1
+    #         if ":" in line:
+    #             re_group = re_headline.match(line).groups()
+    #             headers[re_group[0]] = re_group[1]
+    #         else:
+    #             break
+    #     tail_msg = h_lines[line_counter+1:]
+    #     # for header in headers:
+    #     #     print header, ":", headers[header]
+    #     # print 
+    #     Transfer = transferFactory(headers)
+    #     Mime = mimeFactory(headers)
+    #     body = Mime(headers.get('Content-Disposition', None),
+    #                 Transfer(transport, tail_msg).read()).handle()
+    #     return headers, body
     
     def receive(self, transport):
-        inbuf = transport.recv().split("\n")
-        
+        inbuf = transport.recv()
+        inbuf = inbuf.split("\n")
         # inbuf = transport.recv_all()
         sl = inbuf[0]
         #Validate start-line and remove it from buffer
         re_startline = re.compile(r'^HTTP\/\d\.\d\s(\d{3})\s')
         tail_msg = "\n".join(inbuf[1:]) 
         status = int(re_startline.match(sl).groups()[0])
-        headers, body = self.parse_message(transport, tail_msg)
-        # headers = {}
-        # body = ""
+
+        re_headline = re.compile(r'^(.*):\s(.*)\r')
+        headers = dict()
+        body = ""
+        h_lines = tail_msg.split("\n")
+        line_counter = 0
+        for line in h_lines[1:]:
+            line_counter += 1
+            if ":" in line:
+                re_group = re_headline.match(line).groups()
+                headers[re_group[0]] = re_group[1]
+            else:
+                break
+        tail_msg = h_lines[line_counter+1:]
+        # for header in headers:
+        #     print header, ":", headers[header]
+        # print 
+        Transfer = transferFactory(headers)
+        Mime = mimeFactory(headers)
+        body = Mime(headers.get('Content-Disposition', None),
+                    Transfer(headers, transport, tail_msg).read()).handle()
+        
         response = HTTPResponse(status, {'headers': headers, 'body': body})
         transport.close()
         return response

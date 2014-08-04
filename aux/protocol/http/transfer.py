@@ -3,7 +3,8 @@ import re
 
 class DefaultController(object):
 
-    def __init__(self, transport, msg):
+    def __init__(self, headers, transport, msg):
+        self.headers = headers
         self.transport = transport
         self.msg = msg
 
@@ -19,11 +20,23 @@ class DefaultController(object):
             if len(in_buf) < 1:
                 break
             raw_response = raw_response + in_buf
+            print "[", raw_response, "]"
+            in_buf = ""
         return raw_response
-        
+
+class NoContentController(object):
+    def __init__(self, headers, transport, msg):
+        self.headers = headers
+        self.transport = transport
+        self.message = msg
+
+    def read(self):
+        return ""
+    
 class ChunkedController(object):
 
-    def __init__(self, transport, msg):
+    def __init__(self, headers, transport, msg):
+        self.headers = headers
         self.transport = transport
         self.msg = msg
 
@@ -66,6 +79,10 @@ class ChunkedController(object):
         return self.chunked_parser(raw_response)
 
 def transferFactory(headers):
+    content_length = headers.get('Content-Length', None)
+    if content_length != None:
+        if int(content_length) < 1:
+            return NoContentController
     content_type = headers.get('Transfer-Encoding', None)
     if content_type != None:
         if 'chunked' in content_type.lower():
