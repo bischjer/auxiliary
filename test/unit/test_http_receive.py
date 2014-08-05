@@ -44,11 +44,28 @@ class HTTP_RECEIVE_TEST(TestCase):
         response = http.receive(FakeTransport(message))
         self.assertEqual(len(response.body), 15)
 
+    def test_receive_200_with_chunked_no_body(self):
+        message = """HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding : chunked\r\n\r\n0\r\n\r\n0"""
+        http = HTTP()
+        response = http.receive(FakeTransport(message))
+        self.assertEqual(len(response.body), 14)
+
+        
     def test_receive_200_with_chunked_body(self):
         message = """HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding : chunked\r\n\r\n1a\r\nABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n0\r\n\r\n0"""
         http = HTTP()
         response = http.receive(FakeTransport(message))
-        # print "[",response.body,"]"
         self.assertEqual(len(response.body), 26)
 
+    def test_receive_200_with_chunked_multi_body(self):
+        message = """HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding : chunked\r\n\r\n1a\r\nABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n34\r\nABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n34\r\nABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n34\r\nABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n34\r\nABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n0\r\n\r\n0"""
+        http = HTTP()
+        response = http.receive(FakeTransport(message))
+        self.assertEqual(len(response.body), 234)
+
+    def test_receive_200_with_chunked_binary_body(self):
+        message = """HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding : chunked\r\n\r\n0\r\n\r\n0"""
+        http = HTTP()
+        response = http.receive(FakeTransport(message))
+        self.assertEqual(len(response.body), 14)
         

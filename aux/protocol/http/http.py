@@ -193,8 +193,12 @@ class HTTP(object):
         sl = inbuf[0]
         #Validate start-line and remove it from buffer
         re_startline = re.compile(r'^HTTP\/\d\.\d\s(\d{3})\s')
-        tail_msg = "\n".join(inbuf[1:]) 
-        status = int(re_startline.match(sl).groups()[0])
+        tail_msg = "\n".join(inbuf[1:])
+        try:
+            status = int(re_startline.match(sl).groups()[0])
+        except Exception, e:
+            print e.message
+            raise Exception
 
         re_headline = re.compile(r'^([A-Za-z\-]*)\s?:\s?(.*)\r')
         headers = dict()

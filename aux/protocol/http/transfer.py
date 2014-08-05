@@ -12,7 +12,7 @@ class DefaultController(object):
         raw_response = "\n".join(self.msg)
         in_buf = ""
         while 1:
-            print "default controller"
+            # print "default controller"
             try:
                 in_buf = self.transport.recv()
             except Exception, e:
@@ -20,7 +20,7 @@ class DefaultController(object):
             if len(in_buf) < 1:
                 break
             raw_response = raw_response + in_buf
-            print "[", raw_response, "]"
+            # print "[", raw_response, "]"
             in_buf = ""
         return raw_response
 
@@ -41,44 +41,27 @@ class ChunkedController(object):
         self.msg = msg
 
     def chunked_parser(self, raw_response):
-        re_chunk = re.compile(r'^([a-f|\d]{1,4})\r')
+        re_chunk = re.compile(r'^([a-f|\d]{1,4})\r\n')
+        re_end_chunk = re.compile(r'^0\r\n\r\n0')
         #TODO: fix this horrible impl.
-        # print raw_response
-        print "chunked controller"
         response = ""
-        data = raw_response.split('\n')
-        curr_line = ""
-        for next_line in data:
-            is_next_a_chunk = re_chunk.findall(next_line)
-            if len(is_next_a_chunk) > 0:
-                next_chunk = int(is_next_a_chunk[0], 16)
-                curr_line.rstrip()
-            else:
-                curr_line = next_line                
-                response += curr_line
+        while 1:
+            next_chunk = re_chunk.findall(raw_response[0:8])
+            end_chunk = re_end_chunk.findall(raw_response[0:8])
+            if len(next_chunk) > 0:
+                if int(next_chunk[0], 16) == 0 or len(end_chunk) > 0:
+                    break
+                raw_response = raw_response[len(next_chunk[0])+2:]
+                response += raw_response[:int(next_chunk[0], 16)]
+                raw_response = raw_response[int(next_chunk[0], 16)+2:]
         return response
         
     def read(self):
-        print "chunked controller"
         re_chunk = re.compile(r'^([a-f|\d]+){1,4}\r\n')
         raw_response = ""
         in_buf = "\n".join(self.msg)
-
         raw_response = raw_response + in_buf
-        print raw_response
-        #TODO: fix this
-        # while 1:
-        #     try:
-        #         print "hey"
-        #         in_buf = self.transport.recv(TCP_DEFAULT_FRAME_SIZE)
-        #     except Exception, e:
-        #         print e.message
-        #     fa = re_chunk.findall(in_buf)
-        #     raw_response += in_buf                
-        #     if len(fa) > 0:
-        #         if fa[0] == '0':
-        #             raw_response += in_buf                
-        #             break;
+        #TODO: Should we read here har do we just take a complete read??
         return self.chunked_parser(raw_response)
 
 def transferFactory(headers):
