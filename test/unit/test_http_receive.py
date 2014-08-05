@@ -48,7 +48,7 @@ class HTTP_RECEIVE_TEST(TestCase):
         message = """HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding : chunked\r\n\r\n0\r\n\r\n0"""
         http = HTTP()
         response = http.receive(FakeTransport(message))
-        self.assertEqual(len(response.body), 14)
+        self.assertEqual(len(response.body), 0)
 
         
     def test_receive_200_with_chunked_body(self):
