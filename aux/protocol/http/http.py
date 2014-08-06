@@ -187,6 +187,7 @@ class HTTP(object):
     #     return headers, body
     
     def receive(self, transport):
+        #TODO: this impl needs TLC
         inbuf = transport.recv()
         inbuf = inbuf.split("\n")
         # inbuf = transport.recv_all()
@@ -200,22 +201,20 @@ class HTTP(object):
             print e.message
             raise Exception
 
-        re_headline = re.compile(r'^([A-Za-z\-]*)\s?:\s?(.*)\r')
+        re_headline = re.compile(r'^([A-Za-z\-]*)\s?\:\s?(.*)')
         headers = dict()
         body = ""
-        h_lines = tail_msg.split("\n")
+        t_lines = tail_msg.split("\r\n\r\n")
+        h_lines = t_lines[0].split("\n")
         line_counter = 0
-        for line in h_lines[1:]:
+        for line in h_lines:
             line_counter += 1
             if ":" in line:
                 re_group = re_headline.match(line).groups()
                 headers[re_group[0]] = re_group[1]
             else:
                 break
-        tail_msg = h_lines[line_counter+1:]
-        # for header in headers:
-        #     print header, ":", headers[header]
-        # print 
+        tail_msg = tail_msg[len(t_lines[0])+4:]
         Transfer = transferFactory(headers)
         Mime = mimeFactory(headers)
         body = Mime(headers.get('Content-Disposition', None),

@@ -1,6 +1,7 @@
 from unittest2 import TestCase
 from aux.protocol.http.http import HTTP
-
+import struct
+import os
 
 class FakeTransport(object):
 
@@ -36,7 +37,7 @@ class HTTP_RECEIVE_TEST(TestCase):
         http = HTTP()
         response = http.receive(FakeTransport(message))
         self.assertEquals(len(response.body), 0)
-        self.assertEquals(len(response.headers), 8)
+        self.assertEquals(len(response.headers), 9)
                           
     def test_receive_200_with_json_body(self):
         message = """HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 15\r\n\r\n{{Hello:world}}"""
@@ -64,8 +65,13 @@ class HTTP_RECEIVE_TEST(TestCase):
         self.assertEqual(len(response.body), 234)
 
     def test_receive_200_with_chunked_binary_body(self):
-        message = """HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding : chunked\r\n\r\n0\r\n\r\n0"""
+        byte_range = 256
+        data = "".join([struct.pack('B', i) for i in xrange(0,byte_range)])
+        message = """HTTP/1.1 200 OK\r\nContent-Type: application/zip;charset=UTF-8\r\nTransfer-Encoding : chunked\r\nContent-Disposition : attachment; filename="test_chunkbin.zip"\r\n\r\n100\r\n%s\r\n0\r\n\r\n0""" % data
         http = HTTP()
         response = http.receive(FakeTransport(message))
-        self.assertEqual(len(response.body), 14)
+        self.assertEqual(response.body, "/tmp/aux/test_chunkbin.zip")
+        self.assertTrue(os.path.exists(response.body))
+        self.assertEqual(os.path.getsize(response.body), byte_range)
+        
         

@@ -9,29 +9,17 @@ class DefaultController(object):
         self.msg = msg
 
     def read(self):
-        raw_response = "\n".join(self.msg)
-        in_buf = ""
-        while 1:
-            # print "default controller"
-            try:
-                in_buf = self.transport.recv()
-            except Exception, e:
-                print e.message
-            if len(in_buf) < 1:
-                break
-            raw_response = raw_response + in_buf
-            # print "[", raw_response, "]"
-            in_buf = ""
-        return raw_response
+        content_length = int(self.headers.get('Content-Length', 0))
+        return self.msg[0: content_length]
 
 class NoContentController(object):
     def __init__(self, headers, transport, msg):
         self.headers = headers
         self.transport = transport
-        self.message = msg
+        self.msg = msg
 
     def read(self):
-        return ""
+        return self.msg
     
 class ChunkedController(object):
 
@@ -39,11 +27,12 @@ class ChunkedController(object):
         self.headers = headers
         self.transport = transport
         self.msg = msg
-
-    def chunked_parser(self, raw_response):
+        
+    def read(self):
         re_chunk = re.compile(r'^([a-f|\d]{1,4})\r\n')
         re_end_chunk = re.compile(r'^0\r\n\r\n0')
         #TODO: fix this horrible impl.
+        raw_response = self.msg
         response = ""
         while 1:
             next_chunk = re_chunk.findall(raw_response[0:8])
@@ -55,14 +44,6 @@ class ChunkedController(object):
                 response += raw_response[:int(next_chunk[0], 16)]
                 raw_response = raw_response[int(next_chunk[0], 16)+2:]
         return response
-        
-    def read(self):
-        re_chunk = re.compile(r'^([a-f|\d]+){1,4}\r\n')
-        raw_response = ""
-        in_buf = "\n".join(self.msg)
-        raw_response = raw_response + in_buf
-        #TODO: Should we read here har do we just take a complete read??
-        return self.chunked_parser(raw_response)
 
 def transferFactory(headers):
     content_length = headers.get('Content-Length', None)
