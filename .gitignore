@@ -4,3 +4,4 @@ aux.egg-info
 *~
 .ropeproject
 doc/_build
+#*
