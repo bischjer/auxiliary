@@ -45,6 +45,14 @@ class HTTP_RECEIVE_TEST(TestCase):
         response = http.receive(FakeTransport(message))
         self.assertEqual(len(response.body), 15)
 
+    def test_receive_200_with_long_body(self):
+        data_length = 1664
+        data = "".join(['ABCDEFGHIJKLMNOPQRSTUVWXYZ'[i%26] for i in xrange(0, data_length)])
+        message = """HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %i\r\n\r\n%s""" % (data_length, data)
+        http = HTTP()
+        response = http.receive(FakeTransport(message))
+        self.assertEqual(len(response.body), data_length)
+        
     def test_receive_200_with_chunked_no_body(self):
         message = """HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nTransfer-Encoding : chunked\r\n\r\n0\r\n\r\n0"""
         http = HTTP()

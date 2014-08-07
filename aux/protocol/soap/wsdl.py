@@ -110,7 +110,7 @@ class WSDL(object):
             for port in service.findall('{http://schemas.xmlsoap.org/wsdl/}port'):
                 port_name = port.attrib.get('name', None)
                 port_binding = port.attrib.get('binding', None)
-                print port.text
+                # print port.text
                 port_extensibility = port.text
                 # print port_extensibility
                 service_ports.append(WSDLPort(port_name,
@@ -122,7 +122,8 @@ class WSDL(object):
                                              service_ports))
 
         if len(self.services) > 0:
-            print self.services[0].name
+            pass
+            # print self.services[0].name
 
         # if service:
         #     print service.tag

@@ -9,8 +9,18 @@ class DefaultController(object):
         self.msg = msg
 
     def read(self):
+        raw_response = self.msg
         content_length = int(self.headers.get('Content-Length', 0))
-        return self.msg[0: content_length]
+        response = ""
+        while 1:
+            if content_length < 1:
+                break
+            if content_length > len(raw_response):
+                raw_response += self.transport.recv()
+            response += raw_response
+            content_length -= len(raw_response)
+            raw_response = ""
+        return response
 
 class NoContentController(object):
     def __init__(self, headers, transport, msg):
