@@ -31,12 +31,14 @@ class ChunkedController(object):
     def read(self):
         re_chunk = re.compile(r'^([a-f|\d]{1,4})\r\n')
         re_end_chunk = re.compile(r'^0\r\n\r\n0')
-        #TODO: fix this horrible impl.
+        #TODO: this could be better
         raw_response = self.msg
         response = ""
         while 1:
             next_chunk = re_chunk.findall(raw_response[0:8])
             end_chunk = re_end_chunk.findall(raw_response[0:8])
+            if int(next_chunk[0], 16) > len(raw_response):
+                raw_response += self.transport.recv()
             if len(next_chunk) > 0:
                 if int(next_chunk[0], 16) == 0 or len(end_chunk) > 0:
                     break

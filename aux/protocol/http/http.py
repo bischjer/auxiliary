@@ -198,7 +198,6 @@ class HTTP(object):
         
         response = HTTPResponse(status, {'headers': headers, 'body': body})
         transport.close()
-        print 'in http receive', response
         return response
     
     def send(self, request):
