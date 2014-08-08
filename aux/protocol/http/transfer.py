@@ -39,22 +39,31 @@ class ChunkedController(object):
         self.msg = msg
         
     def read(self):
+        #Setup
         re_chunk = re.compile(r'^([a-f|\d]{1,4})\r\n')
         re_end_chunk = re.compile(r'^0\r\n\r\n0')
-        #TODO: this could be better
         raw_response = self.msg
         response = ""
+        block = 0
+        chunk_cdown = 0
         while 1:
-            next_chunk = re_chunk.findall(raw_response[0:8])
-            end_chunk = re_end_chunk.findall(raw_response[0:8])
-            if int(next_chunk[0], 16) > len(raw_response):
-                raw_response += self.transport.recv()
-            if len(next_chunk) > 0:
-                if int(next_chunk[0], 16) == 0 or len(end_chunk) > 0:
-                    break
-                raw_response = raw_response[len(next_chunk[0])+2:]
-                response += raw_response[:int(next_chunk[0], 16)]
-                raw_response = raw_response[int(next_chunk[0], 16)+2:]
+            if chunk_cdown == 0:
+                next_chunk = re_chunk.findall(raw_response[0:8])
+                end_chunk = re_end_chunk.findall(raw_response[0:8])
+                if len(next_chunk) > 0:
+                    i_next_chunk = int(next_chunk[0], 16)
+                    chunk_cdown = i_next_chunk
+                    raw_response = raw_response[len(next_chunk[0])+2:]
+                    if i_next_chunk == 0 or len(end_chunk) > 0:
+                        break        
+            if i_next_chunk > len(raw_response):
+                    raw_response += self.transport.recv()
+            if len(raw_response) < 0:
+                break
+            block, nl_skip = (len(raw_response), 0) if len(raw_response) < chunk_cdown else (chunk_cdown, 1)
+            response += raw_response[:block]
+            raw_response = raw_response[block+nl_skip:]
+            chunk_cdown -= block
         return response
 
 def transferFactory(headers):

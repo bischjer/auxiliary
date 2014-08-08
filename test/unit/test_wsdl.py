@@ -1,5 +1,5 @@
 from unittest2 import TestCase
-from aux.protocols.soap.wsdl import WSDL
+from aux.protocol.soap.wsdl import WSDL
 
 
 class WSDLTest(TestCase):
