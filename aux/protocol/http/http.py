@@ -161,31 +161,6 @@ class HTTP(object):
             url = urlparse(urlunparse(l))        
         return url
 
-    # def parse_message(self, transport, msg):
-    #     #Parse all headers
-        
-    #     re_headline = re.compile(r'^(.*):\s(.*)\r')
-    #     headers = dict()
-    #     body = ""
-    #     h_lines = msg.split("\n")
-    #     line_counter = 0
-    #     for line in h_lines[1:]:
-    #         line_counter += 1
-    #         if ":" in line:
-    #             re_group = re_headline.match(line).groups()
-    #             headers[re_group[0]] = re_group[1]
-    #         else:
-    #             break
-    #     tail_msg = h_lines[line_counter+1:]
-    #     # for header in headers:
-    #     #     print header, ":", headers[header]
-    #     # print 
-    #     Transfer = transferFactory(headers)
-    #     Mime = mimeFactory(headers)
-    #     body = Mime(headers.get('Content-Disposition', None),
-    #                 Transfer(transport, tail_msg).read()).handle()
-    #     return headers, body
-    
     def receive(self, transport):
         #TODO: this impl needs TLC
         inbuf = transport.recv()
@@ -217,6 +192,7 @@ class HTTP(object):
         tail_msg = tail_msg[len(t_lines[0])+4:]
         Transfer = transferFactory(headers)
         Mime = mimeFactory(headers)
+
         body = Mime(headers.get('Content-Disposition', None),
                     Transfer(headers, transport, tail_msg).read()).handle()
         

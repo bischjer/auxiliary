@@ -1,5 +1,5 @@
 from unittest2 import TestCase
-from aux.protocols.http import HTTPRequest, HTTPResponse
+from aux.protocol.http.http import HTTPRequest, HTTPResponse
 
 
 class HTTP_Test(TestCase):
