@@ -212,31 +212,27 @@ class HTTP(object):
     
 class HTTPClient(object):
     auth = auth
+
+    def http_send(self, method, url, headers, body, request):
+        if request == None:
+            request = HTTPRequest(url,
+                                  {'method': method,
+                                   'headers': headers,
+                                   'body': body})
+        _http = HTTP()
+        return _http.send(request)
+
+    def head(self, url=None, headers={}, request=None):
+        return self.http_send('HEAD', url, headers, "", request)
     
     def get(self, url=None, headers={}, body="", request=None):
-        if request == None:
-            request = HTTPRequest(url,
-                                  {'method':'GET',
-                                   'headers': headers,
-                                   'body': body})
-        _http = HTTP()
-        return _http.send(request)
-        
+        return self.http_send('GET', url, headers, body, request)
 
     def post(self, url, headers={}, body="", request=None):
-        if request == None:
-            request = HTTPRequest(url,
-                                  {'method':'POST',
-                                   'headers': headers,
-                                   'body': body})
-        _http = HTTP()
-        return _http.send(request)
-        
-        
-        
+        return self.http_send('POST', url, headers, body, request)
 
-    def put(self, url):
-        print url
+    def put(self, url, headers={}, body="", request=None):
+        return self.http_send('PUT', url, headers, body, request)
 
-        # print url
-
+    def delete(self, url, headers={}, body="", request=None):
+        return self.http_send('DELETE', url, headers, body, request)
