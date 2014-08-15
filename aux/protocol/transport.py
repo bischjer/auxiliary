@@ -1,7 +1,7 @@
 from socket import ( socket, AF_INET, SOCK_DGRAM,
                      IPPROTO_TCP, SOCK_STREAM,
                      SOL_SOCKET, SO_REUSEADDR)
-from ssl import wrap_socket, CERT_NONE
+from ssl import wrap_socket, CERT_NONE, SSLError
 
 TCP_DEFAULT_FRAME_SIZE = 1200
 
@@ -53,11 +53,14 @@ class TCPTransport(Transport):
     def close(self):
         self.__connection.close()
 
+class CertificationHostnameMismatch(Exception):pass        
 
 class TLS_TCPTransport(TCPTransport):
     #TODO: This should just be a wrapper 
-    def __init__(self, hostname, port, timeout=10):
+    def __init__(self, hostname, port, timeout=1):
         super(TLS_TCPTransport, self).__init__(hostname, port)
+
+        self.disable_ssl_certificate_validation = True
         #TODO: Should do a better build up of ssl_socket
         self.__connection = wrap_socket(socket(AF_INET, SOCK_STREAM),
                                         cert_reqs=CERT_NONE,
@@ -65,20 +68,30 @@ class TLS_TCPTransport(TCPTransport):
         self.__connection.setsockopt(SOL_SOCKET,
                                      SO_REUSEADDR,
                                      1)
-        self.__connection.settimeout(1)
         self.__connection.settimeout(timeout)
         
     def connect(self):
         try:
             self.__connection.connect(self.addr)
-        finally:
-            pass
+
+            if not self.disable_ssl_certificate_validation:
+                cert = self.__connection.getpeercert()
+                hostname = "hello"
+                if not self._validateCertificateHostname(cert, hostname):
+                    raise CertificationHostnameMismatch(
+                        'Server presented certificate that does not match ')
+            
+        except SSLError, e:
+            print e
         
     def send(self, message):
         self.__connection.write(message)
 
     def recv(self, n_of_bytes=TCP_DEFAULT_FRAME_SIZE):
-        return self.__connection.read(n_of_bytes)
+        try: 
+            return self.__connection.read(n_of_bytes)
+        except Exception, e:
+            print e
 
     def recv_all(self):
         data = self.recv(n_of_bytes=1000)
@@ -92,5 +105,18 @@ class TLS_TCPTransport(TCPTransport):
         self.__connection.close()
 
 
+    def _getValidHostsForCert(self, cert):
+        if 'subjectAltName' in cert:
+            return [x[1] for x in cert['subjectAltName']
+                    if x[0].lower() == 'dns']
+        else:
+            return [x[0][1] for x in cert['subject']
+                    if x[0][0].lower() == 'commonname']        
 
-
+    def _validateCertificateHostname(self, cert, hostname):
+        hosts = self._getValidHostsForCert(cert)
+        for host in hosts:
+            host_re = host.replace('.', '\.').replace('*', '[^.]*')
+            if re.search('^%s$' % (host_re,), hostname, re.I):
+                return True
+        return False
