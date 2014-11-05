@@ -36,7 +36,7 @@ class UDPTransport(Transport):
         self.__connection.close()
     
 class TCPTransport(Transport):
-    def __init__(self, hostname, port):
+    def __init__(self, hostname, port, timeout=10):
         super(TCPTransport, self).__init__(hostname, port)
         self.__connection = socket(AF_INET, SOCK_STREAM)
         self.__connection.setsockopt(SOL_SOCKET,

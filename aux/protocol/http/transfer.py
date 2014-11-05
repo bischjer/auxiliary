@@ -39,26 +39,30 @@ class ChunkedController(object):
         self.msg = msg
         
     def read(self):
-        #Setup
         re_chunk = re.compile(r'^([a-f|\d]{1,4})\r\n')
         re_end_chunk = re.compile(r'^0\r\n\r\n0')
+        re_single_end_chunk = re.compile(r'0\r\n\r\n')
         raw_response = self.msg
         response = ""
         block = 0
         chunk_cdown = 0
+        i_next_chunk = 0
         while 1:
             if chunk_cdown == 0:
                 next_chunk = re_chunk.findall(raw_response[0:8])
                 end_chunk = re_end_chunk.findall(raw_response[0:8])
+                broken_end_chunk = re_single_end_chunk.findall(raw_response[0:8])
                 if len(next_chunk) > 0:
                     i_next_chunk = int(next_chunk[0], 16)
                     chunk_cdown = i_next_chunk
                     raw_response = raw_response[len(next_chunk[0])+2:]
                     if i_next_chunk == 0 or len(end_chunk) > 0:
-                        break        
+                        break
+            if len(broken_end_chunk) > 0:
+                break
             if i_next_chunk > len(raw_response):
                     raw_response += self.transport.recv()
-            if len(raw_response) < 0:
+            if len(raw_response) <= 0:
                 break
             block, nl_skip = (len(raw_response), 0) if len(raw_response) < chunk_cdown else (chunk_cdown, 1)
             response += raw_response[:block]

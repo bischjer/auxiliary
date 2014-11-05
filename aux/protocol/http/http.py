@@ -174,6 +174,7 @@ class HTTP(object):
             status = int(re_startline.match(sl).groups()[0])
         except Exception, e:
             print e.message
+            log.error(e.message)
             raise Exception
 
         re_headline = re.compile(r'^([A-Za-z\-]*)\s?\:\s?(.*)')
@@ -192,10 +193,8 @@ class HTTP(object):
         tail_msg = tail_msg[len(t_lines[0])+4:]
         Transfer = transferFactory(headers)
         Mime = mimeFactory(headers)
-
         body = Mime(headers.get('Content-Disposition', None),
                     Transfer(headers, transport, tail_msg).read()).handle()
-        
         response = HTTPResponse(status, {'headers': headers, 'body': body})
         transport.close()
         return response
