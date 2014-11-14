@@ -6,6 +6,8 @@ from optparse import OptionParser
 import pkg_resources
 import aux
 
+print "-"*70
+
 def version():
     return pkg_resources.get_distribution(aux.__package__.title()).version
 
@@ -45,3 +47,11 @@ log_directory: logs/
 __all__ = ['device',
            'plugin',
            'script_runner']
+
+def exit_hook():
+    print "-"*70
+    print "- AUX %s - Summary" % version()
+    print "-"*70
+    print "-"
+    print "-"*70
+sys.exitfunc = exit_hook
