@@ -21,11 +21,11 @@ TCP_FRAME_BUFFER_SIZE = 1500#bytes#hmmmm
 HTTP_METHODS = ["OPTIONS", "GET", "HEAD",
                 "POST", "PUT", "DELETE",
                 "TRACE", "CONNECT"]#extension-method
-M_GET  = 'GET'
-M_POST = 'POST'
-M_PUT  = 'PUT'
-M_DELETE  = 'DELETE'
-M_HEAD = 'HEAD'
+# M_GET  = 'GET'
+# M_POST = 'POST'
+# M_PUT  = 'PUT'
+# M_DELETE  = 'DELETE'
+# M_HEAD = 'HEAD'
 
 HTTP_RESPONSE_CODES = {"100": "Continue",
                        "101": "Switching Protocols",
@@ -235,3 +235,12 @@ class HTTPClient(object):
 
     def delete(self, url, headers={}, body="", request=None):
         return self.http_send('DELETE', url, headers, body, request)
+
+    # def connect(self, url, headers={}, body="", request=None):
+    #     return self.http_send('CONNECT', url, headers, body, request)
+
+    # def trace(self, url, headers={}, body="", request=None):
+    #     return self.http_send('TRACE', url, headers, body, request)    
+
+    # def options(self, url, headers={}, body="", request=None):
+    #     return self.http_send('OPTIONS', url, headers, body, request)    
