@@ -24,7 +24,8 @@ setup(name='aux',
         'Fabric',
         'Twisted>=12.1',
         'Werkzeug',
-        'carnifex',
+        # 'carnifex',
+        'colorama',
       ],
       entry_points={
         'console_scripts': [

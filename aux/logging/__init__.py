@@ -1,11 +1,14 @@
 from datetime import datetime
 import ConfigParser, os
 import logging
-from aux import base_dir
 
 logger = None
+summary = dict()
+
 
 def start(defaultproperties='aux.properties'):
+    global summary
+    global logger
     config = ConfigParser.ConfigParser()
     home = os.path.expanduser("~")
     auxwdir = ".aux"
@@ -29,9 +32,11 @@ def start(defaultproperties='aux.properties'):
     if not os.path.exists(logdir):
         os.mkdir(logdir)
     logname = 'aux.log'
-    global logger
+
     logger = logging.getLogger('aux_all')
-    fh = logging.FileHandler(filename=os.path.join(logdir, logname))
+    logfile = os.path.join(logdir, logname)
+    summary['Log file'] = logfile
+    fh = logging.FileHandler(filename=logfile)
     fh.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
@@ -40,6 +45,7 @@ def start(defaultproperties='aux.properties'):
     ch.setFormatter(formatter)
     logger.addHandler(fh)
     logger.addHandler(ch)
+    summary['Under test'] = list()
 
     
 def info(message):

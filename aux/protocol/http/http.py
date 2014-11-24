@@ -7,6 +7,7 @@ import logging
 import aux
 import re
 import os
+import base64
 
 log = logging.getLogger("aux.protocol.http")
 
@@ -202,7 +203,7 @@ class HTTP(object):
     def send(self, request):
         log.debug("Request:\n%s\n", request)
         request.target = request.url.hostname
-        if request.method == 'POST':
+        if request.method in ['POST', 'PUT', 'DELETE']:
             request.headers.update({'Content-Length': '%i' % len(request.body)})
         transport = self.get_transport(request.url, scheme=request.url.scheme)
         transport.send(str(request))
@@ -244,3 +245,8 @@ class HTTPClient(object):
 
     # def options(self, url, headers={}, body="", request=None):
     #     return self.http_send('OPTIONS', url, headers, body, request)    
+
+    def basic(self, credentials):
+        return {'Authorization': 'Basic %s' % base64.b64encode(
+                '%s:%s' % (credentials[0],
+                           credentials[1]))}

@@ -5,6 +5,7 @@ import plugin
 from optparse import OptionParser 
 import pkg_resources
 import aux
+from aux.logging import summary
 
 print "-"*70
 
@@ -52,6 +53,7 @@ def exit_hook():
     print "-"*70
     print "- AUX %s - Summary" % version()
     print "-"*70
-    print "-"
+    for key in summary.keys():
+        print "- %s: %s" % (key, summary[key])
     print "-"*70
 sys.exitfunc = exit_hook
