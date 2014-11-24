@@ -1,7 +1,7 @@
 from lxml import objectify
 from lxml import etree
 from urlparse import urlparse
-from aux.protocol.http import HTTP, HTTPRequest, HTTPResponse
+from aux.api import http
 
 
 class WSDLPort(object):
@@ -45,6 +45,7 @@ class WSDLInterface(object):
     name = None
     operations = list()
 
+    
 class WSDLService(object):
     def __init__(self, name, documentation=None, ports=list()):
         self.name = name
@@ -55,74 +56,76 @@ class WSDLService(object):
 class WSDL(object):
 
     def __init__(self, wsdl_url=None, wsdl_data=None):
-        if wsdl_url:
-            self.url = wsdl_url
-            wsdl_data = self.get_wsdl_details(self.url)
-        # print "[%s]" % wsdl_data        # print urlparse(self.url)            
+        pass
+        # if wsdl_url:
+        #     self.url = wsdl_url
+        #     wsdl_data = self.get_wsdl_details(self.url)
+        # # print "[%s]" % wsdl_data        # print urlparse(self.url)            
 
-        #WIKI: descriptions is sometimes defined as definitions.
-        self.name = None
-        self.operations = list()
-        self.interfaces = list()
-        self.services = list()
-        self.resource = etree.XML(wsdl_data)
-        self.unmarshall_definition(self.resource)
+        # #WIKI: descriptions is sometimes defined as definitions.
+        # self.name = None
+        self.methods = {}
+        # self.interfaces = list()
+        # self.services = list()
+        # self.resource = etree.XML(wsdl_data)
+        # self.unmarshall_definition(self.resource)
 
         
-    def __getattr__(self, name):
-        opfound = self.operations.get(name, None)
-        if opfound:
-            return opfound
+    def __getattr__(self, attr):
+        method = self.methods.get(attr, None)
+        if method is not None:
+            return lambda: method
         else:
-            raise AttributeError
+            emsg = "%s object has no attribute '%s'" % (self.__class__.__name__, attr)
+            raise AttributeError(emsg)
 
     def get_wsdl_details(self, wsdl_url):
-        request = HTTPRequest(wsdl_url,
-                              {'method':'GET',
-                               'headers': {},
-                               'data':''})
-        http = HTTP()
-        response = http.send(request)
-        # print "before wsdl response"
-        # print response
-        #TODO: useless?? return open(wsdl_url).read()
-        return "<xml>fake</xml>"
+        wsdl_response = http.get(wsdl_url,
+                                 headers=self.headers)
+        self.resource = etree.XML(wsdl_response.body)
+        self.unmarshall_definition(self.resource)
 
         
     def unmarshall_definition(self, resource):
         self.tree = etree.ElementTree(resource)
         root = self.tree.getroot()
         # print etree.tostring(root), root.tag
-        if "descriptions" in root.tag.lower():
-            self.name = root.attrib.get('name', None)
+        # print root.tag.lower()
+        # if "definitions" in root.tag.lower():
+        #     self.name = root.attrib.get('name', None)
 
-        # try:
-        #     service = root.find("service", namespaces=root.nsmap)
-        #     print service
-        # except:
-        #     pass
-        services = root.findall('{http://schemas.xmlsoap.org/wsdl/}service')
-        for service in services:
-            # print ":: ", service.attrib.get('name', None)
-            service_name = service.attrib.get('name', None)
-            service_documentation = service.find('{http://schemas.xmlsoap.org/wsdl/}documentation').text
-            service_ports = []
-            for port in service.findall('{http://schemas.xmlsoap.org/wsdl/}port'):
-                port_name = port.attrib.get('name', None)
-                port_binding = port.attrib.get('binding', None)
-                # print port.text
-                port_extensibility = port.text
-                # print port_extensibility
-                service_ports.append(WSDLPort(port_name,
-                                              port_binding, #WSDLBinding # sort out namespacing
-                                              port_extensibility))
+        messages = root.findall('{http://schemas.xmlsoap.org/wsdl/}message')
+        for message in messages:
+            key = message.attrib.get('name')
+            self.methods[ key ] = "placeholder for %s" % key
+            # print self.methods
+        # # try:
+        # #     service = root.find("service", namespaces=root.nsmap)
+        # #     print service
+        # # except:
+        # #     pass
+        # services = root.findall('{http://schemas.xmlsoap.org/wsdl/}service')
+        # for service in services:
+        #     # print ":: ", service.attrib.get('name', None)
+        #     service_name = service.attrib.get('name', None)
+        #     service_documentation = service.find('{http://schemas.xmlsoap.org/wsdl/}documentation').text
+        #     service_ports = []
+        #     for port in service.findall('{http://schemas.xmlsoap.org/wsdl/}port'):
+        #         port_name = port.attrib.get('name', None)
+        #         port_binding = port.attrib.get('binding', None)
+        #         # print port.text
+        #         port_extensibility = port.text
+        #         # print port_extensibility
+        #         service_ports.append(WSDLPort(port_name,
+        #                                       port_binding, #WSDLBinding # sort out namespacing
+        #                                       port_extensibility))
             
-            self.services.append(WSDLService(service_name,
-                                             service_documentation,
-                                             service_ports))
+        #     self.services.append(WSDLService(service_name,
+        #                                      service_documentation,
+        #                                      service_ports))
 
-        if len(self.services) > 0:
-            pass
+        # if len(self.services) > 0:
+        #     pass
             # print self.services[0].name
 
         # if service:
