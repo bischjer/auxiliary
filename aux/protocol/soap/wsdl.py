@@ -13,11 +13,15 @@ class WSDLPort(object):
 class WSDLElement(object):
     #WIKI: XML Element SimpleType|ComplexType
     name = None
-        
+
+class WSDLSchemas(object):
+    pass
+    
 class WSDLTypes(object):
     #<xs:import schemaLocation="TicketAgent.xsd" namespace="http://example.org/TicketAgent.xsd" />
     #<schema targetNamespace="http://example.com/stockquote.xsd" xmlns="http://www.w3.org/2000/10/XMLSchema">
-    pass
+    def __init__(self):
+        pass
     
 class WSDLMessage(object):
     name = None
@@ -63,23 +67,39 @@ class WSDL(object):
         # # print "[%s]" % wsdl_data        # print urlparse(self.url)            
 
         # #WIKI: descriptions is sometimes defined as definitions.
-        # self.name = None
-        self.methods = {}
-        # self.interfaces = list()
-        # self.services = list()
-        # self.resource = etree.XML(wsdl_data)
-        # self.unmarshall_definition(self.resource)
+        self.name = None
+        self.operations = {}
+        self.types = {}
+        self.wsdl_tree = None
 
-        
+    def __attrMethod(self, method):
+        class MethodCaller(object):
+            def __init__(self, wsdl_instance, method):
+                self.wsdl_instance = wsdl_instance
+                self.method = method
+                
+            def __call__(self, kwargs={}):
+                request_json = dict()
+                print self.method
+                rtypes = self.wsdl_instance.types.get(self.method.get('request'))
+
+                # for t in rtypes:
+                #     print t.get('name')es
+                # print self.wsdl_instance.wsdl_tree
+
+                # print self.wsdl_instance.operations.get(self.method)
+                return "nothing"#self.wsdl_instance.operations.get(method)
+        return MethodCaller(self, method)
+    
     def __getattr__(self, attr):
-        method = self.methods.get(attr, None)
+        method = self.operations.get(attr, None)
         if method is not None:
-            return lambda: method
+            return self.__attrMethod(method)
         else:
             emsg = "%s object has no attribute '%s'" % (self.__class__.__name__, attr)
             raise AttributeError(emsg)
 
-    def get_wsdl_details(self, wsdl_url):
+    def load_wsdl(self, wsdl_url):
         wsdl_response = http.get(wsdl_url,
                                  headers=self.headers)
         self.resource = etree.XML(wsdl_response.body)
@@ -87,18 +107,33 @@ class WSDL(object):
 
         
     def unmarshall_definition(self, resource):
-        self.tree = etree.ElementTree(resource)
-        root = self.tree.getroot()
-        # print etree.tostring(root), root.tag
-        # print root.tag.lower()
-        # if "definitions" in root.tag.lower():
-        #     self.name = root.attrib.get('name', None)
+        self.wsdl_tree = etree.ElementTree(resource)
+        root = self.wsdl_tree.getroot()
 
-        messages = root.findall('{http://schemas.xmlsoap.org/wsdl/}message')
-        for message in messages:
-            key = message.attrib.get('name')
-            self.methods[ key ] = "placeholder for %s" % key
-            # print self.methods
+        porttype = root.find('{%s}portType' % root.nsmap.get('wsdl'))
+        for operation in porttype.findall('{%s}operation' % root.nsmap.get('wsdl')):
+            key = operation.attrib.get('name')
+            self.operations[key] = {'request': operation.find('{%s}input' % root.nsmap.get('wsdl')).get('name'),
+                                    'response':operation.find('{%s}output' % root.nsmap.get('wsdl')).get('name')}
+
+        types = self.wsdl_tree.find('{http://schemas.xmlsoap.org/wsdl/}types')
+        for t in types:
+            print t
+        schemas = types.findall('{http://www.w3.org/2001/XMLSchema}schema')
+        for schema in schemas:
+            elements = schema.findall('{%s}element' % schema.nsmap.get('xs'))
+            for element in elements:
+                self.types[element.get('name')] = element.find('{%s}complexType' % schema.nsmap.get('xs'))
+
+        # print root.nsmap
+        # print types.find('{http://schemas.xmlsoap.org/wsdl/}element')
+        # print types.findall('{}schema')
+            
+        # messages = root.findall('{http://schemas.xmlsoap.org/wsdl/}message')
+        # for message in messages:
+        #     key = message.attrib.get('name')
+        #     self.methods[ key ] = "placeholder for %s" % key
+        #     print self.methods
         # # try:
         # #     service = root.find("service", namespaces=root.nsmap)
         # #     print service

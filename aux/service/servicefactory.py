@@ -32,7 +32,6 @@ class HTTPService(BaseService):
         elif request.method == 'delete':
             return self._delete(request)
 
-        
 
 class HTTPSService(HTTPService):
     def __init__(self, args):
@@ -56,25 +55,3 @@ def service_factory(servicetype, args={}):
 
 
 
-"""
-class HTTPConnection(object):
-    scheme = 'http'
-    def __init__(self, url, credentials):
-
-        self.url = url   
-        self.credentials = credentials
-        self.domain = None
-        self.project = None
-
-    def request(self, method, url, headers=None, data=None):
-        print method, url, headers, data
-
-    def response(self):
-        return "fakedata fake fake fake fake"
-        
-        
-class HTTPSConnection(HTTPConnection):
-    scheme = 'https'
-    def __init__(self, url, credentials):
-        super(HTTPSConnection, self).__init__(url, credentials)
-"""
