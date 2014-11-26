@@ -35,7 +35,7 @@ def start(defaultproperties='aux.properties'):
 
     logger = logging.getLogger('aux_all')
     logfile = os.path.join(logdir, logname)
-    summary['Log file'] = logfile
+    summary['logfolder'] = logdir
     fh = logging.FileHandler(filename=logfile)
     fh.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
@@ -45,7 +45,7 @@ def start(defaultproperties='aux.properties'):
     ch.setFormatter(formatter)
     logger.addHandler(fh)
     logger.addHandler(ch)
-    summary['Under test'] = list()
+    summary['testsubject'] = list()
 
     
 def info(message):
