@@ -43,11 +43,15 @@ class WSDLTest(TestCase):
    </service>
 </descriptions>"""
         wsdl_object = WSDL(wsdl_data = wsdl_data)
-        self.assertEquals("HelloService", wsdl_object.services[0].name)
-        self.assertEquals("tns:Hello_Binding", wsdl_object.services[0].ports[0].binding)
-        self.assertEquals("Hello_Port", wsdl_object.services[0].ports[0].name)
-
-    def xtest_wsdl_service(self):
+        service = wsdl_object.services[0]
+        self.assertEquals("HelloService", service.name)
+        self.assertEquals("tns:Hello_Binding", service.ports[0].binding)
+        self.assertEquals("Hello_Port", service.ports[0].name)
+        self.assertEquals("%saddress" % wsdl_object.get_ns(service.ports[0].ext_element, "soap"),
+                          service.ports[0].ext_element.tag )
+        self.assertEquals("http://www.examples.com/SayHello/",
+                          service.ports[0].ext_element.attrib.get('location'))
+    def test_wsdl_service(self):
         wsdl_data = """
 <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:sch2="http://auxiliary.protojour.com/schemas/common" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" targetNamespace="http://auxiliary.protojour.com/schemas/test">
   <wsdl:types>
@@ -94,71 +98,72 @@ class WSDLTest(TestCase):
                     <xs:documentation>The maximum code length allowed for this code pattern</xs:documentation>
                   </xs:annotation>
                 </xs:attribute>
-             <xs:attribute name="caseSensitive" type="xs:boolean" use="required">
-                <xs:annotation>
-                  <xs:documentation>Whether this code is case sensitive or not</xs:documentation>
-                </xs:annotation>
-             </xs:attribute>
-           </xs:complexType>
-         </xs:element>
-       </xs:sequence>
-     <xs:attribute name="defaultCase" type="CodeCase" use="required">
-       <xs:annotation>
-         <xs:documentation>The default code case if the code is case-insensitive</xs:documentation>
-      </xs:annotation>
-    </xs:attribute>
-   </xs:complexType>
- </xs:element>
-<xs:element name="InitOrderRequest">
-  <xs:annotation>
-    <xs:documentation>Create a new empty order containing zero codes. Use [expandOrder] to request codes for the order.</xs:documentation>
-  </xs:annotation>
-  <xs:complexType>
-    <xs:sequence>
-      <xs:element minOccurs="0" name="type" type="OrderType">
+                <xs:attribute name="caseSensitive" type="xs:boolean" use="required">
+                  <xs:annotation>
+                    <xs:documentation>Whether this code is case sensitive or not</xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute name="defaultCase" type="CodeCase" use="required">
+            <xs:annotation>
+              <xs:documentation>The default code case if the code is case-insensitive</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="InitOrderRequest">
         <xs:annotation>
-          <xs:documentation>Deprecated! Do not use</xs:documentation>
+          <xs:documentation>Create a new empty order containing zero codes. Use [expandOrder] to request codes for the order.</xs:documentation>
         </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element minOccurs="0" name="type" type="OrderType">
+              <xs:annotation>
+                <xs:documentation>Deprecated! Do not use</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element default="false" minOccurs="0" name="sectioned" type="xs:boolean">
+              <xs:annotation>
+                <xs:documentation>Should this order be split into section. Usaually used only with pre-printed media</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="description" type="xs:string">
+              <xs:annotation>
+                <xs:documentation>An optional description of the order</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="productId" type="xs:int">
+              <xs:annotation>
+                <xs:documentation>An optional product ID. Has to match a previously registered product ID, see [listProducts]</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="gtin" type="xs:string">
+              <xs:annotation>
+                <xs:documentation>An optional product GTIN. Has to match a previously registered product's GTIN, see [listProducts]</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="metadataSchema" type="xs:string">
+              <xs:annotation><xs:documentation>An optional meta-data schema ID. Has to match a previously registered schema ID, see [listMetadataSchemas]</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
       </xs:element>
-      <xs:element default="false" minOccurs="0" name="sectioned" type="xs:boolean">
-        <xs:annotation>
-          <xs:documentation>Should this order be split into section. Usaually used only with pre-printed media</xs:documentation>
-        </xs:annotation>
+      <xs:element name="InitOrderResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="orderId" type="xs:long">
+              <xs:annotation>
+                <xs:documentation>The ID of the created order</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
       </xs:element>
-      <xs:element minOccurs="0" name="description" type="xs:string">
-        <xs:annotation>
-          <xs:documentation>An optional description of the order</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" name="productId" type="xs:int">
-        <xs:annotation>
-          <xs:documentation>An optional product ID. Has to match a previously registered product ID, see [listProducts]</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" name="gtin" type="xs:string">
-        <xs:annotation>
-          <xs:documentation>An optional product GTIN. Has to match a previously registered product's GTIN, see [listProducts]</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" name="metadataSchema" type="xs:string">
-        <xs:annotation><xs:documentation>An optional meta-data schema ID. Has to match a previously registered schema ID, see [listMetadataSchemas]</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-    </xs:sequence>
-  </xs:complexType>
-</xs:element>
-<xs:element name="InitOrderResponse">
-  <xs:complexType>
-    <xs:sequence>
-      <xs:element name="orderId" type="xs:long">
-        <xs:annotation>
-          <xs:documentation>The ID of the created order</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-    </xs:sequence>
-  </xs:complexType>
-</xs:element>
-
+    </xs:schema>
+  </wsdl:types>
   <wsdl:message name="ListSomethingRequest">
     <wsdl:part element="tns:ListSomethingRequest" name="ListSomethingRequest">
     </wsdl:part>
@@ -179,17 +184,17 @@ class WSDLTest(TestCase):
   <wsdl:portType name="auxiliary">
     <wsdl:operation name="ListSomething">
       <wsdl:input message="tns:ListSomethingRequest" name="ListSomethingRequest">
-    </wsdl:input>
+      </wsdl:input>
       <wsdl:output message="tns:ListSomethingResponse" name="ListSomethingResponse">
-    </wsdl:output>
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="InitOrder">
       <wsdl:input message="tns:InitOrderRequest" name="InitOrderRequest">
-    </wsdl:input>
+      </wsdl:input>
       <wsdl:output message="tns:InitOrderResponse" name="InitOrderResponse">
-    </wsdl:output>
+      </wsdl:output>
     </wsdl:operation>
-</wsdl:portType>
+  </wsdl:portType>
 
   <wsdl:binding name="AuxiliarySoap11" type="tns:auxiliary">
     <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
@@ -212,14 +217,15 @@ class WSDLTest(TestCase):
         <soap:body use="literal"/>
       </wsdl:output>
     </wsdl:operation>
- </wsdl:binding>
+  </wsdl:binding>
 
   <wsdl:service name="auxiliaryService">
-    <wsdl:documentation>Hello</wdsl:documentation>
+    <wsdl:documentation>Hello</wsdl:documentation>
     <wsdl:port binding="tns:AuxiliarySoap11" name="AuxiliarySoap11">
-      <soap:address location="127.0.0.1/aux/auxiliary-ws"/>
+      <soap:address location="http://127.0.0.1/aux/auxiliary-ws"/>
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
 """
-        
+        wsdl_object = WSDL(wsdl_data = wsdl_data)
+        print wsdl_object

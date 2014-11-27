@@ -6,11 +6,9 @@ from aux.api import http
 
 class WSDLPort(object):
     def __init__(self, e):
-        # name, binding, extensibility=None):
-        
         self.name = e.get('name')
         self.binding = e.attrib.get('binding')
-        # self.extensibility = extensibility
+        self.ext_element = e.getchildren()[0]
 
 class WSDLElement(object):
     #WIKI: XML Element SimpleType|ComplexType
@@ -22,20 +20,23 @@ class WSDLSchemas(object):
 class WSDLTypes(object):
     #<xs:import schemaLocation="TicketAgent.xsd" namespace="http://example.org/TicketAgent.xsd" />
     #<schema targetNamespace="http://example.com/stockquote.xsd" xmlns="http://www.w3.org/2000/10/XMLSchema">
-    def __init__(self):
-        pass
+    def __init__(self, e):
+        print e
     
 class WSDLMessage(object):
-    name = None
-    part = None
+    def __init__(self, e):
+        print e
+        # name = None
+        # part = None
 
 class WSDLOperation(object):
-    def __init__(self, name, soapAction):
-        self.name = name
-        self.soapAction = soapAction
+    def __init__(self, e):
+        print e
+        # self.name = name
+        # self.soapAction = soapAction
 
-    def __call__(self):
-        return self.name
+    # def __call__(self):
+    #     return self.name
 
 class WSDLBinding(object):
     def __init__(self, name, _type):
@@ -105,7 +106,7 @@ class WSDL(object):
             raise AttributeError(emsg)
 
     def get_ns(self, element, namespace):
-        return '{%s}' % element.nsmap.get('wsdl') if element.nsmap.get(namespace) else '{%s}' % element.nsmap.get(None)        
+        return '{%s}' % element.nsmap.get(namespace) if element.nsmap.get(namespace) else '{%s}' % element.nsmap.get(None)        
     def load_wsdl(self, wsdl_url=None, wsdl_data=None):
         if wsdl_url is not None:
             wsdl_string = http.get(wsdl_url,
@@ -122,7 +123,25 @@ class WSDL(object):
 
         self.name = root.get('name', None)
         self.services = [WSDLService(s) for s in root.findall('%sservice' % self.get_ns(root, 'wsdl'))]
-        
+        self.types = WSDLTypes(root.find('%stypes' % self.get_ns(root, 'wsdl')))
+        for el in root:
+            print el
+        self.messages = [WSDLMessage(m) for m in root.findall('%smessage' % self.get_ns(root, 'wsdl'))]
+        porttype = root.find('%sportType' % self.get_ns(root, 'wsdl'))
+        if porttype is not None:
+            self.operations = [WSDLOperation(o) for o in porttype.findall('%soperation' % self.get_ns(root,'wsdl'))]
+
+        # print self.get_ns(root, 'wsdl')
+        # types = root.find("%stypes", self.get_ns(root, 'wsdl'))
+        # print 'types', types
+        # # print [m for m in types.findall('%schema' % self.get_ns(root, 'xs'))]
+
+        # porttype = root.find("%sportType", self.get_ns(root, 'wsdl'))
+        # print 'pt', porttype
+
+        # messages = [m for m in root.findall("%message", self.get_ns(root, 'wsdl'))]
+        # print 'msg', messages
+
         
         # worky
         # porttype = root.find('{%s}portType' % root.nsmap.get('wsdl'))
