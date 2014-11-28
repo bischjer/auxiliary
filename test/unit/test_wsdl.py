@@ -13,17 +13,17 @@ class WSDLTest(TestCase):
     def test_basic_wsdl_descriptions_no_attrib(self):
         wsdl_data = "<descriptions></descriptions>"
         wsdl_object = WSDL(wsdl_data = wsdl_data)
-        self.assertEquals(None, wsdl_object.name)
+        self.assertEquals(None, wsdl_object._w_name)
 
     def test_basic_wsdl_descriptions_called_definitions(self):
         wsdl_data = '<definitions name="TestService"></definitions>'
         wsdl_object = WSDL(wsdl_data = wsdl_data)
-        self.assertEquals('TestService', wsdl_object.name)
+        self.assertEquals('TestService', wsdl_object._w_name)
 
     def test_basic_wsdl_descriptions(self):
         wsdl_data = '<descriptions name="TestService"></descriptions>'
         wsdl_object = WSDL(wsdl_data = wsdl_data)
-        self.assertEquals('TestService', wsdl_object.name)
+        self.assertEquals('TestService', wsdl_object._w_name)
 
     def test_basic_wsdl_service(self):
         #TODO: might need tag closure preprocessor
@@ -43,14 +43,15 @@ class WSDLTest(TestCase):
    </service>
 </descriptions>"""
         wsdl_object = WSDL(wsdl_data = wsdl_data)
-        service = wsdl_object.services[0]
+        service = wsdl_object._w_services[0]
         self.assertEquals("HelloService", service.name)
         self.assertEquals("tns:Hello_Binding", service.ports[0].binding)
         self.assertEquals("Hello_Port", service.ports[0].name)
-        self.assertEquals("%saddress" % wsdl_object.get_ns(service.ports[0].ext_element, "soap"),
+        self.assertEquals("%saddress" % WSDL.get_ns(service.ports[0].ext_element, "soap"),
                           service.ports[0].ext_element.tag )
         self.assertEquals("http://www.examples.com/SayHello/",
                           service.ports[0].ext_element.attrib.get('location'))
+
     def test_wsdl_service(self):
         wsdl_data = """
 <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:sch2="http://auxiliary.protojour.com/schemas/common" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" targetNamespace="http://auxiliary.protojour.com/schemas/test">
@@ -172,7 +173,7 @@ class WSDLTest(TestCase):
     <wsdl:part element="tns:ListSomethingResponse" name="ListSomethingResponse">
     </wsdl:part>
   </wsdl:message>
-  <wsdl:message name="IniOrderRequest">
+  <wsdl:message name="InitOrderRequest">
     <wsdl:part element="tns:InitOrderRequest" name="InitOrderRequest">
     </wsdl:part>
   </wsdl:message>
@@ -228,4 +229,20 @@ class WSDLTest(TestCase):
 </wsdl:definitions>
 """
         wsdl_object = WSDL(wsdl_data = wsdl_data)
-        print wsdl_object
+        #message
+        self.assertEquals("ListSomethingRequest",
+                          wsdl_object._w_messages[0].name)
+        self.assertEquals("ListSomethingResponse",
+                          wsdl_object._w_messages[1].name)
+        self.assertEquals("InitOrderRequest",
+                          wsdl_object._w_messages[2].name)
+        self.assertEquals("InitOrderResponse",
+                          wsdl_object._w_messages[3].name)
+        #service
+        self.assertEquals("AuxiliarySoap11",
+                          wsdl_object._w_services[0].ports[0].name)
+        self.assertEquals("http://127.0.0.1/aux/auxiliary-ws",
+                          wsdl_object._w_services[0].ports[0].ext_element.get('location'))
+        #binding
+        print wsdl_object.ListSomething()
+        # self.assertEquals("Service
