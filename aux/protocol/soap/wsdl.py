@@ -100,9 +100,13 @@ class WSDL(object):
                     # print operation[0].output.get('name')
                     
                     #TODO must find the correct schema in list of schemas
-                    for elem in  self.wsdl_instance._w_types[0].schemas[0].elements:
-                        print elem.name
-                    
+                    for schema in  self.wsdl_instance._w_types[0].schemas:
+                        for elem in schema.elements:
+                            if 'request' in elem.name.lower():
+                                print elem.name
+                            if 'response' in elem.name.lower():
+                                print elem.name                                
+
                 # for m in self.wsdl_instance._w_messages:
                 #     print m.name
                 # print [m for m in self.wsdl_instance._w_messages if m.name == self.method]
