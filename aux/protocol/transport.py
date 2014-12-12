@@ -1,6 +1,7 @@
 from socket import ( socket, AF_INET, SOCK_DGRAM,
                      IPPROTO_TCP, SOCK_STREAM,
                      SOL_SOCKET, SO_REUSEADDR )
+import socket as sock
 import ssl
 # from ssl import wrap_socket, CERT_NONE, SSLError, PROTOCOL_SSLv23
 
@@ -54,6 +55,9 @@ class TCPTransport(Transport):
     def close(self):
         self.__connection.close()
 
+    def get_hostname(self):
+        return "ioctlsomething" #sock.gethostbyname(self.__connection.gethostname())
+        
 class CertificationHostnameMismatch(Exception):pass        
 
 class TLS_TCPTransport(TCPTransport):

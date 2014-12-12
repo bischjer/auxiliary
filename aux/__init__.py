@@ -60,25 +60,30 @@ def post_to_server(summary):
     json_data = {'started' : str(summary.get('started')),
                  'ended' : str(summary.get('ended')),
                  'test' : summary.get('test'),
-                 'success' : False,
+                 'success' : summary.get('success', False),
                  'testsubject' : str(summary.get('testsubject')),
+                 'externalref': summary.get('externalref'),
                  'tester' : 'auxscript',
                  'logfolder' : summary.get('logfolder')}
-    headers = {'Host': '192.168.0.135',
+    headers = {'Host': '192.168.0.135:8080',
                'User-Agent':'Aux/0.1 (X11;Ubuntu;Linux x86_64;rv:24.0)',
-               'Accept':'*/*'}
-    print headers
+               'Cache-Control': 'no-cache'}
+    # print headers
     headers.update(http.basic( ('tester', 'tester')))
-    print json_data
-    print http.post(serverendpoint,
-              headers=headers,
-              body=json.dumps(json_data))
+    # print json_data
+    result = http.post(serverendpoint,
+                       headers=headers,
+                       body=json.dumps(json_data))
+
     
 
 def exit_hook():
     summary['ended'] = datetime.now()
 
-    # post_to_server(summary)
+    try: 
+        post_to_server(summary)
+    except:
+        pass
     
     print "-"*70
     print "- AUX %s - Summary" % version()

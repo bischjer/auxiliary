@@ -137,13 +137,15 @@ class WSDL(object):
         return '{%s}' % element.nsmap.get(namespace) if element.nsmap.get(namespace) else '{%s}' % element.nsmap.get(None)
     
     def load_wsdl(self, wsdl_url=None, wsdl_data=None):
+        wsdl_string = None
         if wsdl_url is not None:
             wsdl_string = http.get(wsdl_url,
                                    headers=self.headers).body
-        else:
+        elif wsdl_data is not None:
             wsdl_string = wsdl_data
-        self.resource = etree.XML(wsdl_string)
-        self.marshall_definition(self.resource)
+        if wsdl_string is not None:
+            self.resource = etree.XML(wsdl_string)
+            self.marshall_definition(self.resource)
 
         
     def marshall_definition(self, resource):

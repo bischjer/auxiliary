@@ -4,7 +4,7 @@ import logging
 
 logger = None
 summary = dict()
-
+post_to_server = False
 
 def start(defaultproperties='aux.properties'):
     global summary
