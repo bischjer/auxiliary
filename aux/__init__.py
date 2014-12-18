@@ -16,12 +16,11 @@ from aux.logging import summary
 from datetime import datetime
 import json
 
-print "-"*70
-summary['test'] = sys.argv[0]
-summary['started'] = datetime.now()
-
 
 def script_runner():
+    print "-"*70
+    summary['test'] = sys.argv[0]
+    summary['started'] = datetime.now()
     #read config file
     mock_config_file = """
 proxy: localhost:5791
