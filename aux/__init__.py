@@ -4,6 +4,7 @@ import device
 import plugin
 from optparse import OptionParser 
 import pkg_resources
+
 def version():
     return pkg_resources.get_distribution(aux.__package__.title()).version
 
@@ -12,82 +13,45 @@ def base_dir():
 
 import aux
 from aux.api import http
-from aux.logging import summary
+from aux.logging import LogController
 from datetime import datetime
 import json
+from aux.internals.configuration import config
 
+logcontroller = LogController(config)
 
-def script_runner():
-    print "-"*70
-    summary['test'] = sys.argv[0]
-    summary['started'] = datetime.now()
+def run():
+
     #read config file
     mock_config_file = """
 proxy: localhost:5791
 log_directory: logs/
 """
+    ## Setup
+    logcontroller.summary['test'] = sys.argv[0]
+    logcontroller.summary['started'] = datetime.now()
+    logcontroller.summary['testsubject'] = list()
     
+    scripts_as_args = [script for script in config.args if '.py' in script]
+    if len(scripts_as_args) != 1:
+        logcontroller.runtime.error('Script args error')
+        sys.exit(1)
+    else:
+        script_to_run = open(scripts_as_args[0], "r").read().strip()
     #initiate backend
     #initiate logger
     #verify endpoints
-    #do setup
+
     #run
+    # print config.options
+    exec(script_to_run)
     #do teardown
-
-    
-    print "running"
-    print sys.argv
-
-    parser = OptionParser()
-    parser.add_option("-v", "--verbose",
-                      dest="verbose",
-                      action="store_true",
-                      default=False,
-                      help="verbosity in console")
-
-    (options, args) = parser.parse_args()
-    print options, args
-                      
 
 
 __all__ = ['device',
            'plugin',
-           'script_runner']
-
-def post_to_server(summary):
-    serverendpoint = 'http://192.168.0.135:8080/api/test/result'
-    json_data = {'started' : str(summary.get('started')),
-                 'ended' : str(summary.get('ended')),
-                 'test' : summary.get('test'),
-                 'success' : summary.get('success', False),
-                 'testsubject' : str(summary.get('testsubject')),
-                 'externalref': summary.get('externalref'),
-                 'tester' : 'auxscript',
-                 'logfolder' : summary.get('logfolder')}
-    headers = {'Host': '192.168.0.135:8080',
-               'User-Agent':'Aux/0.1 (X11;Ubuntu;Linux x86_64;rv:24.0)',
-               'Cache-Control': 'no-cache'}
-    # print headers
-    headers.update(http.basic( ('tester', 'tester')))
-    # print json_data
-    result = http.post(serverendpoint,
-                       headers=headers,
-                       body=json.dumps(json_data))
-
-    
+           'run']
 
 def exit_hook():
-    summary['ended'] = datetime.now()
-
-    try: 
-        post_to_server(summary)
-    except:
-        pass
-    
-    print "-"*70
-    print "- AUX %s - Summary" % version()
-    print "-"*70
-    for key in summary.keys():
-        print "- %s: %s" % (key, summary[key])
-    print "-"*70
+    logcontroller.pprint_summary_on_exit()
 sys.exitfunc = exit_hook

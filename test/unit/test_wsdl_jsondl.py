@@ -28,6 +28,10 @@ WSDL_MOCK = '''<wsdl:definitions name="TestService"
 '''
 
 
-JSONDL_MOCK = """j"""
+JSONDL_MOCK = '''
+{"api": {},
+ "types": {}
+}
+'''
 
 

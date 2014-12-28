@@ -1,64 +1,93 @@
+from aux import version
 from datetime import datetime
 import ConfigParser, os
 import logging
 
-logger = None
-summary = dict()
-post_to_server = False
 
-def start(defaultproperties='aux.properties'):
-    global summary
-    global logger
-    config = ConfigParser.ConfigParser()
-    home = os.path.expanduser("~")
-    auxwdir = ".aux"
-    propertiesfile = os.path.join(home, auxwdir, defaultproperties)    
-    try:
-        config.readfp(open(propertiesfile, "r"))
-    except IOError, e:
-        print e
-
-    # config.read(['aux.properties',
-    #              os.path.expanduser('~/.aux/aux.properties')])
-    # log_dir = config.get('log', 'directory')
-    # log_lvl = config.get('log', 'level')
-    # log_vrb = config.get('log', 'verbose')
-    # print config.items
+class LogController(object):
+    summary = dict()
+    config = None
     
-    logdir = os.path.join(home,
-                          auxwdir,
-                          "logs",
-                          datetime.strftime(datetime.now(), "%Y%m%d-%H%M%S%f"))
-    if not os.path.exists(logdir):
-        os.mkdir(logdir)
-    logname = 'aux.log'
+    def __init__(self, config):
+        self.config = config
+        self.loggers = dict()
+        self.log_directory = config.options.log_directory
+        self.log_console_level = config.options.log_level
+        self.log_file_level = config.options.log_level
+        if config.options.log_console_level is not None:
+            self.log_console_level = config.options.log_console_level
+        if config.options.log_file_level is not None:
+            self.log_file_level = config.options.log_file_level
+        self.log_verbose = config.options.verbose
+        self.log_result_server = config.options.log_server
+        logdir = os.path.join(self.log_directory,
+                              datetime.strftime(datetime.now(), "%Y%m%d-%H%M%S%f"))
+        if not os.path.exists(logdir):
+            os.makedirs(logdir)
+        for loggername in ['runtime', 'transport', 'script']:
+            self.loggers[loggername] = self.__new_logger(loggername, logdir)
 
-    logger = logging.getLogger('aux_all')
-    logfile = os.path.join(logdir, logname)
-    summary['logfolder'] = logdir
-    fh = logging.FileHandler(filename=logfile)
-    fh.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)s:%(message)s')
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    summary['testsubject'] = list()
+        if self.log_verbose:
+            self.pprint_header_on_init()
 
-    
-def info(message):
-    logger.info(message)
+    def __getattr__(self, attr):
+        if self.loggers.get(attr, None) is not None:
+            return self.loggers.get(attr)
+        else:
+            emsg = "%s object has no attribute '%s'" % (self.__class__.__name__, attr)
+            raise AttributeError(emsg)
 
-def debug(message):
-    logger.debug(message)
+    def __new_logger(self, loggername, logdir):
+        new_logger = logging.getLogger(loggername)
+        fh = logging.FileHandler(filename=os.path.join(logdir,
+                                                       '%s.log' % (loggername)))
+        fh.setLevel(self.log_file_level)
+        ch = logging.StreamHandler()
+        ch.setLevel(self.log_console_level) 
+        formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)s:%(message)s')
+        fh.setFormatter(formatter)
+        ch.setFormatter(formatter)
+        new_logger.addHandler(fh)
+        new_logger.addHandler(ch)
+        return new_logger
+        
+    def post_to_server(self):
+        #'http://192.168.0.135:8080/api/test/result'
+        serverendpoint = self.log_result_server        
+        json_data = {'started' : str(self.summary.get('started')),
+                     'ended' : str(self.summary.get('ended')),
+                     'test' : self.summary.get('test'),
+                     'success' : self.summary.get('success', False),
+                     'testsubject' : str(self.summary.get('testsubject')),
+                     'externalref': self.summary.get('externalref'),
+                     'tester' : 'auxscript',
+                     'logfolder' : self.summary.get('logfolder')}
+        headers = {'Host': '192.168.0.135:8080', #TODO: derive from logserverpath
+                   'User-Agent':'Aux/0.1 (X11;Ubuntu;Linux x86_64;rv:24.0)',
+                   'Cache-Control': 'no-cache'}
+        headers.update(http.basic( ('tester', 'tester'))) 
+        result = http.post(serverendpoint,
+                           headers=headers,
+                           body=json.dumps(json_data))
 
-def error(message):
-    logger.error(message)
-
-def warning(message):
-    logger.warning(message)
-
-def critical(message):
-    logger.critical(message)
+    def pprint_header_on_init(self):
+        if self.log_verbose:
+            print "-"*70
+            self.runtime.info("Options : %s" % (self.config.options))
+            self.runtime.info("Args : %s" % (self.config.args))
+        
+    def pprint_summary_on_exit(self):
+        self.summary['ended'] = datetime.now()
+        if self.config.options.log_server is not None:
+            try: 
+                self.post_to_server(self.config.options.log_server)
+            except:
+                pass
+        if self.log_verbose:
+            print "-"*70
+            print "- AUX %s - Summary" % version()
+            print "-"*70
+            for key in self.summary.keys():
+                print "- %s: %s" % (key, self.summary[key])
+            print "-"*70
+                

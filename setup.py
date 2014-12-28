@@ -29,6 +29,6 @@ setup(name='aux',
       ],
       entry_points={
         'console_scripts': [
-            'aux = aux:script_runner',
+            'aux = aux:run',
         ]},
       )
