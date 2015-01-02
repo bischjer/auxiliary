@@ -1,6 +1,7 @@
-from aux.engine.actor import Reactor
+from aux.engine.actor import (Reactor, Proactor, Coactor, NoActorFoundError)
 import sys
 import traceback
+
 
 class Engine(object):
 
@@ -34,3 +35,13 @@ class Engine(object):
         finally:
             if self.is_running():
                 pass
+
+def engine_factory(engine_type):
+    if engine_type.upper()=='REACTOR':
+        return Engine(Reactor)
+    elif engine_type.upper()=='PROCATOR':
+        return Engine(Proactor)
+    elif engine_type.upper()=='COACTOR':
+        return Engine(Coactor)
+    else:
+        raise NoActorFoundError(engine_type)

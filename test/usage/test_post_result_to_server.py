@@ -1,23 +1,24 @@
-import aux.logging as log
+from aux.logging import LogController
+from aux.internals.configuration import config
 from datetime import datetime
 
-log.post_to_server = True
+logcontroller = LogController(config)
 
-log.summary['started'] = datetime.now()
+logcontroller.summary['started'] = datetime.now()
 
-log.summary['logfolder'] = "fakdir/dir/dir"
+logcontroller.summary['logfolder'] = "fakdir/dir/dir"
 
-log.summary['testsubject'] = "machine13"
+logcontroller.summary['testsubject'] = "machine13"
 
-log.summary['test'] = "atestname"
+logcontroller.summary['test'] = "atestname"
 
-log.summary['tester'] = "mr.imatester"
+logcontroller.summary['tester'] = "mr.imatester"
 
-log.summary['externalref'] = "our_test_test"
+logcontroller.summary['externalref'] = "our_test_test"
 
-log.summary['success'] = True
+logcontroller.summary['success'] = True
 
-log.summary['ended'] = datetime.now()
+logcontroller.summary['ended'] = datetime.now()
 
 
 # POST /api/test/result HTTP/1.1

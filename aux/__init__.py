@@ -2,7 +2,6 @@ import sys
 import os
 import device
 import plugin
-from optparse import OptionParser 
 import pkg_resources
 
 def version():
@@ -12,11 +11,11 @@ def base_dir():
     return os.path.abspath(os.path.dirname(aux.__file__))
 
 import aux
-from aux.api import http
 from aux.logging import LogController
 from datetime import datetime
 import json
 from aux.internals.configuration import config
+from aux.engine import engine_factory
 
 logcontroller = LogController(config)
 
@@ -31,7 +30,7 @@ log_directory: logs/
     logcontroller.summary['test'] = sys.argv[0]
     logcontroller.summary['started'] = datetime.now()
     logcontroller.summary['testsubject'] = list()
-    
+
     scripts_as_args = [script for script in config.args if '.py' in script]
     if len(scripts_as_args) != 1:
         logcontroller.runtime.error('Script args error')
@@ -41,7 +40,9 @@ log_directory: logs/
     #initiate backend
     #initiate logger
     #verify endpoints
-
+    #start engine
+    engine = engine_factory('reactor')
+    engine.start()
     #run
     # print config.options
     exec(script_to_run)
