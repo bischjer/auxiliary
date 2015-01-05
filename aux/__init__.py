@@ -2,7 +2,6 @@ import sys
 import os
 import device
 import plugin
-from optparse import OptionParser 
 import pkg_resources
 
 def version():
@@ -18,10 +17,10 @@ from datetime import datetime
 import json
 from aux.internals.configuration import config
 
-logcontroller = LogController(config)
+logcontroller = None
 
 def run():
-
+    logcontroller = LogController(config)
     #read config file
     mock_config_file = """
 proxy: localhost:5791
@@ -32,6 +31,8 @@ log_directory: logs/
     logcontroller.summary['started'] = datetime.now()
     logcontroller.summary['testsubject'] = list()
     
+
+        
     scripts_as_args = [script for script in config.args if '.py' in script]
     if len(scripts_as_args) != 1:
         logcontroller.runtime.error('Script args error')
@@ -41,9 +42,9 @@ log_directory: logs/
     #initiate backend
     #initiate logger
     #verify endpoints
-
+    print config.options.systems
+    
     #run
-    # print config.options
     exec(script_to_run)
     #do teardown
 
@@ -53,5 +54,6 @@ __all__ = ['device',
            'run']
 
 def exit_hook():
-    logcontroller.pprint_summary_on_exit()
+    if logcontroller is not None:
+        logcontroller.pprint_summary_on_exit()
 sys.exitfunc = exit_hook
