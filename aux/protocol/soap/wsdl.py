@@ -2,7 +2,7 @@ from lxml import objectify
 from lxml import etree
 from urlparse import urlparse
 from aux.api import http
-from aux.protocol.srd import SRD, SRDOperationCaller
+from aux.protocol.srd import SRD
 
 
 class WSDLPort(object):
@@ -12,13 +12,48 @@ class WSDLPort(object):
         self.binding = e.attrib.get('binding')
         self.ext_element = e.getchildren()[0]
 
+class WSDLPortType(object):
+    def __init__(self, e):
+        self.e = e
+        self.name = self.e.get('name')
+        self.operations = [WSDLOperation(o) for o in self.e.findall('%soperation' % WSDL.get_ns(self.e, 'wsdl'))]
+
+#WIKI: Also reads as PortType in old definition        
+class WSDLInterface(WSDLPortType):pass
+
+class XMLComplexType(object):
+    def __init__(self, e):
+        self.e = e
+        # print etree.tostring(e)
+        # print 
+        self.seq = self.e.findall('%ssequence' % WSDL.get_ns(self.e, 'xs'))
+        elems = None
+        if len(self.seq) > 0:
+            elems = [e for e in self.seq[0].findall('%selement' % WSDL.get_ns(self.e, 'xs'))]
+        if elems is None:
+            self.elements = []
+        else:
+            self.elements = elems
+            # for el in elems:
+                # print el.get('name')
+                # print el.get('type')
+                # print etree.tostring(el)
+                # print
+
+
+
+class XMLSimpleType(object):
+    def __init__(self, e):
+        self.e = e
+        
+        
 class WSDLElement(object):
     #WIKI: XML Element SimpleType|ComplexType
     def __init__(self, e):
         self.e = e
         self.name = self.e.get('name')
-        self.subelements = self.e.findall('%scomplexType' % WSDL.get_ns(self.e,
-                                                                       'xs'))
+        self.subelements = [XMLComplexType(se) for se in self.e.findall('%scomplexType' % WSDL.get_ns(self.e, 'xs'))]
+        self.subelements.extend([XMLSimpleType(se) for se in self.e.findall('%ssimpleType' % WSDL.get_ns(self.e, 'xs'))])
 
 class WSDLSchema(object):
     def __init__(self, e):
@@ -61,14 +96,10 @@ class WSDLBinding(object):
         self.e = e
         self.name = e.get('name')
         self.type = e.get('type')
+        self.soap_binding = e.find('%sbinding' % WSDL.get_ns(e, 'soap'))
         self.operations = [WSDLOperation(o) for o in e.findall('%soperation' % WSDL.get_ns(e, 'wsdl'))]
         #self.soap_operation = ?
         
-class WSDLInterface(object):
-    #WIKI: Also reads as PortType in old definition
-    name = None
-    operations = list()
-
     
 class WSDLService(object):
     def __init__(self, e):
@@ -78,44 +109,32 @@ class WSDLService(object):
         self.ports = [WSDLPort(p) for p in e.findall('%sport' % ns)]
     
 
-class WSDLOperationCaller(SRDOperationCaller):
-    def __call__(self, kwargs={}):
-        print kwargs
-        print self.operation.name
-
-        #build wsdl request
-        print 'input.name', self.operation.input.name
-        for schema in self.instance._s_types[0].schemas:
-            for element in schema.elements:
-                # print element.name
-                if self.operation.input.name in element.name:
-                    print etree.tostring(element.e)
-                    print 'se:', element.subelements
-                    # print 'name', element.name
-                    # print element
-
-        # for t in self.instance.__types:
-        #     print t
-        #build wsdl response
-        print self.operation.output.name
+class WSDLDefinitions(object):
+    def __init__(self, e):
+        self.e = e
+        self.types = [WSDLTypes(t) for t in self.e.findall('%stypes' % WSDL.get_ns(self.e, 'wsdl'))]
+        self.messages = [WSDLMessage(m) for m in self.e.findall('%smessage' % WSDL.get_ns(self.e, 'wsdl'))]
+        self.portType = WSDLPortType(self.e.find('%sportType' % WSDL.get_ns(self.e, 'wsdl')))
+        self.binding = WSDLBinding(self.e.find('%sbinding' % WSDL.get_ns(self.e, 'wsdl')))
+        # print etree.tostring(self.e)
+        self.service = WSDLService(self.e.find('%sservice' % WSDL.get_ns(self.e, 'wsdl')))
         
-        return "a"
-
-    
+        
 class WSDL(SRD):
 
     def __init__(self, wsdl_url=None, wsdl_data=None):
         #WIKI: descriptions is often called definitions.        
-        super(WSDL, self).__init__(WSDLOperationCaller)
+        super(WSDL, self).__init__()
         self.name = None
         self.__services = list()
+        self.channels = dict()
         # self.wsdl_tree = None
 
     @classmethod
     def get_ns(cls, element, namespace):
         return '{%s}' % element.nsmap.get(namespace) if element.nsmap.get(namespace) else '{%s}' % element.nsmap.get(None)
     
-    def load_wsdl(self, wsdl_url=None, wsdl_data=None):
+    def load_wsdl(self, channel_name, wsdl_url=None, wsdl_data=None):
         wsdl_string = None
         if wsdl_url is not None:
             wsdl_string = http.get(wsdl_url,
@@ -124,7 +143,16 @@ class WSDL(SRD):
             wsdl_string = wsdl_data
         if wsdl_string is not None:
             resource = etree.XML(wsdl_string)
-            self.marshall_definition(resource)
+            self.channels[channel_name] = WSDLDefinitions(resource)
+            # self.marshall_definition(resource)
+
+    @classmethod
+    def send_request(cls, url, soap_body):
+        print url
+        print soap_body
+        return http.post(url,
+                         body=soap_body)
+        # return "fakeresponse"
         
         
     def marshall_definition(self, resource):
