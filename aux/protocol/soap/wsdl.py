@@ -2,7 +2,6 @@ from lxml import objectify
 from lxml import etree
 from urlparse import urlparse
 from aux.api import http
-from aux.protocol.srd import SRD
 
 
 class WSDLPort(object):
@@ -40,8 +39,7 @@ class XMLComplexType(object):
                 # print etree.tostring(el)
                 # print
 
-
-
+            
 class XMLSimpleType(object):
     def __init__(self, e):
         self.e = e
@@ -120,21 +118,29 @@ class WSDLDefinitions(object):
         self.service = WSDLService(self.e.find('%sservice' % WSDL.get_ns(self.e, 'wsdl')))
         
         
-class WSDL(SRD):
+class WSDL(object):
 
     def __init__(self, wsdl_url=None, wsdl_data=None):
         #WIKI: descriptions is often called definitions.        
         super(WSDL, self).__init__()
         self.name = None
-        self.__services = list()
-        self.channels = dict()
-        # self.wsdl_tree = None
+        self.__api_sources = list()
+        self.definitions = dict()
 
+    def set_api_source(self, new_api_source_dsn):
+        self.__api_sources.append(new_api_source_dsn)
+
+    def get_api_sources(self):
+        return self.__api_sources
+    
+    def update_api(self):
+        raise NotImplementedError("update_api() not defined")
+        
     @classmethod
     def get_ns(cls, element, namespace):
         return '{%s}' % element.nsmap.get(namespace) if element.nsmap.get(namespace) else '{%s}' % element.nsmap.get(None)
     
-    def load_wsdl(self, channel_name, wsdl_url=None, wsdl_data=None):
+    def load_wsdl(self, definition_name, wsdl_url=None, wsdl_data=None):
         wsdl_string = None
         if wsdl_url is not None:
             wsdl_string = http.get(wsdl_url,
@@ -143,17 +149,18 @@ class WSDL(SRD):
             wsdl_string = wsdl_data
         if wsdl_string is not None:
             resource = etree.XML(wsdl_string)
-            self.channels[channel_name] = WSDLDefinitions(resource)
+            self.definitions[definition_name] = WSDLDefinitions(resource)
             # self.marshall_definition(resource)
-
+            
     @classmethod
-    def send_request(cls, url, soap_body):
+    def send_request(cls, url, soap_body, instance):
         print url
         print soap_body
+        headers = {"SOAPAction": ""}
+        headers.update(http.basic(instance.credentials))
         return http.post(url,
+                         headers=headers,
                          body=soap_body)
-        # return "fakeresponse"
-        
         
     def marshall_definition(self, resource):
         tree = etree.ElementTree(resource)

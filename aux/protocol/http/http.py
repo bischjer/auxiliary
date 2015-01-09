@@ -206,7 +206,7 @@ class HTTP(object):
         if request.method in ['POST', 'PUT', 'DELETE']:
             request.headers.update({'Content-Length': '%i' % len(request.body)})
         transport = self.get_transport(request.url, scheme=request.url.scheme)
-        ## Origin: 192.168....
+        print request
         transport.send(str(request))
         return self.receive(transport)
 
