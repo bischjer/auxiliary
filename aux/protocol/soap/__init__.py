@@ -1,5 +1,5 @@
 #TODO: REFACTOR from aux.protocol.http.https import HTTPSConnection
-from aux.protocol.soap.wsdl import WSDL
+from aux.protocol.soap.wsdl import WSDLClient
 from urlparse import urlparse
 
 

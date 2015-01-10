@@ -201,12 +201,11 @@ class HTTP(object):
         return response
     
     def send(self, request):
-        log.debug("Request:\n%s\n", request)
         request.target = request.url.hostname
         if request.method in ['POST', 'PUT', 'DELETE']:
             request.headers.update({'Content-Length': '%i' % len(request.body)})
         transport = self.get_transport(request.url, scheme=request.url.scheme)
-        ## Origin: 192.168....
+        log.debug("Request:\n%s\n", request)
         transport.send(str(request))
         return self.receive(transport)
 

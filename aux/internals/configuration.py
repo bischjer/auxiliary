@@ -1,8 +1,8 @@
+import sys        
 import os
-from optparse import OptionParser, OptionGroup
 import logging
+from optparse import OptionParser, OptionGroup
 from aux import base_dir
-
 
 def str2loglevel(option, opt_str, value ,parser):
     if value is not None:
@@ -26,7 +26,7 @@ class Configuration(object):
         usage = "usage: aux aux_file.py --option"
         parser = OptionParser(usage=usage)
         parser.add_option("--systems",
-                          dest="system_list",
+                          dest="systems",
                           type="string",
                           help="list of systems")
         log_group = OptionGroup(parser, "Logging Options")
@@ -64,13 +64,20 @@ class Configuration(object):
         log_group.add_option("--logsrv",
                           dest="log_server",
                           type="string")
+
+        tools_group = OptionGroup(parser, "Auxiliary Tools")
+        tools_group.add_option("--create_plugin",
+                               dest="plugincreator",
+                               type="string",
+                               help="[ service, device, protocol ]")
         
         parser.add_option("--engine",
                           dest="engine_type",
                           type="string")
         
         parser.add_option_group(log_group)
+        parser.add_option_group(tools_group)
         self.options, self.args = parser.parse_args()
-        
-config = Configuration()
 
+# print "sysargv", sys.argv
+config = Configuration() if 'aux' in sys.argv[0] else None

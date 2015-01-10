@@ -11,57 +11,93 @@ class WSDLPort(object):
         self.binding = e.attrib.get('binding')
         self.ext_element = e.getchildren()[0]
 
+class WSDLPortType(object):
+    def __init__(self, e):
+        self.e = e
+        self.name = self.e.get('name')
+        self.operations = [WSDLOperation(o) for o in self.e.findall('%soperation' % WSDLClient.get_ns(self.e, 'wsdl'))]
+
+#WIKI: Also reads as PortType in old definition        
+class WSDLInterface(WSDLPortType):pass
+
+class XMLComplexType(object):
+    def __init__(self, e):
+        self.e = e
+        # print etree.tostring(e)
+        # print 
+        self.seq = self.e.findall('%ssequence' % WSDLClient.get_ns(self.e, 'xs'))
+        elems = None
+        if len(self.seq) > 0:
+            elems = [e for e in self.seq[0].findall('%selement' % WSDLClient.get_ns(self.e, 'xs'))]
+        if elems is None:
+            self.elements = []
+        else:
+            self.elements = elems
+            # for el in elems:
+                # print el.get('name')
+                # print el.get('type')
+                # print etree.tostring(el)
+                # print
+
+            
+class XMLSimpleType(object):
+    def __init__(self, e):
+        self.e = e
+        
+        
 class WSDLElement(object):
     #WIKI: XML Element SimpleType|ComplexType
     def __init__(self, e):
         self.e = e
-        self.name = e.get('name')
-        
+        self.name = self.e.get('name')
+        self.subelements = [XMLComplexType(se) for se in self.e.findall('%scomplexType' % WSDLClient.get_ns(self.e, 'xs'))]
+        self.subelements.extend([XMLSimpleType(se) for se in self.e.findall('%ssimpleType' % WSDLClient.get_ns(self.e, 'xs'))])
 
 class WSDLSchema(object):
     def __init__(self, e):
         self.e = e
-        self.elements = [WSDLElement(elem) for elem in e.findall('%selement' % WSDL.get_ns(e, 'xs'))]
+        self.elements = [WSDLElement(elem) for elem in e.findall('%selement' % WSDLClient.get_ns(e, 'xs'))]
 
     
 class WSDLTypes(object):
     def __init__(self, e):
-        self.schemas = [WSDLSchema(s) for s in e]
+        self.e = e
+        self.schemas = [WSDLSchema(s) for s in self.e]
         
 
 class WSDLMessagePart(object):
     def __init__(self, e):
         self.e = e
-        self.name = e.get('name')
-        self.element = e.attrib.get('element')
+        if self.e is not None:
+            self.name = e.get('name')
+            self.element = e.attrib.get('element')
         
 class WSDLMessage(object):
     def __init__(self, e):
         self.e = e
-        self.name = e.get('name')
-        self.part = WSDLMessagePart(e.find('%spart' % WSDL.get_ns(e, 'wsdl')))
+        if self.e is not None:
+            self.name = self.e.get('name')
+            self.part = WSDLMessagePart(self.e.find('%spart' % WSDLClient.get_ns(self.e,
+                                                                           'wsdl')))
 
 class WSDLOperation(object):
     def __init__(self, e):
         self.e = e
-        self.name = e.get('name')
-        self.input = e.find('%sinput' % WSDL.get_ns(e, 'wsdl'))
-        self.output = e.find('%soutput' % WSDL.get_ns(e, 'wsdl'))
-
+        self.name = self.e.get('name')
+        self.input = WSDLMessage( self.e.find('%sinput' % WSDLClient.get_ns(self.e,
+                                                                      'wsdl')) )
+        self.output = WSDLMessage( self.e.find('%soutput' % WSDLClient.get_ns(self.e,
+                                                                        'wsdl')) )
 
 class WSDLBinding(object):
     def __init__(self, e):
         self.e = e
         self.name = e.get('name')
         self.type = e.get('type')
-        self.operations = [WSDLOperation(o) for o in e.findall('%soperation' % WSDL.get_ns(e, 'wsdl'))]
+        self.soap_binding = e.find('%sbinding' % WSDLClient.get_ns(e, 'soap'))
+        self.operations = [WSDLOperation(o) for o in e.findall('%soperation' % WSDLClient.get_ns(e, 'wsdl'))]
         #self.soap_operation = ?
         
-class WSDLInterface(object):
-    #WIKI: Also reads as PortType in old definition
-    name = None
-    operations = list()
-
     
 class WSDLService(object):
     def __init__(self, e):
@@ -71,72 +107,41 @@ class WSDLService(object):
         self.ports = [WSDLPort(p) for p in e.findall('%sport' % ns)]
     
 
-class WSDL(object):
+class WSDLDefinitions(object):
+    def __init__(self, e):
+        self.e = e
+        self.types = [WSDLTypes(t) for t in self.e.findall('%stypes' % WSDLClient.get_ns(self.e, 'wsdl'))]
+        self.messages = [WSDLMessage(m) for m in self.e.findall('%smessage' % WSDLClient.get_ns(self.e, 'wsdl'))]
+        self.portType = WSDLPortType(self.e.find('%sportType' % WSDLClient.get_ns(self.e, 'wsdl')))
+        self.binding = WSDLBinding(self.e.find('%sbinding' % WSDLClient.get_ns(self.e, 'wsdl')))
+        self.service = WSDLService(self.e.find('%sservice' % WSDLClient.get_ns(self.e, 'wsdl')))
+        
+
+class WSDLClient(object):
 
     def __init__(self, wsdl_url=None, wsdl_data=None):
-        #WIKI: descriptions is often called definitions.
-        self.name = None
-        self.services = []
-        self.operations = {}
-        self.types = {}
-        self.wsdl_tree = None
+        #WIKI: descriptions is often called definitions.        
+        super(WSDLClient, self).__init__()
+        self.__api_sources = list()
+        self.definitions = dict()
 
-        self.load_wsdl(wsdl_url, wsdl_data)
+    def set_api_source(self, new_api_source_dsn):
+        self.__api_sources.append(new_api_source_dsn)
 
-    def __attrMethod(self, method):
-        class MethodCaller(object):
-            def __init__(self, wsdl_instance, method):
-                self.wsdl_instance = wsdl_instance
-                self.method = method
-                
-            def __call__(self, kwargs={}):
-                request_json = dict()
-                # print self.method
+    def get_api_sources(self):
+        return self.__api_sources
 
-                operation = [o for o in self.wsdl_instance._w_binding[0].operations if o.name == self.method]
-                if len(operation) > 0:
-                    print operation[0].name
-                    # print operation[0].input.get('name')
-                    # print operation[0].output.get('name')
-                    
-                    #TODO must find the correct schema in list of schemas
-                    for schema in  self.wsdl_instance._w_types[0].schemas:
-                        for elem in schema.elements:
-                            if 'request' in elem.name.lower():
-                                print elem.name
-                            if 'response' in elem.name.lower():
-                                print elem.name                                
 
-                # for m in self.wsdl_instance._w_messages:
-                #     print m.name
-                # print [m for m in self.wsdl_instance._w_messages if m.name == self.method]
+    def update_api(self):
+        for source in self.get_api_sources():
+            self.load_wsdl(source.split('/')[-1].replace('.wsdl',''),
+                           self.get_proxy(source))
 
-                # method_request
-                # method_request_type
-                # method_request_type_soap_request_data
-                
-                # rtypes = self.wsdl_instance.types.get(self.method.get('request'))
-                # for t in rtypes:
-                #     print t.get('name')es
-                # print self.wsdl_instance.wsdl_tree
-
-                # print self.wsdl_instance.operations.get(self.method)
-                return "nothing"#self.wsdl_instance.operations.get(method)
-        return MethodCaller(self, method)
-    
-    def __getattr__(self, attr):
-        method = [op for op in self._w_operations if op.name == attr]
-        if len(method) > 0:
-            return self.__attrMethod(method[0].name)
-        else:
-            emsg = "%s object has no attribute '%s'" % (self.__class__.__name__, attr)
-            raise AttributeError(emsg)
-        
     @classmethod
     def get_ns(cls, element, namespace):
         return '{%s}' % element.nsmap.get(namespace) if element.nsmap.get(namespace) else '{%s}' % element.nsmap.get(None)
     
-    def load_wsdl(self, wsdl_url=None, wsdl_data=None):
+    def load_wsdl(self, definition_name, wsdl_url=None, wsdl_data=None):
         wsdl_string = None
         if wsdl_url is not None:
             wsdl_string = http.get(wsdl_url,
@@ -144,121 +149,32 @@ class WSDL(object):
         elif wsdl_data is not None:
             wsdl_string = wsdl_data
         if wsdl_string is not None:
-            self.resource = etree.XML(wsdl_string)
-            self.marshall_definition(self.resource)
-
+            resource = etree.XML(wsdl_string)
+            self.definitions[definition_name] = WSDLDefinitions(resource)
+            
+    @classmethod
+    def send_request(cls, url, soap_body, instance):
+        headers = dict()
+        headers.update(http.basic(instance.credentials))
+        #TODO: This returns a http response, should be a soap-env response
+        return http.post(url,
+                         headers=headers,
+                         body=soap_body)
         
     def marshall_definition(self, resource):
-        self._w_wsdl_tree = etree.ElementTree(resource)
-        root = self._w_wsdl_tree.getroot()
-
-        self._w_name = root.get('name', None)
-        self._w_services = [WSDLService(s) for s in root.findall('%sservice' % self.get_ns(root, 'wsdl'))]
+        tree = etree.ElementTree(resource)
+        root = tree.getroot()
+        self.__name = root.get('name', None)
+        self.__services = [WSDLService(s) for s in root.findall('%sservice' % self.get_ns(root, 'wsdl'))]
         
-        self._w_types = [WSDLTypes(t) for t in root.findall('%stypes' % self.get_ns(root, 'wsdl')) if t is not None]
+        self._s_types = [WSDLTypes(t) for t in root.findall('%stypes' % self.get_ns(root, 'wsdl')) if t is not None]
 
-        self._w_messages = [WSDLMessage(m) for m in root.findall('%smessage' % self.get_ns(root, 'wsdl'))]
+        self.__messages = [WSDLMessage(m) for m in root.findall('%smessage' % self.get_ns(root, 'wsdl'))]
         
         porttype = root.find('%sportType' % self.get_ns(root, 'wsdl'))
         if porttype is not None:
-            self._w_operations = [WSDLOperation(o) for o in porttype.findall('%soperation' % self.get_ns(root,'wsdl'))]
+            ops = [WSDLOperation(o) for o in porttype.findall('%soperation' % self.get_ns(root,'wsdl'))]
+        for op in ops:
+            self.set_operation(op)
 
-        self._w_binding = [WSDLBinding(b) for b in root.findall('%sbinding' % self.get_ns(root, 'wsdl')) if b is not None]
-            
-        # print self.get_ns(root, 'wsdl')
-        # types = root.find("%stypes", self.get_ns(root, 'wsdl'))
-        # print 'types', types
-        # # print [m for m in types.findall('%schema' % self.get_ns(root, 'xs'))]
 
-        # porttype = root.find("%sportType", self.get_ns(root, 'wsdl'))
-        # print 'pt', porttype
-
-        # messages = [m for m in root.findall("%message", self.get_ns(root, 'wsdl'))]
-        # print 'msg', messages
-
-        
-        # worky
-        # porttype = root.find('{%s}portType' % root.nsmap.get('wsdl'))
-        # for operation in porttype.findall('{%s}operation' % root.nsmap.get('wsdl')):
-        #     key = operation.attrib.get('name')
-        #     self.operations[key] = {'request': operation.find('{%s}input' % root.nsmap.get('wsdl')).get('name'),
-        #                             'response':operation.find('{%s}output' % root.nsmap.get('wsdl')).get('name')}
-
-        # types = self.wsdl_tree.find('{http://schemas.xmlsoap.org/wsdl/}types')
-        # for t in types:
-        #     print t
-        # schemas = types.findall('{http://www.w3.org/2001/XMLSchema}schema')
-        # for schema in schemas:
-        #     elements = schema.findall('{%s}element' % schema.nsmap.get('xs'))
-        #     for element in elements:
-        #         self.types[element.get('name')] = element.find('{%s}complexType' % schema.nsmap.get('xs'))
-
-        # print root.nsmap
-        # print types.find('{http://schemas.xmlsoap.org/wsdl/}element')
-        # print types.findall('{}schema')
-            
-        # messages = root.findall('{http://schemas.xmlsoap.org/wsdl/}message')
-        # for message in messages:
-        #     key = message.attrib.get('name')
-        #     self.methods[ key ] = "placeholder for %s" % key
-        #     print self.methods
-        # # try:
-        # #     service = root.find("service", namespaces=root.nsmap)
-        # #     print service
-        # # except:
-        # #     pass
-        # services = root.findall('{http://schemas.xmlsoap.org/wsdl/}service')
-        # for service in services:
-        #     # print ":: ", service.attrib.get('name', None)
-        #     service_name = service.attrib.get('name', None)
-        #     service_documentation = service.find('{http://schemas.xmlsoap.org/wsdl/}documentation').text
-        #     service_ports = []
-        #     for port in service.findall('{http://schemas.xmlsoap.org/wsdl/}port'):
-        #         port_name = port.attrib.get('name', None)
-        #         port_binding = port.attrib.get('binding', None)
-        #         # print port.text
-        #         port_extensibility = port.text
-        #         # print port_extensibility
-        #         service_ports.append(WSDLPort(port_name,
-        #                                       port_binding, #WSDLBinding # sort out namespacing
-        #                                       port_extensibility))
-            
-        #     self.services.append(WSDLService(service_name,
-        #                                      service_documentation,
-        #                                      service_ports))
-
-        # if len(self.services) > 0:
-        #     pass
-            # print self.services[0].name
-
-        # if service:
-        #     print service.tag
-        # for child in root.getchildren():
-        #     print ":: ", child.tag
-
-            
-        # for child in root.getchildren():
-        #     if '{http://schemas.xmlsoap.org/wsdl/}service' == child.tag:
-        #         print ':::::', child.attrib.get('name', None)
-        #         # self.name = child.attrib.get('name', None)
-        #     if '{http://schemas.xmlsoap.org/wsdl/}binding' == child.tag:
-        #         for ochild in child.getchildren():
-        #             if '{http://schemas.xmlsoap.org/wsdl/}operation' == ochild.tag:
-        #                 operationName = ochild.attrib.get('name', None)
-        #                 for l3ch in ochild.getchildren():
-        #                     if '{http://schemas.xmlsoap.org/wsdl/soap/}operation' == l3ch.tag:
-        #                         soapAction = l3ch.attrib.get('soapAction', None)
-        #                         if soapAction:
-        #                             # self.operations[operationName] = lambda: soapAction
-        #                             self.operations[operationName] = WSDLOperation(operationName,
-        #                                                                            soapAction)
-
-        # print dir(child)
-        # print etree.tostring(tree)
-        # print tree.docinfo.doctype
-        # print dir(wsdl_tree)
-        # print etree.dump(wsdl_tree)
-        # wsdl_obj = objectify.fromstring(wsdl_resource.read())
-        # print wsdl_obj.find('binding')
-        # print objectify.dump(wsdl_obj)
-        
