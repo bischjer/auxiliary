@@ -15,11 +15,31 @@ from aux.api import http
 from aux.logging import LogController
 from datetime import datetime
 import json
-from aux.internals.configuration import config
 
 logcontroller = None
 
+def plugin_creator_routine(plugincreator, arguments):
+    if 'service' in plugincreator:
+        # print plugincreator, arguments
+        if len(arguments) > 0:
+            packagename = "_".join(['aux', 'service', arguments[0]])
+            # print packagename # TODO: template
+        os.system('paster create -t basic_package -o %s' % base_dir()+"/..")
+        sys.exit(0)
+    elif 'device' in plugincreator:
+        pass
+        sys.exit(0)
+    elif 'protocol' in plugincreator:
+        pass
+        sys.exit(0)
+
 def run():
+    from aux.internals.configuration import config
+
+    if config.options.plugincreator is not None:
+        plugin_creator_routine(config.options.plugincreator,
+                               config.args)
+    
     logcontroller = LogController(config)
     #read config file
     mock_config_file = """

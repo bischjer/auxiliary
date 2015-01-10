@@ -64,12 +64,19 @@ class Configuration(object):
         log_group.add_option("--logsrv",
                           dest="log_server",
                           type="string")
+
+        tools_group = OptionGroup(parser, "Auxiliary Tools")
+        tools_group.add_option("--create_plugin",
+                               dest="plugincreator",
+                               type="string",
+                               help="[ service, device, protocol ]")
         
         parser.add_option("--engine",
                           dest="engine_type",
                           type="string")
         
         parser.add_option_group(log_group)
+        parser.add_option_group(tools_group)
         self.options, self.args = parser.parse_args()
 
 # print "sysargv", sys.argv
