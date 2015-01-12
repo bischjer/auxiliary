@@ -18,6 +18,7 @@ from aux.engine import engine_factory
 
 
 logcontroller = None
+configuration = None
 
 def plugin_creator_routine(plugincreator, arguments):
     if 'service' in plugincreator:
@@ -36,7 +37,8 @@ def plugin_creator_routine(plugincreator, arguments):
 
 def run():
     from aux.internals.configuration import config
-
+    global configuration
+    configuration = config
     if config.options.plugincreator is not None:
         plugin_creator_routine(config.options.plugincreator,
                                config.args)
@@ -66,7 +68,7 @@ log_directory: logs/
     engine = engine_factory('reactor')
     engine.start()
 
-    print config.options.systems
+    # print config.options.systems
     
     #run
     exec(script_to_run)

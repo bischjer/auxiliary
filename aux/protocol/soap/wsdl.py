@@ -152,15 +152,6 @@ class WSDLClient(object):
             resource = etree.XML(wsdl_string)
             self.definitions[definition_name] = WSDLDefinitions(resource)
             
-    @classmethod
-    def send_request(cls, url, soap_body, instance):
-        headers = dict()
-        headers.update(http.basic(instance.credentials))
-        #TODO: This returns a http response, should be a soap-env response
-        return http.post(url,
-                         headers=headers,
-                         body=soap_body)
-        
     def marshall_definition(self, resource):
         tree = etree.ElementTree(resource)
         root = tree.getroot()
