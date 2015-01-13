@@ -52,8 +52,9 @@ class LogController(object):
         return new_logger
         
     def post_to_server(self):
+        print 'logserver', self.config.options.log_server
         #'http://192.168.0.135:8080/api/test/result'
-        serverendpoint = self.log_result_server        
+        serverendpoint = self.config.options.log_server
         json_data = {'started' : str(self.summary.get('started')),
                      'ended' : str(self.summary.get('ended')),
                      'test' : self.summary.get('test'),
@@ -78,6 +79,7 @@ class LogController(object):
         
     def pprint_summary_on_exit(self):
         self.summary['ended'] = datetime.now()
+        print self.config.options.log_server
         if self.config.options.log_server is not None:
             try: 
                 self.post_to_server(self.config.options.log_server)

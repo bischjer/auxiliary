@@ -4,7 +4,6 @@ from urlparse import urlparse
 from aux.api import http
 
 
-
 class SoapRequest(object):
 
     def __init__(self, url, headers, soap_content):

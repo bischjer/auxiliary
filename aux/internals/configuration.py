@@ -21,7 +21,6 @@ class Configuration(object):
     def __init__(self):
         self.provision_optargs()
 
-        
     def provision_optargs(self):
         usage = "usage: aux aux_file.py --option"
         parser = OptionParser(usage=usage)
@@ -29,6 +28,9 @@ class Configuration(object):
                           dest="systems",
                           type="string",
                           help="list of systems")
+        parser.add_option("--config",
+                          dest="configurationfile",
+                          type="string")
         log_group = OptionGroup(parser, "Logging Options")
         log_group.add_option("-v", "--verbose",
                           dest="verbose",
@@ -79,5 +81,9 @@ class Configuration(object):
         parser.add_option_group(tools_group)
         self.options, self.args = parser.parse_args()
 
+    def load_default_properties(self, properties_file):
+        #TODO: get the setup from the aux.__init__ file
+        pass
+        
 # print "sysargv", sys.argv
 config = Configuration() if 'aux' in sys.argv[0] else None

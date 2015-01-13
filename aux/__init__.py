@@ -37,18 +37,33 @@ def plugin_creator_routine(plugincreator, arguments):
 
 def run():
     from aux.internals.configuration import config
-    global configuration
+    global configuration 
+    global logcontroller
     configuration = config
     if config.options.plugincreator is not None:
         plugin_creator_routine(config.options.plugincreator,
                                config.args)
-    
     logcontroller = LogController(config)
+    
     #read config file
-    mock_config_file = """
-proxy: localhost:5791
-log_directory: logs/
-"""
+    #TODO: move this into the configuration controller
+    try:
+        if config.options.configurationfile is None:
+            configfilestr = "/home/bischjer/.aux/aux.properties"#custom
+        else:
+            configfilestr = config.options.configurationfile
+        if not os.path.exists(configfilestr):
+            configfilestr = base_dir()+"/../aux.properties"#default fallback
+        fp = open(configfilestr, "r")
+        file_configs = json.loads(fp.read())
+        if config.options.log_server is None:            
+            config.options.log_server = file_configs.get('logging').get('resultServer')
+        if config.options.log_directory is None:
+            config.options.log_directory = file_configs.get('logging').get('logdir')
+    except Exception, e:
+        logcontroller.debug('Falling back to default settings.')
+        print e.message
+
     ## Setup
     logcontroller.summary['test'] = sys.argv[0]
     logcontroller.summary['started'] = datetime.now()
@@ -58,22 +73,17 @@ log_directory: logs/
     if len(scripts_as_args) != 1:
         logcontroller.runtime.error('Script args error')
         sys.exit(1)
-    else:
-        script_to_run = open(scripts_as_args[0], "r").read().strip()
     #initiate backend
     #initiate logger
     #verify endpoints
-
     #start engine
     engine = engine_factory('reactor')
     engine.start()
-
     # print config.options.systems
-    
     #run
-    exec(script_to_run)
+    execfile(scripts_as_args[0])
     #do teardown
-
+    
 
 __all__ = ['device',
            'plugin',
