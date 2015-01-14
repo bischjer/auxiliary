@@ -1,8 +1,11 @@
 import sys        
 import os
+import json
 import logging
 from optparse import OptionParser, OptionGroup
 from aux import base_dir
+
+DEFAULT_PROPERTIES_FILE = base_dir()+"/../aux.properties"
 
 def str2loglevel(option, opt_str, value ,parser):
     if value is not None:
@@ -81,9 +84,25 @@ class Configuration(object):
         parser.add_option_group(tools_group)
         self.options, self.args = parser.parse_args()
 
-    def load_default_properties(self, properties_file):
-        #TODO: get the setup from the aux.__init__ file
-        pass
-        
-# print "sysargv", sys.argv
+    def load_default_properties(self):
+        if self.options.configurationfile is None:
+            configfilestr = os.path.join(os.path.expanduser("~"), ".aux/aux.properties")
+        else:
+            configfilestr = self.options.configurationfile
+        if not os.path.exists(configfilestr):
+            configfilestr = DEFAULT_PROPERTIES_FILE
+        fp = open(configfilestr, "r")
+        file_configs = json.loads(fp.read())
+
+        if self.options.log_server is None:
+            self.options.log_server = file_configs.get('logging').get('resultServer')
+        if self.options.log_directory is None:
+            self.options.log_directory = file_configs.get('logging').get('logdir')
+        if self.options.log_level is None:
+            self.options.log_level = file_configs.get('logging').get('loglevel')
+        if self.options.verbose is False:
+            self.options.verbose = file_configs.get('logging').get('verbose')
+            
+
 config = Configuration() if 'aux' in sys.argv[0] else None
+

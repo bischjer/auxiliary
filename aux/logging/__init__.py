@@ -30,6 +30,10 @@ class LogController(object):
         if self.log_verbose:
             self.pprint_header_on_init()
 
+        self.loggers.get('runtime').debug('Config')
+        self.runtime.debug('Config options : %s' % self.config.options)
+        self.runtime.debug('Config arguments : %s' % self.config.args)
+
     def __getattr__(self, attr):
         if self.loggers.get(attr, None) is not None:
             return self.loggers.get(attr)
@@ -49,11 +53,10 @@ class LogController(object):
         ch.setFormatter(formatter)
         new_logger.addHandler(fh)
         new_logger.addHandler(ch)
+        new_logger.debug('Created')
         return new_logger
         
     def post_to_server(self):
-        print 'logserver', self.config.options.log_server
-        #'http://192.168.0.135:8080/api/test/result'
         serverendpoint = self.config.options.log_server
         json_data = {'started' : str(self.summary.get('started')),
                      'ended' : str(self.summary.get('ended')),
@@ -78,8 +81,6 @@ class LogController(object):
             self.runtime.info("Args : %s" % (self.config.args))
         
     def pprint_summary_on_exit(self):
-        self.summary['ended'] = datetime.now()
-        print self.config.options.log_server
         if self.config.options.log_server is not None:
             try: 
                 self.post_to_server(self.config.options.log_server)
@@ -93,3 +94,4 @@ class LogController(object):
                 print "- %s: %s" % (key, self.summary[key])
             print "-"*70
                 
+
