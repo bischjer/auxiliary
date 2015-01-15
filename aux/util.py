@@ -1,5 +1,7 @@
 from colorama import Fore, Back, Style
 import os
+import logging
+
 
 def as_role(method):
     return method
@@ -13,18 +15,19 @@ def expected(actual_result,
              service="",
              note=None,
              error_msg=None):
+    log = logging.getLogger('script')
 
     if actual_result != expected_result:
         # color_s = Fore.RED + "Error: %s" + Fore.RESET
         color_s = "Err: %s"
-        print color_s % service
+        log.info(color_s % service)
         if note is not None:
-            print "   : %s" % (note)
+            log.info("   : %s" % (note))
         if error_msg is not None:
-            print "   : %s" % (error_msg)
+            log.error("   : %s" % (error_msg))
     else:
         # color_s = Fore.GREEN + "OK: %s" + Fore.RESET
         color_s = "OK : %s"
-        print color_s % service
+        log.info(color_s % service)
         if note is not None:
-            print "   : %s" % (note)    
+            log.info("   : %s" % (note))

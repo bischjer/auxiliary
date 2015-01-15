@@ -9,7 +9,7 @@ import re
 import os
 import base64
 
-log = logging.getLogger("aux.protocol.http")
+log = logging.getLogger("protocol")
 
 uname = os.uname()
 USER_AGENT = "aux/%s (%s;)" % (aux.version(),
@@ -116,8 +116,9 @@ class HTTPRequest(HTTPMessage):
 
     
 class HTTPResponse(HTTPMessage):
-    def __init__(self, status, response_data={}):
+    def __init__(self, status, response_data={}, request_pointer=None):
         self.status = status
+        self.request_pointer = request_pointer
         super(HTTPResponse, self).__init__(response_data.get('headers', {}),
                                            response_data.get('body', ''))
         
@@ -131,7 +132,7 @@ class HTTP(object):
     __is_persistent = False
 
     def __init__(self):
-        self.logger = logging.getLogger('aux.protocol.http')
+        self.logger = logging.getLogger('protocol')
         self._transport = None
    
     def get_transport(self, url, scheme="http", persist=False, timeout=60):
@@ -205,9 +206,11 @@ class HTTP(object):
         if request.method in ['POST', 'PUT', 'DELETE']:
             request.headers.update({'Content-Length': '%i' % len(request.body)})
         transport = self.get_transport(request.url, scheme=request.url.scheme)
-        log.debug("Request:\n%s\n", request)
+        log.debug("HTTPRequest:\n%s\n", request)
         transport.send(str(request))
-        return self.receive(transport)
+        response = self.receive(transport)
+        response.request_pointer = request
+        return response
 
     
 class HTTPClient(object):

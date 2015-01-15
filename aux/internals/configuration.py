@@ -11,12 +11,14 @@ def str2loglevel(option, opt_str, value ,parser):
     if value is not None:
         if "DEBUG"==value.upper():
             setattr(parser.values, option.dest, logging.DEBUG)
-        elif "ERROR"==value.upper():
-            setattr(parser.values, option.dest, logging.ERROR)
         elif "INFO"==value.upper():
             setattr(parser.values, option.dest, logging.INFO)
         elif "WARNING"==value.upper():
             setattr(parser.values, option.dest, logging.WARNING)
+        elif "ERROR"==value.upper():
+            setattr(parser.values, option.dest, logging.ERROR)            
+        elif "CRITICAL"==value.upper():
+            setattr(parser.values, option.dest, logging.CRITICAL)            
         else:
             setattr(parser.values, option.dest, logging.NOTSET)
 

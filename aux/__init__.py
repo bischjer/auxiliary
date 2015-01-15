@@ -11,7 +11,7 @@ def base_dir():
     return os.path.abspath(os.path.dirname(aux.__file__))
 
 import aux
-from aux.logging import LogController
+from aux.logger import LogController
 from datetime import datetime
 import json
 from aux.internals import plugin_creator_routine
@@ -19,7 +19,6 @@ from aux.engine import engine_factory
 
 logcontroller = None
 configuration = None
-
 
 def run():
     from aux.internals.configuration import config

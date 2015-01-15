@@ -24,15 +24,18 @@ class LogController(object):
                               datetime.strftime(datetime.now(), "%Y%m%d-%H%M%S%f"))
         if not os.path.exists(logdir):
             os.makedirs(logdir)
+        logging.basicConfig(level=self.log_file_level,
+                            format='%(asctime)s:%(name)s:%(levelname)s:%(message)s',
+                            filename='all.log',
+                            filemode='w')
         for loggername in ['runtime', 'transport', 'script']:
             self.loggers[loggername] = self.__new_logger(loggername, logdir)
 
         if self.log_verbose:
             self.pprint_header_on_init()
 
-        self.loggers.get('runtime').debug('Config')
-        self.runtime.debug('Config options : %s' % self.config.options)
-        self.runtime.debug('Config arguments : %s' % self.config.args)
+        self.runtime.debug('Config options :\n%s' % self.config.options)
+        self.runtime.debug('Config arguments :\n %s' % self.config.args)
 
     def __getattr__(self, attr):
         if self.loggers.get(attr, None) is not None:
@@ -47,13 +50,13 @@ class LogController(object):
                                                        '%s.log' % (loggername)))
         fh.setLevel(self.log_file_level)
         ch = logging.StreamHandler()
-        ch.setLevel(self.log_console_level) 
+        ch.setLevel(self.log_console_level)
         formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)s:%(message)s')
         fh.setFormatter(formatter)
         ch.setFormatter(formatter)
         new_logger.addHandler(fh)
         new_logger.addHandler(ch)
-        new_logger.debug('Created')
+        new_logger.debug('Initiated')
         return new_logger
         
     def post_to_server(self):
