@@ -1,4 +1,4 @@
-
+import paramiko
 
 
 class SSHMessage(object):
@@ -8,13 +8,28 @@ class SSHMessage(object):
         self.payload
         self.random_padding
 
-        
-
 #RFC4253
 class SSHClient(object):
-    pass
+    credentials = None
+    
+    def __init__(self):
+        self.hostname = None
+        self.__connection = paramiko.SSHClient()
+        self.__connection.load_system_host_keys()
+        self.__connection.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-
+    def set_hostname(self, hostname):
+        self.hostname = hostname
+        
+    def set_credentials(self, credentials):
+        self.credentials = credentials
+    
+    def cmd(self, command_msg):
+        self.__connection.connect(self.hostname,
+                                  username=self.credentials[0],
+                                  password=self.credentials[1])
+        stdin, stdout, stderr = self.__connection.exec_command(command_msg)
+        return stdout.read()
 
 #initial handshake
 

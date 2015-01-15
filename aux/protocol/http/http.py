@@ -7,6 +7,7 @@ import logging
 import aux
 import re
 import os
+import base64
 
 log = logging.getLogger("aux.protocol.http")
 
@@ -21,11 +22,11 @@ TCP_FRAME_BUFFER_SIZE = 1500#bytes#hmmmm
 HTTP_METHODS = ["OPTIONS", "GET", "HEAD",
                 "POST", "PUT", "DELETE",
                 "TRACE", "CONNECT"]#extension-method
-M_GET  = 'GET'
-M_POST = 'POST'
-M_PUT  = 'PUT'
-M_DELETE  = 'DELETE'
-M_HEAD = 'HEAD'
+# M_GET  = 'GET'
+# M_POST = 'POST'
+# M_PUT  = 'PUT'
+# M_DELETE  = 'DELETE'
+# M_HEAD = 'HEAD'
 
 HTTP_RESPONSE_CODES = {"100": "Continue",
                        "101": "Switching Protocols",
@@ -174,6 +175,7 @@ class HTTP(object):
             status = int(re_startline.match(sl).groups()[0])
         except Exception, e:
             print e.message
+            log.error(e.message)
             raise Exception
 
         re_headline = re.compile(r'^([A-Za-z\-]*)\s?\:\s?(.*)')
@@ -192,51 +194,59 @@ class HTTP(object):
         tail_msg = tail_msg[len(t_lines[0])+4:]
         Transfer = transferFactory(headers)
         Mime = mimeFactory(headers)
-
         body = Mime(headers.get('Content-Disposition', None),
                     Transfer(headers, transport, tail_msg).read()).handle()
-        
         response = HTTPResponse(status, {'headers': headers, 'body': body})
         transport.close()
         return response
     
     def send(self, request):
-        log.debug("Request:\n%s\n", request)
         request.target = request.url.hostname
-        if request.method == 'POST':
+        if request.method in ['POST', 'PUT', 'DELETE']:
             request.headers.update({'Content-Length': '%i' % len(request.body)})
         transport = self.get_transport(request.url, scheme=request.url.scheme)
+        log.debug("Request:\n%s\n", request)
         transport.send(str(request))
         return self.receive(transport)
 
     
 class HTTPClient(object):
     auth = auth
+
+    def http_send(self, method, url, headers, body, request):
+        if request == None:
+            request = HTTPRequest(url,
+                                  {'method': method,
+                                   'headers': headers,
+                                   'body': body})
+        _http = HTTP()
+        return _http.send(request)
+
+    def head(self, url=None, headers={}, request=None):
+        return self.http_send('HEAD', url, headers, "", request)
     
     def get(self, url=None, headers={}, body="", request=None):
-        if request == None:
-            request = HTTPRequest(url,
-                                  {'method':'GET',
-                                   'headers': headers,
-                                   'body': body})
-        _http = HTTP()
-        return _http.send(request)
-        
+        return self.http_send('GET', url, headers, body, request)
 
     def post(self, url, headers={}, body="", request=None):
-        if request == None:
-            request = HTTPRequest(url,
-                                  {'method':'POST',
-                                   'headers': headers,
-                                   'body': body})
-        _http = HTTP()
-        return _http.send(request)
-        
-        
-        
+        return self.http_send('POST', url, headers, body, request)
 
-    def put(self, url):
-        print url
+    def put(self, url, headers={}, body="", request=None):
+        return self.http_send('PUT', url, headers, body, request)
 
-        # print url
+    def delete(self, url, headers={}, body="", request=None):
+        return self.http_send('DELETE', url, headers, body, request)
 
+    # def connect(self, url, headers={}, body="", request=None):
+    #     return self.http_send('CONNECT', url, headers, body, request)
+
+    # def trace(self, url, headers={}, body="", request=None):
+    #     return self.http_send('TRACE', url, headers, body, request)    
+
+    # def options(self, url, headers={}, body="", request=None):
+    #     return self.http_send('OPTIONS', url, headers, body, request)    
+
+    def basic(self, credentials):
+        return {'Authorization': 'Basic %s' % base64.b64encode(
+                '%s:%s' % (credentials[0],
+                           credentials[1]))}

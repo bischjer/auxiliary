@@ -1,19 +1,50 @@
 #TODO: REFACTOR from aux.protocol.http.https import HTTPSConnection
-from aux.protocol.soap.wsdl import WSDL
+# from aux.protocol.soap.wsdl import WSDLClient
 from urlparse import urlparse
+from aux.api import http
 
 
-class Soap(object):
+class SoapRequest(object):
 
-    def __init__(self, url):
-        super(Soap, self).__init__(url)
+    def __init__(self, url, headers, soap_content):
+        self.url = url
+        self.soap_ns = 'soapenv'
+        self.headers = headers
+        # self.soap_headers = soap_headers
+        self.soap_content = soap_content
+        self.body = self._request()
 
+    def __str__(self):
+        return self._request()
         
-def create_wsdl(wsdl_string):
-    return WSDL(wsdl_string)
+    def _request(self):
+        return """<%s:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:kcen="http://kezzlerssp.com/schemas/kcengine" xmlns:com="http://kezzlerssp.com/schemas/common">
+<%s:Header/>
+<%s:Body>
+%s
+</%s:Body>
+</%s:Envelope>
+ """ % (self.soap_ns,
+        self.soap_ns,
+        self.soap_ns,
+        self.soap_content,
+        self.soap_ns,
+        self.soap_ns)
 
-def connection(url):
-    return Soap(url)
+    def send(self):
+        response = http.post(self.url,
+                             headers=self.headers,
+                             body=self.body)
+        return SoapResponse(http_response=response)
+    
+class SoapResponse(object):
+
+    def __init__(self, http_response=None):
+        if http_response is not None:
+            self.http_response = http_response
+
+    def __str__(self):
+        return self.http_response.body
 
 
 request = '''
