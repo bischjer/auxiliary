@@ -38,9 +38,9 @@ def run():
 
     ## - initiate logger        
     logcontroller = LogController(config)
-            
+
     ## - Setup
-    logcontroller.summary['test'] = sys.argv[0]
+    logcontroller.summary['test'] = [ sys.argv[x] for x in range(0, len(sys.argv)) if '.py' in sys.argv[x] ][0]
     logcontroller.summary['started'] = datetime.now()
     logcontroller.summary['testsubject'] = config.options.systems
 
@@ -53,9 +53,10 @@ def run():
     engine = engine_factory('reactor', config)
     engine.start()
     ## - verify systems
-    print config.options.systems        
+    config.set_systems()
+    #configuration.system
     ## - run
-    execfile(scripts_as_args[0])
+    # execfile(scripts_as_args[0])
     ## - do teardown
     engine.stop()
     logcontroller.summary['ended'] = datetime.now()

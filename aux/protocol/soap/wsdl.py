@@ -45,8 +45,7 @@ class XMLSimpleType(object):
         self.e = e
         
         
-class WSDLElement(object):
-    #WIKI: XML Element SimpleType|ComplexType
+class WSDLElement(object):    #WIKI: XML Element SimpleType|ComplexType
     def __init__(self, e):
         self.e = e
         self.name = self.e.get('name')
@@ -131,7 +130,6 @@ class WSDLClient(object):
     def get_api_sources(self):
         return self.__api_sources
 
-
     def update_api(self):
         for source in self.get_api_sources():
             self.load_wsdl(source.split('/')[-1].replace('.wsdl',''),
@@ -152,20 +150,3 @@ class WSDLClient(object):
             resource = etree.XML(wsdl_string)
             self.definitions[definition_name] = WSDLDefinitions(resource)
             
-    def marshall_definition(self, resource):
-        tree = etree.ElementTree(resource)
-        root = tree.getroot()
-        self.__name = root.get('name', None)
-        self.__services = [WSDLService(s) for s in root.findall('%sservice' % self.get_ns(root, 'wsdl'))]
-        
-        self._s_types = [WSDLTypes(t) for t in root.findall('%stypes' % self.get_ns(root, 'wsdl')) if t is not None]
-
-        self.__messages = [WSDLMessage(m) for m in root.findall('%smessage' % self.get_ns(root, 'wsdl'))]
-        
-        porttype = root.find('%sportType' % self.get_ns(root, 'wsdl'))
-        if porttype is not None:
-            ops = [WSDLOperation(o) for o in porttype.findall('%soperation' % self.get_ns(root,'wsdl'))]
-        for op in ops:
-            self.set_operation(op)
-
-

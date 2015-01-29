@@ -106,5 +106,15 @@ class Configuration(object):
             self.options.verbose = file_configs.get('logging').get('verbose')
             
 
+    def set_systems(self):
+        print self.options.systems
+        if '.json' in self.options.systems:
+            fp = open(self.options.systems)
+            print fp.read()
+        else:
+            print self.options.systems
+
+        
+            
 config = Configuration() if 'aux' in sys.argv[0] else None
 
