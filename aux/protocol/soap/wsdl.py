@@ -109,6 +109,8 @@ class WSDLService(object):
 class WSDLDefinitions(object):
     def __init__(self, e):
         self.e = e
+        print etree.tostring(self.e)
+        self.name = e.get('name')
         self.types = [WSDLTypes(t) for t in self.e.findall('%stypes' % WSDLClient.get_ns(self.e, 'wsdl'))]
         self.messages = [WSDLMessage(m) for m in self.e.findall('%smessage' % WSDLClient.get_ns(self.e, 'wsdl'))]
         self.portType = WSDLPortType(self.e.find('%sportType' % WSDLClient.get_ns(self.e, 'wsdl')))
@@ -119,8 +121,8 @@ class WSDLDefinitions(object):
 class WSDLClient(object):
 
     def __init__(self, wsdl_url=None, wsdl_data=None):
-        #WIKI: descriptions is often called definitions.        
-        super(WSDLClient, self).__init__()
+        #WIKI: descriptions is often called definitions.
+        self.wsdl_data = wsdl_data
         self.__api_sources = list()
         self.definitions = dict()
 
@@ -131,9 +133,12 @@ class WSDLClient(object):
         return self.__api_sources
 
     def update_api(self):
-        for source in self.get_api_sources():
-            self.load_wsdl(source.split('/')[-1].replace('.wsdl',''),
-                           self.get_proxy(source))
+        if len(self.get_api_sources()):
+            for source in self.get_api_sources():
+                self.load_wsdl(source.split('/')[-1].replace('.wsdl',''),
+                               self.get_proxy(source))
+        else:
+            self.load_wsdl('wsdl_data', wsdl_data=self.wsdl_data)
 
     @classmethod
     def get_ns(cls, element, namespace):
