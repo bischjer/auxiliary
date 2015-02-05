@@ -25,16 +25,18 @@ class Engine(object):
         
     def start(self):
         try:
-            self.actor.start()
-            runtime_log.info("Engine started")            
+            # self.actor.start()
+            # runtime_log.info("Engine started")
+            runtime_log.debug("Engine start not implemented")            
         except:
             print traceback.print_exc(file=sys.stdout)
 
     def stop(self):
         
         try:
-            self.actor.stop()
-            runtime_log.info("Engine stopped")            
+            # self.actor.stop()
+            # runtime_log.info("Engine stopped")
+            runtime_log.debug("Engine stop not implemented")
         except Exception:
             print traceback.print_exc(file=sys.stdout)
         finally:

@@ -109,7 +109,7 @@ class WSDLService(object):
 class WSDLDefinitions(object):
     def __init__(self, e):
         self.e = e
-        print etree.tostring(self.e)
+        # print etree.tostring(self.e)
         self.name = e.get('name')
         self.types = [WSDLTypes(t) for t in self.e.findall('%stypes' % WSDLClient.get_ns(self.e, 'wsdl'))]
         self.messages = [WSDLMessage(m) for m in self.e.findall('%smessage' % WSDLClient.get_ns(self.e, 'wsdl'))]

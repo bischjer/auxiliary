@@ -26,14 +26,16 @@ class LogController(object):
             os.makedirs(logdir)
         logging.basicConfig(level=self.log_file_level,
                             format='%(asctime)s:%(name)s:%(levelname)s:%(message)s',
-                            filename='all.log',
+                            filename='%sall.log' % logdir,
                             filemode='w')
         for loggername in ['runtime', 'protocol', 'script']:
             self.loggers[loggername] = self.__new_logger(loggername, logdir)
-
+            
         if self.log_verbose:
             self.pprint_header_on_init()
-
+            
+        self.summary['logs'] = logdir
+        
         self.runtime.debug('Config options :\n%s' % self.config.options)
         self.runtime.debug('Config arguments :\n %s' % self.config.args)
 

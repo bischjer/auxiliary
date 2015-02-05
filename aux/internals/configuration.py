@@ -107,12 +107,15 @@ class Configuration(object):
             
 
     def set_systems(self):
-        print self.options.systems
-        if '.json' in self.options.systems:
-            fp = open(self.options.systems)
-            print fp.read()
-        else:
+        #populate pool of resources
+        if self.options.systems is not None:
             print self.options.systems
+            if '.json' in self.options.systems:
+                fp = open(self.options.systems)
+                # print fp.read()
+            else:
+                pass
+                # print self.options.systems
 
         
             
