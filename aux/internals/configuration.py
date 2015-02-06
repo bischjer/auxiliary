@@ -22,6 +22,10 @@ def str2loglevel(option, opt_str, value ,parser):
         else:
             setattr(parser.values, option.dest, logging.NOTSET)
 
+def dir2abspath(option, opt_str, value ,parser):
+    setattr(parser.values, option.dest, os.path.abspath(value))
+
+            
 class Configuration(object):
     def __init__(self):
         self.provision_optargs()
@@ -62,8 +66,9 @@ class Configuration(object):
                           type="string",
                           default=None)        
         log_group.add_option("--logdir",
+                          action="callback",
+                          callback=dir2abspath,   
                           dest="log_directory",
-                          action="store",
                           default=os.path.abspath(os.path.join(base_dir(),
                                                                "..",
                                                                "logs")),
