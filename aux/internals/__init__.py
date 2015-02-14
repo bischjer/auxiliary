@@ -1,6 +1,7 @@
 from aux import base_dir
 import os
 import sys
+from aux import base_dir
 
 def plugin_creator_routine(plugincreator, arguments):
     # print plugincreator, arguments    

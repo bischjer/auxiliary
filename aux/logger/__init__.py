@@ -35,6 +35,7 @@ class LogController(object):
             self.pprint_header_on_init()
             
         self.summary['logs'] = logdir
+        self.summary['success'] = True
         
         self.runtime.debug('Config options :\n%s' % self.config.options)
         self.runtime.debug('Config arguments :\n %s' % self.config.args)
