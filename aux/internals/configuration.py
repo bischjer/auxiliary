@@ -107,6 +107,10 @@ class Configuration(object):
             self.options.log_directory = file_configs.get('logging').get('logdir')
         if self.options.log_level is None:
             self.options.log_level = file_configs.get('logging').get('loglevel')
+        if self.options.log_console_level is None:
+            self.options.log_console_level = file_configs.get('logging').get('logconsolelevel')
+        if self.options.log_file_level is None:
+            self.options.log_file_level = file_configs.get('logging').get('logfilelevel')            
         if self.options.verbose is False:
             self.options.verbose = file_configs.get('logging').get('verbose')
             

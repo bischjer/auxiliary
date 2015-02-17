@@ -1,8 +1,12 @@
+from aux.protocol.soap import SOAPRequest, SOAPResponse
 from lxml import objectify
 from lxml import etree
 from urlparse import urlparse
 from aux.api import http
+import os
+import logging
 
+log = logging.getLogger("protocol")
 
 class WSDLPort(object):
     def __init__(self, e):
@@ -154,4 +158,61 @@ class WSDLClient(object):
         if wsdl_string is not None:
             resource = etree.XML(wsdl_string)
             self.definitions[definition_name] = WSDLDefinitions(resource)
+            
+
+    # def __getattr__(self, attr):
+    #     class WSDLo(object):
+    #         def __init__(self, self_instance, definition):
+    #             self.instance = self_instance
+    #             self.definition = definition
+                
+    #         def __getattr__(self, attr):
+    #             self.operation = [o for o in self.definition.portType.operations if o.name==attr][0]
+    #             return self.operation_wrapper
+
+    #         def operation_wrapper(self, kwargs):
+    #             #build request
+    #             # print self.operation.name
+    #             # print self.operation.input.name
+    #             data_types = dict()
+    #             for t in [ts for ts in self.definition.types]:
+    #                 for s in [sc for sc in t.schemas]:
+    #                     for e in [el for el in s.elements]:
+    #                         if self.operation.input.name==e.name:
+    #                             # print e.name
+    #                             # print e.subelements.elements
+    #                             for subelm in e.subelements:
+    #                                 for el in subelm.elements:
+    #                                     # print el.get('name')
+    #                                     # print el.get('type')
+    #                                     data_types[el.get('name')] = el.get('type')
+    #             soap_types = list()
+    #             for key in kwargs.keys():
+    #                 if key in data_types.keys():
+    #                     soap_types.append( "<kcen:%s>%s</kcen:%s>" % (key,
+    #                                                         kwargs[key],
+    #                                                         key) )
+    #             if 'http' in self.definition.binding.soap_binding.get('transport'):
+    #                 transport = 'http://'
+    #             elif 'htts' in self.definition.binding.soap_binding.get('transport'):
+    #                 transport = 'https://'
+    #             request_url = os.path.join(transport,
+    #                                        self.definition.service.ports[0].ext_element.get('location'),
+    #                                        self.definition.portType.name)                        
+    #             soap_body = """<kcen:%s>%s</kcen:%s>""" % (self.operation.input.name,
+    #                                                        "".join(soap_types),
+    #                                                        self.operation.input.name)
+    #             soaprequest = SOAPRequest(request_url, http.basic(self.instance.credentials), soap_body)
+    #             return soaprequest.send()
+            
+    #     definition = self.definitions.get(attr, None)
+    #     # print definition.service.name
+    #     if definition is not None:
+    #         return WSDLo(self,
+    #                      self.definitions.get(attr))
+    #     else:
+    #         emsg = "%s object has no attribute '%s'" % (self.__class__.__name__,
+    #                                                     attr)
+    #         raise AttributeError(emsg)
+
             

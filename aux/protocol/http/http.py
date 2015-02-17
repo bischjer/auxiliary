@@ -198,6 +198,7 @@ class HTTP(object):
         body = Mime(headers.get('Content-Disposition', None),
                     Transfer(headers, transport, tail_msg).read()).handle()
         response = HTTPResponse(status, {'headers': headers, 'body': body})
+        # log.debug("HTTPResponse:\n%s\n", response)
         transport.close()
         return response
     
