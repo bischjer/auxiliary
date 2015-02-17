@@ -40,14 +40,14 @@ def run():
     logcontroller = LogController(config)
 
     ## - Setup
-    logcontroller.summary['test'] = [ sys.argv[x] for x in range(0, len(sys.argv)) if '.py' in sys.argv[x] ][0]
     logcontroller.summary['started'] = datetime.now()
     logcontroller.summary['systems'] = config.options.systems
 
     scripts_as_args = [script for script in config.args if '.py' in script]
     if len(scripts_as_args) != 1:
-        logcontroller.runtime.error('Script args error')
+        logcontroller.runtime.error('Script argument missing')
         sys.exit(1)
+    logcontroller.summary['test'] = [ sys.argv[x] for x in range(0, len(sys.argv)) if '.py' in sys.argv[x] ][0]        
     ## - initiate backend
     ## -- start engine
     engine = engine_factory('reactor', config)
