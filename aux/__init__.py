@@ -42,7 +42,7 @@ def run():
     ## - Setup
     logcontroller.summary['test'] = [ sys.argv[x] for x in range(0, len(sys.argv)) if '.py' in sys.argv[x] ][0]
     logcontroller.summary['started'] = datetime.now()
-    logcontroller.summary['testsubject'] = config.options.systems
+    logcontroller.summary['systems'] = config.options.systems
 
     scripts_as_args = [script for script in config.args if '.py' in script]
     if len(scripts_as_args) != 1:
