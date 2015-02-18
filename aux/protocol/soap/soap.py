@@ -35,6 +35,7 @@ class SOAPRequest(object):
                              headers=self.headers,
                              body=self.body)
         return SOAPResponse(http_response=response)
+
     
 class SOAPResponse(object):
 
@@ -44,6 +45,19 @@ class SOAPResponse(object):
 
     def __str__(self):
         return self.http_response.body
+
+
+# class SOAP(object):
+
+#     def __init__(self):
+#         pass
+
+#     def send(self, request):
+#         return SOAPResponse(http.post(self.url,
+#                                       header=self.headers,
+#                                       body=self.body))
+
+
 
 # request = '''
 # POST https://aux.protojour.com/ws/test-ws HTTP/1.1
@@ -81,12 +95,4 @@ class SOAPResponse(object):
 # <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
 # <SOAP-ENV:Header/><SOAP-ENV:Body></SOAP-ENV:Body></SOAP-ENV:Envelope>
 # '''
-
-
-class SOAP(object):
-
-    def __init__(self):
-        pass
     
-    def send(self):
-        pass

@@ -10,6 +10,9 @@ def version():
 def base_dir():
     return os.path.abspath(os.path.dirname(aux.__file__))
 
+def working_dir():
+    return os.getcwd()
+
 import aux
 from aux.logger import LogController
 from datetime import datetime
