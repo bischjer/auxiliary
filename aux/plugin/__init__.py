@@ -18,11 +18,11 @@
     :license: BSD, see LICENSE for more details.
 """
 
-# def setup():
-#     from aux.internals.pluginhook import PluginImporter
-#     importer = PluginImporter(['aux_device_%s', 'aux_service_%s'], __name__)
-#     importer.install()
+def setup():
+    from aux.pluginhook import PluginImporter
+    importer = PluginImporter(['aux_device_%s', 'aux_service_%s'], __name__)
+    importer.install()
 
 
-# setup()
-# del setup
+setup()
+del setup
