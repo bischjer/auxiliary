@@ -1,4 +1,6 @@
-class Device(object):
-    def __init__(self, identifier, **kwargs):
+
+class BaseSystem(object):
+    def __init__(self, identifier):
         self.identifier = identifier
+
         

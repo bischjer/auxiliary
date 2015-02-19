@@ -31,4 +31,5 @@ setup(name='aux',
         'console_scripts': [
             'aux = aux:run',
         ]},
+      
       )

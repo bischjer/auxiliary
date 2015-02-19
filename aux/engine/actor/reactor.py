@@ -30,7 +30,7 @@ class Reactor(BaseActor):
                           writes,
                           exceptions,
                           self.select_timeout)
-            p_out.send("reactor send")
+            # p_out.send("reactor send")
             # should_run = False
         
     def start(self):

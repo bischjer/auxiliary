@@ -11,15 +11,21 @@ def str2loglevel(option, opt_str, value ,parser):
     if value is not None:
         if "DEBUG"==value.upper():
             setattr(parser.values, option.dest, logging.DEBUG)
-        elif "ERROR"==value.upper():
-            setattr(parser.values, option.dest, logging.ERROR)
         elif "INFO"==value.upper():
             setattr(parser.values, option.dest, logging.INFO)
         elif "WARNING"==value.upper():
             setattr(parser.values, option.dest, logging.WARNING)
+        elif "ERROR"==value.upper():
+            setattr(parser.values, option.dest, logging.ERROR)            
+        elif "CRITICAL"==value.upper():
+            setattr(parser.values, option.dest, logging.CRITICAL)            
         else:
             setattr(parser.values, option.dest, logging.NOTSET)
 
+def dir2abspath(option, opt_str, value ,parser):
+    setattr(parser.values, option.dest, os.path.abspath(value))
+
+            
 class Configuration(object):
     def __init__(self):
         self.provision_optargs()
@@ -60,8 +66,9 @@ class Configuration(object):
                           type="string",
                           default=None)        
         log_group.add_option("--logdir",
+                          action="callback",
+                          callback=dir2abspath,   
                           dest="log_directory",
-                          action="store",
                           default=os.path.abspath(os.path.join(base_dir(),
                                                                "..",
                                                                "logs")),
@@ -100,9 +107,26 @@ class Configuration(object):
             self.options.log_directory = file_configs.get('logging').get('logdir')
         if self.options.log_level is None:
             self.options.log_level = file_configs.get('logging').get('loglevel')
+        if self.options.log_console_level is None:
+            self.options.log_console_level = file_configs.get('logging').get('logconsolelevel')
+        if self.options.log_file_level is None:
+            self.options.log_file_level = file_configs.get('logging').get('logfilelevel')            
         if self.options.verbose is False:
             self.options.verbose = file_configs.get('logging').get('verbose')
             
 
+    def set_systems(self):
+        #populate pool of resources
+        if self.options.systems is not None:
+            print self.options.systems
+            if '.json' in self.options.systems:
+                fp = open(self.options.systems)
+                # print fp.read()
+            else:
+                pass
+                # print self.options.systems
+
+        
+            
 config = Configuration() if 'aux' in sys.argv[0] else None
 

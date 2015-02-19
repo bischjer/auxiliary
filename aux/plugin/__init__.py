@@ -19,11 +19,10 @@
 """
 
 def setup():
-    from ..pluginhook import PluginImporter
-    importer = PluginImporter(['aux_%s', 'auxplugin.%s', 'aux_device_%s'], __name__)
+    from aux.pluginhook import PluginImporter
+    importer = PluginImporter(['aux_device_%s', 'aux_service_%s'], __name__)
     importer.install()
 
 
 setup()
 del setup
-

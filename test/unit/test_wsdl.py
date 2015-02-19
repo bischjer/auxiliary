@@ -1,5 +1,5 @@
 from unittest2 import TestCase
-from aux.protocol.soap.wsdl import WSDL
+from aux.protocol.soap.wsdl import WSDLClient
 
 
 class WSDLTest(TestCase):
@@ -11,19 +11,22 @@ class WSDLTest(TestCase):
         pass
 
     def test_basic_wsdl_descriptions_no_attrib(self):
-        wsdl_data = "<descriptions></descriptions>"
-        wsdl_object = WSDL(wsdl_data = wsdl_data)
-        self.assertEquals(None, wsdl_object._w_name)
+        wsdl_data = "<definitions></definitions>"
+        wsdl_object = WSDLClient(wsdl_data = wsdl_data)
+        wsdl_object.update_api()
+        self.assertEquals(None, wsdl_object.definitions.get('wsdl_data').name)
 
     def test_basic_wsdl_descriptions_called_definitions(self):
         wsdl_data = '<definitions name="TestService"></definitions>'
-        wsdl_object = WSDL(wsdl_data = wsdl_data)
-        self.assertEquals('TestService', wsdl_object._w_name)
+        wsdl_object = WSDLClient(wsdl_data = wsdl_data)
+        wsdl_object.update_api()
+        self.assertEquals('TestService', wsdl_object.defintions.get('wsdl_data').name)
 
     def test_basic_wsdl_descriptions(self):
         wsdl_data = '<descriptions name="TestService"></descriptions>'
-        wsdl_object = WSDL(wsdl_data = wsdl_data)
-        self.assertEquals('TestService', wsdl_object._w_name)
+        wsdl_object = WSDLClient(wsdl_data = wsdl_data)
+        wsdl_object.update_api()
+        self.assertEquals('TestService', wsdl_object.definitions.get('wdsl_data').name)
 
     def test_basic_wsdl_service(self):
         #TODO: might need tag closure preprocessor
@@ -42,7 +45,7 @@ class WSDLTest(TestCase):
       </port>
    </service>
 </descriptions>"""
-        wsdl_object = WSDL(wsdl_data = wsdl_data)
+        wsdl_object = WSDLClient(wsdl_data = wsdl_data)
         service = wsdl_object._w_services[0]
         self.assertEquals("HelloService", service.name)
         self.assertEquals("tns:Hello_Binding", service.ports[0].binding)
@@ -228,10 +231,11 @@ class WSDLTest(TestCase):
   </wsdl:service>
 </wsdl:definitions>
 """
-        wsdl_object = WSDL(wsdl_data = wsdl_data)
+        wsdl_object = WSDLClient(wsdl_data = wsdl_data)
         #message
+        print 'debug', wsdl_object.definitions
         self.assertEquals("ListSomethingRequest",
-                          wsdl_object._w_messages[0].name)
+                          wsdl_object.definitions[0].messages[0].name)
         self.assertEquals("ListSomethingResponse",
                           wsdl_object._w_messages[1].name)
         self.assertEquals("InitOrderRequest",

@@ -1,8 +1,12 @@
+from aux.protocol.soap import SOAPRequest, SOAPResponse
 from lxml import objectify
 from lxml import etree
 from urlparse import urlparse
 from aux.api import http
+import os
+import logging
 
+log = logging.getLogger("protocol")
 
 class WSDLPort(object):
     def __init__(self, e):
@@ -45,8 +49,7 @@ class XMLSimpleType(object):
         self.e = e
         
         
-class WSDLElement(object):
-    #WIKI: XML Element SimpleType|ComplexType
+class WSDLElement(object):    #WIKI: XML Element SimpleType|ComplexType
     def __init__(self, e):
         self.e = e
         self.name = self.e.get('name')
@@ -110,6 +113,8 @@ class WSDLService(object):
 class WSDLDefinitions(object):
     def __init__(self, e):
         self.e = e
+        # print etree.tostring(self.e)
+        self.name = e.get('name')
         self.types = [WSDLTypes(t) for t in self.e.findall('%stypes' % WSDLClient.get_ns(self.e, 'wsdl'))]
         self.messages = [WSDLMessage(m) for m in self.e.findall('%smessage' % WSDLClient.get_ns(self.e, 'wsdl'))]
         self.portType = WSDLPortType(self.e.find('%sportType' % WSDLClient.get_ns(self.e, 'wsdl')))
@@ -120,8 +125,8 @@ class WSDLDefinitions(object):
 class WSDLClient(object):
 
     def __init__(self, wsdl_url=None, wsdl_data=None):
-        #WIKI: descriptions is often called definitions.        
-        super(WSDLClient, self).__init__()
+        #WIKI: descriptions is often called definitions.
+        self.wsdl_data = wsdl_data
         self.__api_sources = list()
         self.definitions = dict()
 
@@ -131,11 +136,13 @@ class WSDLClient(object):
     def get_api_sources(self):
         return self.__api_sources
 
-
     def update_api(self):
-        for source in self.get_api_sources():
-            self.load_wsdl(source.split('/')[-1].replace('.wsdl',''),
-                           self.get_proxy(source))
+        if len(self.get_api_sources()):
+            for source in self.get_api_sources():
+                self.load_wsdl(source.split('/')[-1].replace('.wsdl',''),
+                               self.get_proxy(source))
+        else:
+            self.load_wsdl('wsdl_data', wsdl_data=self.wsdl_data)
 
     @classmethod
     def get_ns(cls, element, namespace):
@@ -152,20 +159,60 @@ class WSDLClient(object):
             resource = etree.XML(wsdl_string)
             self.definitions[definition_name] = WSDLDefinitions(resource)
             
-    def marshall_definition(self, resource):
-        tree = etree.ElementTree(resource)
-        root = tree.getroot()
-        self.__name = root.get('name', None)
-        self.__services = [WSDLService(s) for s in root.findall('%sservice' % self.get_ns(root, 'wsdl'))]
-        
-        self._s_types = [WSDLTypes(t) for t in root.findall('%stypes' % self.get_ns(root, 'wsdl')) if t is not None]
 
-        self.__messages = [WSDLMessage(m) for m in root.findall('%smessage' % self.get_ns(root, 'wsdl'))]
-        
-        porttype = root.find('%sportType' % self.get_ns(root, 'wsdl'))
-        if porttype is not None:
-            ops = [WSDLOperation(o) for o in porttype.findall('%soperation' % self.get_ns(root,'wsdl'))]
-        for op in ops:
-            self.set_operation(op)
+    # def __getattr__(self, attr):
+    #     class WSDLo(object):
+    #         def __init__(self, self_instance, definition):
+    #             self.instance = self_instance
+    #             self.definition = definition
+                
+    #         def __getattr__(self, attr):
+    #             self.operation = [o for o in self.definition.portType.operations if o.name==attr][0]
+    #             return self.operation_wrapper
 
+    #         def operation_wrapper(self, kwargs):
+    #             #build request
+    #             # print self.operation.name
+    #             # print self.operation.input.name
+    #             data_types = dict()
+    #             for t in [ts for ts in self.definition.types]:
+    #                 for s in [sc for sc in t.schemas]:
+    #                     for e in [el for el in s.elements]:
+    #                         if self.operation.input.name==e.name:
+    #                             # print e.name
+    #                             # print e.subelements.elements
+    #                             for subelm in e.subelements:
+    #                                 for el in subelm.elements:
+    #                                     # print el.get('name')
+    #                                     # print el.get('type')
+    #                                     data_types[el.get('name')] = el.get('type')
+    #             soap_types = list()
+    #             for key in kwargs.keys():
+    #                 if key in data_types.keys():
+    #                     soap_types.append( "<kcen:%s>%s</kcen:%s>" % (key,
+    #                                                         kwargs[key],
+    #                                                         key) )
+    #             if 'http' in self.definition.binding.soap_binding.get('transport'):
+    #                 transport = 'http://'
+    #             elif 'htts' in self.definition.binding.soap_binding.get('transport'):
+    #                 transport = 'https://'
+    #             request_url = os.path.join(transport,
+    #                                        self.definition.service.ports[0].ext_element.get('location'),
+    #                                        self.definition.portType.name)                        
+    #             soap_body = """<kcen:%s>%s</kcen:%s>""" % (self.operation.input.name,
+    #                                                        "".join(soap_types),
+    #                                                        self.operation.input.name)
+    #             soaprequest = SOAPRequest(request_url, http.basic(self.instance.credentials), soap_body)
+    #             return soaprequest.send()
+            
+    #     definition = self.definitions.get(attr, None)
+    #     # print definition.service.name
+    #     if definition is not None:
+    #         return WSDLo(self,
+    #                      self.definitions.get(attr))
+    #     else:
+    #         emsg = "%s object has no attribute '%s'" % (self.__class__.__name__,
+    #                                                     attr)
+    #         raise AttributeError(emsg)
 
+            

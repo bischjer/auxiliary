@@ -10,8 +10,11 @@ def version():
 def base_dir():
     return os.path.abspath(os.path.dirname(aux.__file__))
 
+def working_dir():
+    return os.getcwd()
+
 import aux
-from aux.logging import LogController
+from aux.logger import LogController
 from datetime import datetime
 import json
 from aux.internals import plugin_creator_routine
@@ -19,7 +22,6 @@ from aux.engine import engine_factory
 
 logcontroller = None
 configuration = None
-
 
 def run():
     from aux.internals.configuration import config
@@ -39,24 +41,25 @@ def run():
 
     ## - initiate logger        
     logcontroller = LogController(config)
-            
+
     ## - Setup
-    logcontroller.summary['test'] = sys.argv[0]
     logcontroller.summary['started'] = datetime.now()
-    logcontroller.summary['testsubject'] = config.options.systems
+    logcontroller.summary['systems'] = config.options.systems
 
     scripts_as_args = [script for script in config.args if '.py' in script]
     if len(scripts_as_args) != 1:
-        logcontroller.runtime.error('Script args error')
+        logcontroller.runtime.error('Script argument missing')
         sys.exit(1)
+    logcontroller.summary['test'] = [ sys.argv[x] for x in range(0, len(sys.argv)) if '.py' in sys.argv[x] ][0]        
     ## - initiate backend
     ## -- start engine
     engine = engine_factory('reactor', config)
     engine.start()
     ## - verify systems
-    print config.options.systems        
+    config.set_systems()
+    #configuration.system
     ## - run
-    execfile(scripts_as_args[0])
+    print execfile(scripts_as_args[0])
     ## - do teardown
     engine.stop()
     logcontroller.summary['ended'] = datetime.now()
