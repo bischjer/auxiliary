@@ -1,4 +1,3 @@
-
 from urlparse import urlparse
 from aux.api import http
 
@@ -22,13 +21,12 @@ class SOAPRequest(object):
 <%s:Body>
 %s
 </%s:Body>
-</%s:Envelope>
- """ % (self.soap_ns,
-        self.soap_ns,
-        self.soap_ns,
-        self.soap_content,
-        self.soap_ns,
-        self.soap_ns)
+</%s:Envelope>""" % (self.soap_ns,
+                     self.soap_ns,
+                     self.soap_ns,
+                     self.soap_content,
+                     self.soap_ns,
+                     self.soap_ns)
 
     def send(self):
         response = http.post(self.url,
@@ -42,10 +40,18 @@ class SOAPResponse(object):
     def __init__(self, http_response=None):
         if http_response is not None:
             self.http_response = http_response
+        self.body = self.soap2json(self.http_response.body)
 
+    def soap2json(self, xml):
+        # print xml
+        
+        return xml
+        
     def __str__(self):
         return self.http_response.body
 
+
+    
 
 # class SOAP(object):
 
