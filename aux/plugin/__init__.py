@@ -23,6 +23,5 @@ def setup():
     importer = PluginImporter(['aux_device_%s', 'aux_service_%s'], __name__)
     importer.install()
 
-
 setup()
 del setup

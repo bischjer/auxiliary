@@ -149,7 +149,8 @@ class HTTP(object):
                                      80 if url.port == None else int(url.port),
                                      timeout=timeout)
         transport.connect()
-        self.logger.debug('Connected to %s:%s' % (url.hostname, url.port))
+        self.logger.debug('Connected to %s:%s' % (transport.addr[0],
+                                                  transport.addr[1]))
         return transport
     
     def is_persistent(self):

@@ -26,7 +26,7 @@ class LogController(object):
             os.makedirs(logdir)
         logging.basicConfig(level=self.log_file_level,
                             format='%(asctime)s:%(name)s:%(levelname)s:%(message)s',
-                            filename='%sall.log' % logdir,
+                            filename='%s/all.log' % logdir,
                             filemode='w')
         for loggername in ['runtime', 'protocol', 'script']:
             self.loggers[loggername] = self.__new_logger(loggername, logdir)
@@ -54,7 +54,8 @@ class LogController(object):
         fh.setLevel(self.log_file_level)
         ch = logging.StreamHandler()
         ch.setLevel(self.log_console_level)
-        formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)s:%(message)s')
+        formatter = logging.Formatter('%(asctime)s:%(name)s:%(levelname)s:%(message)s',
+                                      '%H:%M:%S')
         fh.setFormatter(formatter)
         ch.setFormatter(formatter)
         new_logger.addHandler(fh)
