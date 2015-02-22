@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    aux.pluginhook based on flask.exthook
+    aux.internals.pluginhook based on flask.exthook
     ~~~~~~~~~~~~~
 
     Redirect imports for extensions.  This module basically makes it possible
@@ -48,7 +48,7 @@ class PluginImporter(object):
         sys.meta_path[:] = [x for x in sys.meta_path if self != x] + [self]
 
     def find_module(self, fullname, path=None):
-        if fullname.startswith(self.prefix):
+        if fullname.startswith(self.prefix ):
             return self
 
     def load_module(self, fullname):

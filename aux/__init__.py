@@ -1,7 +1,7 @@
 import sys
 import os
-import device
-import plugin
+# import device
+# import plugin
 import pkg_resources
 
 def version():
@@ -64,9 +64,12 @@ def run():
     engine.stop()
     logcontroller.summary['ended'] = datetime.now()
     
-__all__ = ['device',
-           'plugin',
-           'run']
+# __all__ = ['device',
+#            'plugin',
+#            'run']
+
+__all__ = ['run']
+
 
 def exit_hook():
     if logcontroller is not None:

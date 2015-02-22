@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from base import BaseSystem
 
 #TODO: obviously this is just thrown together

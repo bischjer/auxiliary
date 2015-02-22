@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
     aux.plugin based on flask.ext
     ~~~~~~~~~
@@ -19,10 +20,9 @@
 """
 
 def setup():
-    from aux.pluginhook import PluginImporter
-    importer = PluginImporter(['aux_device_%s', 'aux_service_%s'], __name__)
+    from aux.internals.pluginhook import PluginImporter
+    importer = PluginImporter(['aux_protocol_%s'], __name__)
     importer.install()
-
 
 setup()
 del setup
