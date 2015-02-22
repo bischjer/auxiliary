@@ -4,3 +4,7 @@ class BaseSystem(object):
         self.identifier = identifier
 
         
+class BaseDevice(BaseSystem):
+    
+    def __init__(self, identifier):
+        super(BaseDevice, self).__init__(identifier)

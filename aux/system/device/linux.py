@@ -1,10 +1,11 @@
-from aux.device.base import Device
+from aux.system.device.base import BaseDevice
 from aux.authentication import BaseCredentials
-from aux.protocol.ssh import SSHClient
+from aux.api import ssh
 
-class LinuxDevice(Device):
+class LinuxDevice(BaseDevice):
     def __init__(self, identifier, **kwargs):
-        Device.__init__(self, identifier)
+        super(LinuxDevice, self).__init__(identifier)
 
-        self.ssh = SSHClient()
-        self.ssh.set_hostname(self.identifier)
+        self.ssh = ssh
+        # self.ssh.set_hostname(self.identifier)
+
