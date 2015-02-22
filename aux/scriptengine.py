@@ -1,3 +1,4 @@
+print "%s is deprecated" % __file__
 from aux.result import ResultCollector
 from aux.backend import Backend
 
