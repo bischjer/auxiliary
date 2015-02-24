@@ -21,9 +21,9 @@ class WSDLService(WebService):
         super(WSDLService, self).__init__(source, client)
         wsdl_response = http.get(self.client.get_proxy(self.source),
                                  headers=self.client.headers)
-        resource = resource.etree.XML(wsdl_response.body)
+        resource = etree.XML(wsdl_response.body)
         self.definitions = WSDLDefinitions(resource)
-        
+        print "source", self.source
         
     @classmethod
     def get_ns(cls, elmenet, namepspace):

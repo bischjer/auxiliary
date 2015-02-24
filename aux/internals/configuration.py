@@ -4,7 +4,7 @@ import json
 import logging
 from optparse import OptionParser, OptionGroup
 from aux import base_dir
-from aux.system import system_factory
+from aux.system import get_system
 
 DEFAULT_PROPERTIES_FILE = base_dir()+"/../aux.properties"
 
