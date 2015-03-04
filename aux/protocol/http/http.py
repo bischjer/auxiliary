@@ -184,6 +184,8 @@ class HTTP(object):
         headers = dict()
         body = ""
         t_lines = tail_msg.split("\r\n\r\n")
+        if len(t_lines) == 1: #Servers can respond with \r\n or \n
+            t_lines = tail_msg.split("\n\n")
         h_lines = t_lines[0].split("\n")
         line_counter = 0
         for line in h_lines:
@@ -193,12 +195,14 @@ class HTTP(object):
                 headers[re_group[0]] = re_group[1]
             else:
                 break
-        tail_msg = tail_msg[len(t_lines[0])+4:]
+        tail_msg = tail_msg[len(t_lines[0]):]
+        log.debug(headers)
         Transfer = transferFactory(headers)
         Mime = mimeFactory(headers)
         body = Mime(headers.get('Content-Disposition', None),
                     Transfer(headers, transport, tail_msg).read()).handle()
         response = HTTPResponse(status, {'headers': headers, 'body': body})
+        log.debug("mime : %s\ntrans : %s" % (Mime, Transfer))        
         # log.debug("HTTPResponse:\n%s\n", response)
         transport.close()
         return response

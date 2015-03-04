@@ -1,6 +1,7 @@
 from aux.protocol.soap.wsdl import WSDLDefinitions
 from aux.api import http
 from lxml import etree
+import os
 
 
 class WebServiceNotFoundError(Exception):pass
@@ -49,7 +50,7 @@ class WSClient(object):
     def __init__(self, referer):
         self.referer = referer
         self.__api_sources = list()
-        self.webservices = list()
+        self.webservices = dict()
         self.prefix = self.referer.PREFIX
         # self.prefix = self.service.PREFIX + self.prefix        
         self.SCHEME = self.referer.get_scheme        
@@ -75,7 +76,8 @@ class WSClient(object):
     def update_api(self):
         try:
             for source in self.get_api_sources():
-                self.webservices.append( webservice_factory(source, self) )
+                source_name = os.path.basename(source).replace('.wsdl','')
+                self.webservices[source_name] = webservice_factory(source, self)
         except WebServiceNotFoundError, e:
             print e.message
 
@@ -88,12 +90,20 @@ class WSClient(object):
         return self.credentials
 
     
-    # def __getattr__(self, attr):
-    #     definition = self.definitions.get(attr, None)
-    #     if definition is not None:
-    #         return WSDLo(self,
-    #                      self.definitions.get(attr))
-    #     else:
-    #         emsg = "%s object has no attribute '%s'" % (self.__class__.__name__,
-    #                                                     attr)
-    #         raise AttributeError(emsg)
+    def __getattr__(self, attr):
+        # print 'attr', attr
+        definition = self.webservices.get(attr, None)
+        if definition is not None:
+            print definition
+            return definition
+        else:
+            emsg = "%s object has no attribute '%s'" % (self.__class__.__name__,
+                                                        attr)
+            raise AttributeError(emsg)
+            
+        #     return WSDLo(self,
+        #                  self.definitions.get(attr))
+        # else:
+        #     emsg = "%s object has no attribute '%s'" % (self.__class__.__name__,
+        #                                                 attr)
+        #     raise AttributeError(emsg)

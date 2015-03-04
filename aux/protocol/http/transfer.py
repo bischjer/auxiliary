@@ -30,7 +30,8 @@ class NoContentController(object):
 
     def read(self):
         return self.msg
-    
+
+
 class ChunkedController(object):
 
     def __init__(self, headers, transport, msg):
