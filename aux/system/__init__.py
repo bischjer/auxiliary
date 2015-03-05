@@ -18,9 +18,15 @@ def get_system(systemjson=None, systemtype=None):
     r_filters = ['ext', '__init__.py', '__init__.pyc']
     print [r for r in os.listdir(devicemodule) if r not in r_filters]
     print [r for r in os.listdir(servicemodule) if r not in r_filters]
+
     
-    print [p for p in sys.path if 'aux_device_' in p]
-    print [p for p in sys.path if 'aux_service_' in p]
+    e_d = [p for p in sys.path if 'aux_device_' in p]
+    e_s = [p for p in sys.path if 'aux_service_' in p]
+
+    
+    print os.path.split(e_s[0])
+    extservices = [imp.find_module( os.path.split(m)[1] )[1] for m in e_s]
+    print [r for r in os.listdir(extservices[0])]
     
     
     # print sys.path
