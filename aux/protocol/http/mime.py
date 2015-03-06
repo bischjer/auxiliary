@@ -1,6 +1,8 @@
 import os
 import re
 
+#TODO: use mimeparse but keep factory pattern
+
 class DefaultController(object):
 
     def __init__(self, disposition, raw_body):
