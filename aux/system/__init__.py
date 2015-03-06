@@ -23,10 +23,11 @@ def get_system(systemjson=None, systemtype=None):
     e_d = [p for p in sys.path if 'aux_device_' in p]
     e_s = [p for p in sys.path if 'aux_service_' in p]
 
-    
-    print os.path.split(e_s[0])
-    extservices = [imp.find_module( os.path.split(m)[1] )[1] for m in e_s]
-    print [r for r in os.listdir(extservices[0])]
+    print e_d
+    print e_s
+    # print os.path.split(e_s[0])
+    # extservices = [imp.find_module( os.path.split(m)[1] )[1] for m in e_s]
+    # print [r for r in os.listdir(extservices[0])]
     
     
     # print sys.path
