@@ -7,64 +7,65 @@ import service
 
 #these imports should be kept in a system pool and only be instantiated once.
 
+class SystemNotFoundException(Exception):pass
+
+def scan_files(files, systemtype):
+    for f in files:
+        fp = open(f,'r')
+        if systemtype in fp.read():
+            return f
+    return None
+
 def find_systemtype(systemtype):
     ## NEED TO LOOKUP IN system.device and system.service and aux_device and aux_service
-    devicemodule = os.path.dirname(device.__file__)
-    servicemodule = os.path.dirname(service.__file__)
-
-    # r_filters = ['ext', '__init__.py', '__init__.pyc']
-    print systemtype
-    print [r for r in os.listdir(devicemodule) if r]
-    print [r for r in os.listdir(servicemodule) if r]
+    ## this implementation is hack and also needs a cache file for aux devices and services so that we only need to scan plugins
     
-    # e_d = [p for p in sys.path if 'aux_device_' in p]
+    foundfile = None
+    tmp_filter = ['ext']
 
-    #find service
-    e_s = [p for p in sys.path if 'aux_service_' in p]
-    # print e_d
-    # print e_s
 
-    print e_s
-    
-    for s in e_s:
-        # print os.path.split(s)
+    if foundfile is None:
+        modulepath = os.path.dirname(device.__file__) #Search through devices
+        files = [os.path.join(modulepath,r) for r in os.listdir(os.path.dirname(device.__file__)) if r not in tmp_filter]
+        foundfile = scan_files(files, systemtype)
+
+    if foundfile is None:
+        modulepath = os.path.dirname(service.__file__) #Search through services
+        files = [os.path.join(modulepath,r) for r in os.listdir(os.path.dirname(service.__file__)) if r not in tmp_filter]
+        foundfile = scan_files(files, systemtype)    
+
+    if foundfile is None:
+        for s in [p for p in sys.path if 'aux_device_' in p]: #Search through plugin devices
+            modulepath = imp.find_module(os.path.split(s)[1])[1]
+            files = [os.path.join(modulepath,r) for r in os.listdir(modulepath)]
+            foundfile = scan_files(files, systemtype)        
+
+    if foundfile is None:
+        for s in [p for p in sys.path if 'aux_service_' in p]: #Search through plugin services
+            modulepath = imp.find_module(os.path.split(s)[1])[1]
+            files = [os.path.join(modulepath,r) for r in os.listdir(modulepath)]
+            foundfile = scan_files(files, systemtype)        
         
-        modulepath = imp.find_module(os.path.split(s)[1])[1]
-        # extservices = [imp.find_module( os.path.split(m)[1] )[1] for m in e_s]
-
-        # print modulepath
-        files = [os.path.join(modulepath,r) for r in os.listdir(modulepath)]
-        foundfile = None
-        for f in files:
-            fp = open(f,'r')
-            if systemtype in fp.read():
-                foundfile = f
-                break
-
-        print 'foundfile', foundfile
+    if foundfile is not None:
+        print foundfile
+        module, fx = os.path.split(foundfile)
+        mod1 = os.path.split(module)[1]
+        fil1 = fx.split('.')[0]
+        # print '*'*20
+        # print systemtype
+        # print foundfile
+        # print module
+        # print mod1
+        # print '*'*20            
+        if 'aux_' in module:
+            modlist = mod1.split('_')
+            modlist.insert(1,'system')
+            modlist.insert(3, 'ext')
             
-        if foundfile is not None:
-            # print foundfile
-            module, fx = os.path.split(foundfile)
-            mod1 = os.path.split(module)[1]
-            fil1 = fx.split('.')[0]
-            print '*'*20
-            print foundfile
-            print module
-            print mod1
-            print '*'*20            
-            if 'aux_' in module:
-                modlist = mod1.split('_')
-                modlist.insert(1,'system')
-                modlist.insert(3, 'ext')            
-            # modlist.append(fil1)
-            # print ".".join(modlist)
-            # print fil1
-            # print '*'*20            
-            # print imp.find_module(mod1)
+        prt = imp.load_module(systemtype, open(foundfile), module, ('','',5))
+        return eval("prt.%s" % systemtype)
+    raise SystemNotFoundException
 
-            prt = imp.load_module(systemtype, open(foundfile), module, ('','',5))
-            return eval("prt.%s" % systemtype)
 
 def get_system(systemjson):
     '''
@@ -85,10 +86,9 @@ def get_system(systemjson):
         else:
             #doprobeoftype
             #TODO: this is a bit complex, the probe should be in systemdefinition
-            return None
+            raise NotImplementedError
     else:
         if systemjson.get('systemtype') is not None:
-            return None
-
+            raise NotImplementedError            
     
     return None
