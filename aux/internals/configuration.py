@@ -3,7 +3,7 @@ import os
 import json
 import logging
 from optparse import OptionParser, OptionGroup
-from aux import base_dir
+from aux import base_dir, systems_pool
 from aux.system import get_system
 
 DEFAULT_PROPERTIES_FILE = base_dir()+"/../aux.properties"
@@ -119,15 +119,17 @@ class Configuration(object):
     def set_systems(self):
         #populate pool of resources
         system_json = None
+
         if self.options.systems is not None:
             if '.json' in self.options.systems:
                 url = os.path.abspath(self.options.systems)
-                fp = open(url)
-                system_json = json.load(fp.read())
+                fp = open(url, 'r')
+                system_json = json.loads(fp.read())
+                fp.close()
             else:
-                pass
-        # print self.options.systems
-        # return [system_factory(system) for system in system_json]
+                system_json = json.loads(self.options.systems)
+        for system in system_json:
+            systems_pool.append( system )
         
             
 config = Configuration() if 'aux' in sys.argv[0] else None

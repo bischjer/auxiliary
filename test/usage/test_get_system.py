@@ -22,10 +22,11 @@ from aux.system import get_system
 # print ssp.rest.listPackageTypes({})
 
 
-systemjson = {"hostname": "192.168.0.130",
-              "systemtype": "LinuxDevice",
-              "username": "rduser",
-              "password": "yggdrasil"}
-vmserver = get_system(systemjson)
+# systemjson = {"hostname": "192.168.0.130",
+#               "systemtype": "LinuxDevice",
+#               "username": "rduser",
+#               "password": "yggdrasil"}
+# vmserver = get_system(systemjson)
+vmserver = get_system({"systemtype": "LinuxDevice"})
 
 print vmserver

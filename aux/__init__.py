@@ -22,11 +22,13 @@ from aux.engine import engine_factory
 
 logcontroller = None
 configuration = None
+systems_pool = []
 
 def run():
     from aux.internals.configuration import config
     global configuration 
     global logcontroller
+    global systems_pool
     configuration = config
     if config.options.plugincreator is not None:
         plugin_creator_routine(config.options.plugincreator,
@@ -57,6 +59,7 @@ def run():
     engine.start()
     ## - verify systems
     config.set_systems()
+    print 'sp', systems_pool
     #configuration.system
     ## - run
     print execfile(scripts_as_args[0])
