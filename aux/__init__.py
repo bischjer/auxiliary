@@ -59,7 +59,6 @@ def run():
     engine.start()
     ## - verify systems
     config.set_systems()
-    print 'sp', systems_pool
     #configuration.system
     ## - run
     print execfile(scripts_as_args[0])

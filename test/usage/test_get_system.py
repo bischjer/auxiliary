@@ -30,3 +30,5 @@ from aux.system import get_system
 vmserver = get_system({"systemtype": "LinuxDevice"})
 
 print vmserver
+print dir(vmserver)
+print vmserver.identifier

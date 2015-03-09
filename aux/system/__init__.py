@@ -4,6 +4,7 @@ import os
 import imp
 import device
 import service
+from aux import systems_pool
 
 #these imports should be kept in a system pool and only be instantiated once.
 
@@ -22,7 +23,6 @@ def find_systemtype(systemtype):
     
     foundfile = None
     tmp_filter = ['ext']
-
 
     if foundfile is None:
         modulepath = os.path.dirname(device.__file__) #Search through devices
@@ -82,13 +82,17 @@ def get_system(systemjson):
         if systemjson.get('systemtype') is not None:
             hostname = systemjson.get('hostname')
             systemtype = systemjson.get('systemtype')
-            return find_systemtype(systemtype)(systemjson.get('hostname'))
+            return find_systemtype(systemtype)(hostname)
         else:
             #doprobeoftype
             #TODO: this is a bit complex, the probe should be in systemdefinition
             raise NotImplementedError
     else:
         if systemjson.get('systemtype') is not None:
-            raise NotImplementedError            
-    
+            for system in systems_pool:
+                if systemjson.get('systemtype') == system.get('systemtype'):
+                    hostname = system.get('hostname')
+                    systemtype = system.get('systemtype')                    
+                    return find_systemtype(systemtype)(hostname)
+                    
     return None
